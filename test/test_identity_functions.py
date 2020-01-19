@@ -3,7 +3,7 @@ import unittest
 from numpy import ndarray, allclose
 from numpy.random import randn
 
-from optmlstat.functions.identity_function import IdentityFunction
+from functions.identity_function import IdentityFunction
 
 
 class TestIdentityFunction(unittest.TestCase):

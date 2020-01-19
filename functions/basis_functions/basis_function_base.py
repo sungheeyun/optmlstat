@@ -1,7 +1,9 @@
-from optmlstat.functions.function_base import FunctionBase
+from abc import ABC
+
+from functions.function_base import FunctionBase
 
 
-class BasisFunctionBase(FunctionBase):
+class BasisFunctionBase(FunctionBase, ABC):
     """
     Basis function for statistical learning.
     """

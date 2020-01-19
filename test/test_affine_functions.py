@@ -3,7 +3,7 @@ import unittest
 from numpy import ndarray, array, eye, arange, allclose
 from numpy.random import randn
 
-from optmlstat.functions.affine_function import AffineFunction
+from functions.affine_function import AffineFunction
 
 
 class TestAffineFunctions(unittest.TestCase):

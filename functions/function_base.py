@@ -9,11 +9,15 @@ class FunctionBase(ABC):
     Base class for function classes.
     """
 
+    def __init__(self, num_inputs: Optional[int] = None, num_outputs: Optional[int] = None):
+        self.num_inputs: Optional[int] = num_inputs
+        self.num_outputs: Optional[int] = num_outputs
+
     def get_num_inputs(self) -> Optional[int]:
-        return None
+        return self.num_inputs
 
     def get_num_outputs(self) -> Optional[int]:
-        return None
+        return self.num_outputs
 
     def check_x_array_dimension(self, x_array_2d: ndarray) -> None:
         if self.get_num_inputs() is not None:

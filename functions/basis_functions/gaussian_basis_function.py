@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 from numpy import ndarray, array, vstack, zeros, exp
 from numpy.linalg import inv
 
-from optmlstat.functions.basis_functions.basis_function_base import BasisFunctionBase
+from functions.basis_functions.basis_function_base import BasisFunctionBase
 
 
 class GaussianBasisFunction(BasisFunctionBase):
@@ -48,8 +48,8 @@ class GaussianBasisFunction(BasisFunctionBase):
             assert covariance_list[0].shape == covariance.shape, (covariance_list[0].shape, covariance.shape)
 
         self.covariance_list: List[ndarray] = covariance_list
-        self.num_inputs: int = self.covariance_list[0].shape[0]
-        self.num_outputs: int = len(self.covariance_list)
+        super(GaussianBasisFunction, self).__init__(self.covariance_list[0].shape[0], len(self.covariance_list))
+
         self.mean_array_2d: ndarray = mean_array_2d
 
         if self.mean_array_2d is None:
@@ -60,12 +60,6 @@ class GaussianBasisFunction(BasisFunctionBase):
         self.inverse_covariance_list: List[ndarray] = self.covariance_list
         if not inverse:
             self.inverse_covariance_list = [inv(covariance) for covariance in self.covariance_list]
-
-    def get_num_inputs(self) -> Optional[int]:
-        return self.num_inputs
-
-    def get_num_outputs(self) -> Optional[int]:
-        return self.num_outputs
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         y_array_1d_list: List[ndarray] = list()

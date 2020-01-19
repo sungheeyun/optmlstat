@@ -7,7 +7,7 @@ from freq_used.plotting import get_figure
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
-from optmlstat.functions.basis_functions.gaussian_basis_function import GaussianBasisFunction
+from functions.basis_functions.gaussian_basis_function import GaussianBasisFunction
 
 logger: Logger = getLogger()
 

@@ -8,7 +8,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib import pyplot as plt
 
-from optmlstat.functions.unit_functions import sigmoid
+from functions.unit_functions import sigmoid
 
 
 class TestUnitFunctions(unittest.TestCase):

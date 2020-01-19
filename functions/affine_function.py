@@ -1,8 +1,6 @@
-from typing import Optional
-
 from numpy import ndarray
 
-from optmlstat.functions.function_base import FunctionBase
+from functions.function_base import FunctionBase
 
 
 class AffineFunction(FunctionBase):
@@ -10,19 +8,15 @@ class AffineFunction(FunctionBase):
     Affine function.
     """
 
-    def __init__(self, slope_array: ndarray, intercept_array: ndarray) -> None:
-        assert slope_array.ndim == 2, slope_array.ndim
-        assert intercept_array.ndim == 1, intercept_array.ndim
-        assert slope_array.shape[1] == intercept_array.size, (slope_array.shape, intercept_array.shape)
+    def __init__(self, slope_array_2d: ndarray, intercept_array_1d: ndarray) -> None:
+        assert slope_array_2d.ndim == 2, slope_array_2d.ndim
+        assert intercept_array_1d.ndim == 1, intercept_array_1d.ndim
+        assert slope_array_2d.shape[1] == intercept_array_1d.size, (slope_array_2d.shape, intercept_array_1d.shape)
 
-        self.slope_array: ndarray = slope_array.copy()
-        self.intercept_array: ndarray = intercept_array
+        self.slope_array_2d: ndarray = slope_array_2d.copy()
+        self.intercept_array_1d: ndarray = intercept_array_1d.copy()
 
-    def get_num_outputs(self) -> Optional[int]:
-        return self.slope_array.shape[1]
-
-    def get_num_inputs(self) -> Optional[int]:
-        return self.slope_array.shape[0]
+        super(AffineFunction, self).__init__(self.slope_array_2d.shape[0], self.slope_array_2d.shape[1])
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
-        return x_array_2d.dot(self.slope_array) + self.intercept_array
+        return x_array_2d.dot(self.slope_array_2d) + self.intercept_array_1d

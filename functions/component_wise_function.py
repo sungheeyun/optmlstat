@@ -2,7 +2,7 @@ from typing import Callable, Iterable, Union, List, Optional
 
 from numpy import ndarray, vectorize, vstack
 
-from optmlstat.functions.function_base import FunctionBase
+from functions.function_base import FunctionBase
 
 
 class ComponentWiseFunction(FunctionBase):
@@ -12,31 +12,26 @@ class ComponentWiseFunction(FunctionBase):
     f(x) = [f1(x1) f2(x2) ... fn(xn)]^T
     """
     def __init__(self, ufcn_or_list: Union[Callable, Iterable]) -> None:
-        self.ufcn: Optional[Callable] = None
-        self.ufcn_list: Optional[List[Callable]] = None
-        self.vfcn: Optional[vectorize] = None
-        self.vfcn_list: Optional[List[vectorize]] = None
+        self.unit_fcn: Optional[Callable] = None
+        self.unit_fcn_list: Optional[List[Callable]] = None
+        self.vectorize_fcn: Optional[vectorize] = None
+        self.vectorize_fcn_list: Optional[List[vectorize]] = None
 
         if isinstance(ufcn_or_list, Callable):
-            self.ufcn = ufcn_or_list
-            self.vfcn = vectorize(self.ufcn)
+            self.unit_fcn = ufcn_or_list
+            self.vectorize_fcn = vectorize(self.unit_fcn)
         elif isinstance(ufcn_or_list, Iterable):
-            self.ufcn_list = list(ufcn_or_list)
-            self.vfcn_list = [vectorize(ufcn) for ufcn in self.ufcn_list]
+            self.unit_fcn_list = list(ufcn_or_list)
+            self.vectorize_fcn_list = [vectorize(ufcn) for ufcn in self.unit_fcn_list]
         else:
             assert False, ufcn_or_list.__class__
 
-    def get_num_inputs(self) -> Optional[int]:
-        if self.ufcn_list is None:
-            return None
-        else:
-            return len(self.ufcn_list)
+        num_inputs: Optional[int] = None if self.unit_fcn_list is None else len(self.unit_fcn_list)
 
-    def get_num_outputs(self) -> Optional[int]:
-        return self.get_num_inputs()
+        super(ComponentWiseFunction, self).__init__(num_inputs, num_inputs)
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
-        if self.vfcn is None:
-            return vstack([self.vfcn_list[idx](x_array_1d) for idx, x_array_1d in enumerate(x_array_2d.T)]).T
+        if self.vectorize_fcn is None:
+            return vstack([self.vectorize_fcn_list[idx](x_array_1d) for idx, x_array_1d in enumerate(x_array_2d.T)]).T
         else:
-            return self.vfcn(x_array_2d)
+            return self.vectorize_fcn(x_array_2d)

@@ -4,8 +4,8 @@ from typing import List, Callable
 from numpy import ndarray, allclose, exp, arctan
 from numpy.random import randn
 
-from optmlstat.functions.unit_functions import sigmoid
-from optmlstat.functions.component_wise_function import ComponentWiseFunction
+from functions.unit_functions import sigmoid
+from functions.component_wise_function import ComponentWiseFunction
 
 
 class TestComponentWiseFunctions(unittest.TestCase):
