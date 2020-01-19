@@ -5,7 +5,7 @@ from numpy import ndarray, array, newaxis, allclose, moveaxis
 from numpy.random import randn
 from freq_used.logging import set_logging_basic_config
 
-from functions.quadratic_function import QuadraticFunction
+from functions.basic_functions.quadratic_function import QuadraticFunction
 
 
 logger: Logger = getLogger()

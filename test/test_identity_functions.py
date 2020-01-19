@@ -3,7 +3,7 @@ import unittest
 from numpy import ndarray, allclose
 from numpy.random import randn
 
-from functions.identity_function import IdentityFunction
+from functions.basic_functions.identity_function import IdentityFunction
 
 
 class TestIdentityFunction(unittest.TestCase):
@@ -25,5 +25,5 @@ class TestIdentityFunction(unittest.TestCase):
         self.assertIsNone(identity_function.get_num_outputs())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

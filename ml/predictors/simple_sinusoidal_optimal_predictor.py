@@ -1,6 +1,6 @@
 from numpy.core._multiarray_umath import ndarray, sin, pi
 
-from optmlstat.ml.predictors.predictor_base import PredictorBase
+from ml.predictors.predictor_base import PredictorBase
 
 
 class SimpleSinusoidalOptimalPredictor(PredictorBase):

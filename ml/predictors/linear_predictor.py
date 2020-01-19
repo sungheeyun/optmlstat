@@ -1,13 +1,14 @@
 from numpy import ndarray, hstack, ones
 
-from optmlstat.functions.basis_functions.basis_function_base import BasisFunctionBase
-from optmlstat.ml.predictors.predictor_base import PredictorBase
+from functions.basis_functions.basis_function_base import BasisFunctionBase
+from ml.predictors.predictor_base import PredictorBase
 
 
 class LinearPredictor(PredictorBase):
     """
     Linear predictor with basis functions.
     """
+
     def __init__(self, coef: ndarray, basis_function: BasisFunctionBase) -> None:
         self.coef: ndarray = coef
         self.basis_function: BasisFunctionBase = basis_function

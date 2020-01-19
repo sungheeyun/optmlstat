@@ -2,7 +2,7 @@ from typing import Callable, Iterable, Union, List, Optional
 
 from numpy import ndarray, vectorize, vstack
 
-from functions.function_base import FunctionBase
+from functions.basic_functions.function_base import FunctionBase
 
 
 class ComponentWiseFunction(FunctionBase):
@@ -11,6 +11,7 @@ class ComponentWiseFunction(FunctionBase):
 
     f(x) = [f1(x1) f2(x2) ... fn(xn)]^T
     """
+
     def __init__(self, unit_fcn_or_list: Union[Callable, Iterable]) -> None:
         self.unit_fcn: Optional[Callable] = None
         self.unit_fcn_list: Optional[List[Callable]] = None

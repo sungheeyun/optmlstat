@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 from numpy import ndarray
 
-from optmlstat.ml.modeling.modeling_result import ModelingResult
-from optmlstat.ml.predictors.predictor_base import PredictorBase
+from ml.modeling.modeling_result import ModelingResult
+from ml.predictors.predictor_base import PredictorBase
 
 
 class ModelerBase(ABC):
@@ -11,6 +11,7 @@ class ModelerBase(ABC):
     Base class for modelers
 
     """
+
     @abstractmethod
     def train(self, x_array_2d: ndarray, y_array_2d, **kwargs) -> ModelingResult:
         """

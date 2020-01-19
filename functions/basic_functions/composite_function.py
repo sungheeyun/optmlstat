@@ -2,7 +2,7 @@ from typing import List
 
 from numpy import ndarray
 
-from functions.function_base import FunctionBase
+from functions.basic_functions.function_base import FunctionBase
 
 
 class CompositeFunction(FunctionBase):

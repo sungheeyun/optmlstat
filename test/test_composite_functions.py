@@ -3,8 +3,8 @@ import unittest
 from numpy import ndarray, allclose
 from numpy.random import randn
 
-from functions.composite_function import CompositeFunction
-from functions.affine_function import AffineFunction
+from functions.basic_functions.composite_function import CompositeFunction
+from functions.basic_functions.affine_function import AffineFunction
 
 
 class TestCompositeFunctions(unittest.TestCase):

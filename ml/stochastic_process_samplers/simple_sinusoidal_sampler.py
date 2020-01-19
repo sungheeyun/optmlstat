@@ -3,9 +3,9 @@ from typing import Tuple
 from numpy import ndarray, pi, sin, sqrt
 from numpy.random import rand, randn
 
-from optmlstat.ml.stochastic_process_samplers.stochastic_process_sampler_base import StochasticProcessSamplerBase
-from optmlstat.ml.predictors.predictor_base import PredictorBase
-from optmlstat.ml.predictors.simple_sinusoidal_optimal_predictor import SimpleSinusoidalOptimalPredictor
+from ml.stochastic_process_samplers.stochastic_process_sampler_base import StochasticProcessSamplerBase
+from ml.predictors.predictor_base import PredictorBase
+from ml.predictors.simple_sinusoidal_optimal_predictor import SimpleSinusoidalOptimalPredictor
 
 
 class SimpleSinusoidalSampler(StochasticProcessSamplerBase):
@@ -16,6 +16,7 @@ class SimpleSinusoidalSampler(StochasticProcessSamplerBase):
 
     where X is uniformly distributed in [0, 1] and V is Gaussian with zero mean.
     """
+
     def __init__(self, noise_variance: float) -> None:
         assert noise_variance >= 0.0, noise_variance
 

@@ -8,24 +8,24 @@ from matplotlib.axes import Axes
 from freq_used.logging import set_logging_basic_config
 from freq_used.plotting import get_figure
 
-from optmlstat.ml.stochastic_process_samplers.stochastic_process_sampler_base import StochasticProcessSamplerBase
-from optmlstat.ml.stochastic_process_samplers.simple_sinusoidal_sampler import SimpleSinusoidalSampler
-from optmlstat.ml.modeling.linear_modeler import LinearModeler
-from optmlstat.ml.modeling.modeler_base import ModelerBase
-from optmlstat.ml.predictors.predictor_base import PredictorBase
-from optmlstat.functions.basis_functions.gaussian_basis_function import GaussianBasisFunction
-from optmlstat.plotting import plot_1d_data
-from optmlstat.ml.measure import mean_sum_squares
+from ml.stochastic_process_samplers.stochastic_process_sampler_base import StochasticProcessSamplerBase
+from ml.stochastic_process_samplers.simple_sinusoidal_sampler import SimpleSinusoidalSampler
+from ml.modeling.linear_modeler import LinearModeler
+from ml.modeling.modeler_base import ModelerBase
+from ml.predictors.predictor_base import PredictorBase
+from functions.basis_functions.gaussian_basis_function import GaussianBasisFunction
+from plotting.plotting import plot_1d_data
+from ml.measure import mean_sum_squares
 
 
 logger: Logger = getLogger()
 
 
 def variance_bias_analysis(
-        stochastic_process_sampler: StochasticProcessSamplerBase,
-        modeler: ModelerBase,
-        x_array_2d_for_meas: ndarray,
-        draw: bool = True
+    stochastic_process_sampler: StochasticProcessSamplerBase,
+    modeler: ModelerBase,
+    x_array_2d_for_meas: ndarray,
+    draw: bool = True,
 ) -> Tuple[float, float, float, float]:
 
     optimal_predictor: PredictorBase = stochastic_process_sampler.get_optimal_predictor()
@@ -68,13 +68,13 @@ def variance_bias_analysis(
 
         ax1, ax2 = figure.get_axes()
 
-        plot_1d_data(ax1, x_train_array_2d, y_train_array_2d, 'o', label="random samples")
-        plot_1d_data(ax1, x_array_2d_for_meas, y_array_2d_optimal, '-', label="optimal prediction")
-        plot_1d_data(ax1, x_array_2d_for_meas, y_array_2d_sample_mean, '-', label="prediction mean")
+        plot_1d_data(ax1, x_train_array_2d, y_train_array_2d, "o", label="random samples")
+        plot_1d_data(ax1, x_array_2d_for_meas, y_array_2d_optimal, "-", label="optimal prediction")
+        plot_1d_data(ax1, x_array_2d_for_meas, y_array_2d_sample_mean, "-", label="prediction mean")
         ax1.legend()
 
         for idx in range(min(y_array_3d_prediction.shape[2], 20)):
-            plot_1d_data(ax2, x_array_2d_for_meas, y_array_3d_prediction[:, :, idx], 'r-')
+            plot_1d_data(ax2, x_array_2d_for_meas, y_array_3d_prediction[:, :, idx], "r-")
 
         for ax in figure.get_axes():
             ax.set_ylim([-1.5, 1.5])
@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     set_logging_basic_config(__file__)
 
-    noise_variance: float = .01
+    noise_variance: float = 0.01
     training_dataset_size: int = 25
     test_dataset_size: int = 25
     num_basis_functions: int = 24
@@ -110,8 +110,7 @@ if __name__ == "__main__":
     # basis functions
 
     gaussian_basis_function: GaussianBasisFunction = GaussianBasisFunction(
-        [power(gaussian_basis_width, 2.0)] * basis_function_center_array.size,
-        array([basis_function_center_array]).T
+        [power(gaussian_basis_width, 2.0)] * basis_function_center_array.size, array([basis_function_center_array]).T
     )
 
     res_list: List[tuple] = list()
@@ -133,5 +132,5 @@ if __name__ == "__main__":
     fig, ax = plt.subplots()
     ax.plot(log_reg_coef_array, data_array)
     ax.plot(log_reg_coef_array, data_array[:, :-1].sum(axis=1))
-    ax.legend(['noise', 'bias', 'variance', 'test_error', 'noise + bias + variance'])
+    ax.legend(["noise", "bias", "variance", "test_error", "noise + bias + variance"])
     fig.show()

@@ -5,7 +5,7 @@ from numpy import ndarray, allclose, exp, arctan
 from numpy.random import randn
 
 from functions.unit_functions import sigmoid
-from functions.component_wise_function import ComponentWiseFunction
+from functions.basic_functions.component_wise_function import ComponentWiseFunction
 
 
 class TestComponentWiseFunctions(unittest.TestCase):
@@ -56,5 +56,5 @@ class TestComponentWiseFunctions(unittest.TestCase):
             self.assertTrue(allclose(y_array_2d[:, idx], ufcn(x_array_2d[:, idx])))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

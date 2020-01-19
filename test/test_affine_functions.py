@@ -3,7 +3,7 @@ import unittest
 from numpy import ndarray, array, eye, arange, allclose
 from numpy.random import randn
 
-from functions.affine_function import AffineFunction
+from functions.basic_functions.affine_function import AffineFunction
 
 
 class TestAffineFunctions(unittest.TestCase):
@@ -24,5 +24,5 @@ class TestAffineFunctions(unittest.TestCase):
         self.assertTrue(allclose(y_array_2d, true_y_array_2d))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

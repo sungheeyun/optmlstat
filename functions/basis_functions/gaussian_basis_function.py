@@ -14,10 +14,10 @@ class GaussianBasisFunction(BasisFunctionBase):
     """
 
     def __init__(
-            self,
-            covariance_list: Union[List[Union[ndarray, float, int]], ndarray, float, int],
-            mean_array_2d: Optional[ndarray] = None,
-            inverse: bool = False
+        self,
+        covariance_list: Union[List[Union[ndarray, float, int]], ndarray, float, int],
+        mean_array_2d: Optional[ndarray] = None,
+        inverse: bool = False,
     ) -> None:
         """
         Parameters
@@ -66,6 +66,6 @@ class GaussianBasisFunction(BasisFunctionBase):
 
         for idx, inverse_covariance in enumerate(self.inverse_covariance_list):
             x_array_2d_ = x_array_2d - self.mean_array_2d[idx, :]
-            y_array_1d_list.append(exp(- 0.5 * (x_array_2d_.dot(inverse_covariance) * x_array_2d_).sum(axis=1)))
+            y_array_1d_list.append(exp(-0.5 * (x_array_2d_.dot(inverse_covariance) * x_array_2d_).sum(axis=1)))
 
         return vstack(y_array_1d_list).T

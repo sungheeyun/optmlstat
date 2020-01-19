@@ -4,12 +4,12 @@ from copy import copy
 from numpy import ndarray, hstack, ones, sqrt, eye, vstack, zeros
 from numpy.linalg import lstsq
 
-from optmlstat.functions.identity_function import IdentityFunction
-from optmlstat.functions.basis_functions.basis_function_base import BasisFunctionBase
-from optmlstat.ml.modeling.modeler_base import ModelerBase
-from optmlstat.ml.modeling.modeling_result import ModelingResult
-from optmlstat.ml.predictors.predictor_base import PredictorBase
-from optmlstat.ml.predictors.linear_predictor import LinearPredictor
+from functions.basic_functions.identity_function import IdentityFunction
+from functions.basis_functions.basis_function_base import BasisFunctionBase
+from ml.modeling.modeler_base import ModelerBase
+from ml.modeling.modeling_result import ModelingResult
+from ml.predictors.predictor_base import PredictorBase
+from ml.predictors.linear_predictor import LinearPredictor
 
 
 class LinearModeler(ModelerBase):

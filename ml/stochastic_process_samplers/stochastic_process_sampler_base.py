@@ -3,11 +3,10 @@ from typing import Tuple
 
 from numpy import ndarray
 
-from optmlstat.ml.predictors.predictor_base import PredictorBase
+from ml.predictors.predictor_base import PredictorBase
 
 
 class StochasticProcessSamplerBase(ABC):
-
     @abstractmethod
     def get_number_inputs(self) -> int:
         pass

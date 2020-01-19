@@ -20,9 +20,7 @@ class TestBasisFunctions(unittest.TestCase):
     def test_gaussian_basis_functions(self):
         num_outputs: int = 10
         gaussian_basis_function: GaussianBasisFunction = GaussianBasisFunction(
-            [4] * num_outputs,
-            array([linspace(-3, 3, num_outputs)]).T,
-            inverse=True
+            [4] * num_outputs, array([linspace(-3, 3, num_outputs)]).T, inverse=True
         )
         logger.info(gaussian_basis_function)
         logger.info(gaussian_basis_function.covariance_list)
@@ -31,7 +29,7 @@ class TestBasisFunctions(unittest.TestCase):
 
         N: int = 100
 
-        x_array_2d: ndarray = array([linspace(- 10.0, 10.0, N)]).T
+        x_array_2d: ndarray = array([linspace(-10.0, 10.0, N)]).T
         y_array_2d: ndarray = gaussian_basis_function.get_y_values_2d(x_array_2d)
 
         fig: Figure = get_figure(1, 1)
@@ -43,5 +41,5 @@ class TestBasisFunctions(unittest.TestCase):
         self.assertTrue(True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

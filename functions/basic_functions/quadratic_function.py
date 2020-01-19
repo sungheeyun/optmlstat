@@ -3,7 +3,7 @@ from logging import Logger, getLogger
 
 from numpy import ndarray
 
-from functions.function_base import FunctionBase
+from functions.basic_functions.function_base import FunctionBase
 
 
 logger: Logger = getLogger()
