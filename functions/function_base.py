@@ -27,10 +27,9 @@ class FunctionBase(ABC):
         if self.get_num_outputs() is not None:
             assert y_array_2d.shape[1] == self.get_num_outputs()
 
-    def get_y_values_1d(self, x_array_1d: ndarray) -> ndarray:
+    def get_y_values_2d_from_x_values_1d(self, x_array_1d: ndarray) -> ndarray:
         x_array_2d: ndarray = array([x_array_1d]).T
-        y_array_2d: ndarray = self.get_y_values_2d(x_array_2d)
-        return y_array_2d.ravel()
+        return self.get_y_values_2d(x_array_2d)
 
     @abstractmethod
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
