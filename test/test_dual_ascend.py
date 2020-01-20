@@ -50,7 +50,7 @@ class TestDualAscend(unittest.TestCase):
         logger.debug(opt_sol.shape)
         logger.debug(opt_sol.__class__)
 
-        opt_x: ndarray = opt_sol[:opt_prob.domain_dim]
+        opt_x: ndarray = opt_sol[: opt_prob.domain_dim]
         opt_y: ndarray = opt_sol[opt_prob.domain_dim:]
 
         learning_rate: float = 0.1
