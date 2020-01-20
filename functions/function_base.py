@@ -1,12 +1,14 @@
-from abc import ABC, abstractmethod
-from typing import Optional, Tuple
+from abc import abstractmethod
+from typing import Optional, Tuple, Union
 
 from numpy import ndarray, array
 
+from basic_modueles.class_base import OptMLStatClassBase
 
-class FunctionBase(ABC):
+
+class FunctionBase(OptMLStatClassBase):
     """
-    Base class for function classes.
+    The base class for function classes.
     """
 
     def __init__(self, num_inputs: Optional[int] = None, num_outputs: Optional[int] = None):
@@ -58,3 +60,6 @@ class FunctionBase(ABC):
           N-by-m array representing y.
         """
         pass
+
+    def to_json_data(self) -> Union[int, float, str, dict, list]:
+        return dict(class_category="FunctionBase")
