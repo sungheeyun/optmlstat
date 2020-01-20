@@ -3,10 +3,10 @@ from typing import List, Optional, Union
 from numpy import ndarray, array, vstack, zeros, exp
 from numpy.linalg import inv
 
-from functions.basis_functions.basis_function_base import BasisFunctionBase
+from functions.function_base import FunctionBase
 
 
-class GaussianBasisFunction(BasisFunctionBase):
+class GaussianBasisFunction(FunctionBase):
     """
     Gaussian basis function.
     We do not multiply the scaling term as in Gaussian probability density function (PDF)

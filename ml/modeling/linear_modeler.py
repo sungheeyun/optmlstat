@@ -23,9 +23,12 @@ class LinearModeler(ModelerBase):
         :param reg_coef:
          The coefficient for the 2-norm
         """
-        self.basis_function: BasisFunctionBase = basis_function
-        if self.basis_function is None:
+        self.basis_function: BasisFunctionBase
+        if basis_function is None:
             self.basis_function = IdentityFunction()
+        else:
+            self.basis_function = basis_function
+
         self.reg_coef: float = reg_coef
 
         self.coef: ndarray = None

@@ -55,6 +55,9 @@ class QuadraticFunction(FunctionBase):
         super(QuadraticFunction, self).__init__(self.slope_array_2d.shape[0], self.slope_array_2d.shape[1])
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
+        logger.debug(x_array_2d.shape)
+        logger.debug(self.slope_array_2d.shape)
+        logger.debug(self.intercept_array_1d.shape)
         y_array_2d = x_array_2d.dot(self.slope_array_2d) + self.intercept_array_1d
 
         if self.quad_array_3d is not None:

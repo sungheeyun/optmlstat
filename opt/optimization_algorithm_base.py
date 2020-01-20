@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Union
 from abc import ABC, abstractmethod
 
 from numpy import ndarray
@@ -14,7 +14,7 @@ class OptimizationAlgorithmBase(ABC):
 
     @abstractmethod
     def solve(
-        self, opt_prob: OptimizationProblem, initial_point_or_list: Optional[ndarray, List[ndarray]]
+        self, opt_prob: OptimizationProblem, initial_point_or_list: Optional[Union[ndarray, List[ndarray]]]
     ) -> OptimizationResult:
         """
         Solve the optimization problem.
