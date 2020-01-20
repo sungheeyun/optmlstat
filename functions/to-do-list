@@ -1,1 +1,2 @@
 TODO consider making sure that `FunctionBase.is_convex_function()` returns correct value for all function classes
+TODO make consistent the argument orders of AffineFunction and QuadraticFunction

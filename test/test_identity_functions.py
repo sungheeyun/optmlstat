@@ -21,8 +21,8 @@ class TestIdentityFunction(unittest.TestCase):
     def test_num_dimensions(self):
         identity_function: IdentityFunction = IdentityFunction()
 
-        self.assertIsNone(identity_function.get_num_inputs())
-        self.assertIsNone(identity_function.get_num_outputs())
+        self.assertIsNone(identity_function.num_inputs)
+        self.assertIsNone(identity_function.num_outputs)
 
 
 if __name__ == "__main__":

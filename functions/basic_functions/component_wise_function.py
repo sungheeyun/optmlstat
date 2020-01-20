@@ -37,4 +37,4 @@ class ComponentWiseFunction(FunctionBase):
         elif self.vectorize_fcn is not None:
             return self.vectorize_fcn(x_array_2d)
 
-        return ndarray((self.get_num_inputs(), self.get_num_outputs()))
+        return ndarray((self.num_inputs, self.num_outputs))

@@ -1,13 +1,14 @@
+from abc import abstractmethod
 from typing import Optional, List, Union
-from abc import ABC, abstractmethod
 
 from numpy import ndarray
 
+from basic_modueles.class_base import OptMLStatClassBase
 from opt.opt_prob.optimization_problem import OptimizationProblem
 from opt.optimization_result import OptimizationResult
 
 
-class OptimizationAlgorithmBase(ABC):
+class OptimizationAlgorithmBase(OptMLStatClassBase):
     """
     Optimization Algorithm
     """

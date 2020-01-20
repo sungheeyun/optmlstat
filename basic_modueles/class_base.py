@@ -1,5 +1,5 @@
 from typing import Union
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 class OptMLStatClassBase(ABC):
@@ -7,6 +7,15 @@ class OptMLStatClassBase(ABC):
     The base class for all the classes in `optmlstat` package.
 
     """
-    @abstractmethod
+
     def to_json_data(self) -> Union[int, float, str, dict, list]:
-        pass
+        """
+        Returns json data representing the class.
+        This is mainly for data serialization.
+
+        Returns
+        -------
+        json_data:
+         json data object
+        """
+        return dict(class_category=self.__class__.__name__)

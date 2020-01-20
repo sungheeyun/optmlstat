@@ -24,8 +24,8 @@ class TestBasisFunctions(unittest.TestCase):
         )
         logger.info(gaussian_basis_function)
         logger.info(gaussian_basis_function.covariance_list)
-        logger.info(gaussian_basis_function.get_num_inputs())
-        logger.info(gaussian_basis_function.get_num_outputs())
+        logger.info(gaussian_basis_function.num_inputs)
+        logger.info(gaussian_basis_function.num_outputs)
 
         N: int = 100
 

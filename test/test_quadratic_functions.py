@@ -49,8 +49,8 @@ class TestQuadraticFunctions(unittest.TestCase):
 
         # check dimensions
 
-        self.assertEqual(quadratic_function.get_num_inputs(), num_inputs)
-        self.assertEqual(quadratic_function.get_num_outputs(), num_outputs)
+        self.assertEqual(quadratic_function.num_inputs, num_inputs)
+        self.assertEqual(quadratic_function.num_outputs, num_outputs)
 
         # check evaluated values
 

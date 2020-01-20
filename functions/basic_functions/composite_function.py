@@ -17,9 +17,7 @@ class CompositeFunction(FunctionBase):
         assert function_list
         self.function_list: List[FunctionBase] = function_list
 
-        super(CompositeFunction, self).__init__(
-            self.function_list[0].get_num_inputs(), self.function_list[-1].get_num_outputs()
-        )
+        super(CompositeFunction, self).__init__(self.function_list[0].num_inputs, self.function_list[-1].num_outputs)
 
         self.shape_tuple: tuple = tuple([function.get_shape() for function in function_list])
 

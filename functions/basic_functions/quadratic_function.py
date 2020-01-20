@@ -2,6 +2,7 @@ from typing import Optional
 from logging import Logger, getLogger
 
 from numpy import ndarray
+from numpy.linalg import eig
 
 from functions.function_base import FunctionBase
 
@@ -32,7 +33,7 @@ class QuadraticFunction(FunctionBase):
         intercept_array_1d: m
          m ndarray
         """
-        # check dimensionsj
+        # check dimensions
         assert quad_array_3d is None or quad_array_3d.ndim == 3, quad_array_3d.ndim
         assert slope_array_2d.ndim == 2, slope_array_2d.ndim
         assert intercept_array_1d.ndim == 1, intercept_array_1d.ndim
@@ -53,6 +54,13 @@ class QuadraticFunction(FunctionBase):
         self.quad_array_3d: ndarray = None if quad_array_3d is None else quad_array_3d.copy()
 
         super(QuadraticFunction, self).__init__(self.slope_array_2d.shape[0], self.slope_array_2d.shape[1])
+
+        self.is_convex = True
+        for idx3 in range(self.quad_array_3d.shape[2]):
+            symmetric_array: ndarray = self.quad_array_3d[:, :, idx3] + self.quad_array_3d[:, :, idx3].T
+            if (eig(symmetric_array)[0] < 0.0).any():
+                self.is_convex = False
+                break
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         logger.debug(x_array_2d.shape)

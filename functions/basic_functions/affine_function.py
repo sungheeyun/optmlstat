@@ -18,8 +18,8 @@ class AffineFunction(FunctionBase):
 
         super(AffineFunction, self).__init__(self.slope_array_2d.shape[0], self.slope_array_2d.shape[1])
 
+        self.is_affine = True
+        self.is_convex = True
+
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         return x_array_2d.dot(self.slope_array_2d) + self.intercept_array_1d
-
-    def is_convex_function(self) -> bool:
-        return True
