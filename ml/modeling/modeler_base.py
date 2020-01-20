@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 from numpy import ndarray
 
+from functions.function_base import FunctionBase
 from ml.modeling.modeling_result import ModelingResult
-from ml.predictors.predictor_base import PredictorBase
 
 
 class ModelerBase(ABC):
@@ -32,7 +32,7 @@ class ModelerBase(ABC):
         pass
 
     @abstractmethod
-    def get_predictor(self) -> PredictorBase:
+    def get_predictor(self) -> FunctionBase:
         """
         Returns the resulting predictor obtained from the tranings so far.
 

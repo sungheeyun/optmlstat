@@ -3,7 +3,7 @@ from typing import Tuple
 
 from numpy import ndarray
 
-from ml.predictors.predictor_base import PredictorBase
+from functions.function_base import FunctionBase
 
 
 class StochasticProcessSamplerBase(ABC):
@@ -35,7 +35,7 @@ class StochasticProcessSamplerBase(ABC):
         pass
 
     @abstractmethod
-    def get_optimal_predictor(self) -> PredictorBase:
+    def get_optimal_predictor(self) -> FunctionBase:
         """
         Returns an optimal predictor in least-mean-square sense.
 

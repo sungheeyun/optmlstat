@@ -48,7 +48,6 @@ class GaussianBasisFunction(FunctionBase):
             assert covariance_list[0].shape == covariance.shape, (covariance_list[0].shape, covariance.shape)
 
         self.covariance_list: List[ndarray] = covariance_list
-        super(GaussianBasisFunction, self).__init__(self.covariance_list[0].shape[0], len(self.covariance_list))
 
         self.mean_array_2d: ndarray = mean_array_2d
 
@@ -60,6 +59,26 @@ class GaussianBasisFunction(FunctionBase):
         self.inverse_covariance_list: List[ndarray] = self.covariance_list
         if not inverse:
             self.inverse_covariance_list = [inv(covariance) for covariance in self.covariance_list]
+
+    @property
+    def num_inputs(self) -> Optional[int]:
+        return self.covariance_list[0].shape[0]
+
+    @property
+    def num_outputs(self) -> Optional[int]:
+        return len(self.covariance_list)
+
+    @property
+    def is_affine(self) -> Optional[bool]:
+        return False
+
+    @property
+    def is_strictly_convex(self) -> Optional[bool]:
+        return False
+
+    @property
+    def is_convex(self) -> Optional[bool]:
+        return False
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         y_array_1d_list: List[ndarray] = list()

@@ -5,10 +5,9 @@ from numpy import ndarray, hstack, ones, sqrt, eye, vstack, zeros
 from numpy.linalg import lstsq
 
 from functions.basic_functions.identity_function import IdentityFunction
-from functions.basis_functions.basis_function_base import BasisFunctionBase
+from functions.function_base import FunctionBase
 from ml.modeling.modeler_base import ModelerBase
 from ml.modeling.modeling_result import ModelingResult
-from ml.predictors.predictor_base import PredictorBase
 from ml.predictors.linear_predictor import LinearPredictor
 
 
@@ -17,13 +16,13 @@ class LinearModeler(ModelerBase):
     Regularized linear least-square fitting using basis function.
     """
 
-    def __init__(self, basis_function: Optional[BasisFunctionBase] = None, reg_coef: float = 0.0):
+    def __init__(self, basis_function: Optional[FunctionBase] = None, reg_coef: float = 0.0):
         """
         :param basis_function:
         :param reg_coef:
          The coefficient for the 2-norm
         """
-        self.basis_function: BasisFunctionBase
+        self.basis_function: FunctionBase
         if basis_function is None:
             self.basis_function = IdentityFunction()
         else:
@@ -43,7 +42,7 @@ class LinearModeler(ModelerBase):
 
         return ModelingResult()
 
-    def get_predictor(self) -> PredictorBase:
+    def get_predictor(self) -> FunctionBase:
         if self.coef is None:
             raise Exception("Model has not been trained.")
 

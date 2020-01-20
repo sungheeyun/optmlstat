@@ -53,18 +53,41 @@ class QuadraticFunction(FunctionBase):
         self.slope_array_2d: ndarray = slope_array_2d.copy()
         self.quad_array_3d: ndarray = None if quad_array_3d is None else quad_array_3d.copy()
 
-        super(QuadraticFunction, self).__init__(self.slope_array_2d.shape[0], self.slope_array_2d.shape[1])
+        self._is_affine: bool = True
+        self._is_convex: bool = True
+        self._is_strictly_convex: bool = True
 
-        self.is_strictly_convex = True
-        self.is_convex = True
         for idx3 in range(self.quad_array_3d.shape[2]):
             symmetric_array: ndarray = self.quad_array_3d[:, :, idx3] + self.quad_array_3d[:, :, idx3].T
             eigen_value_array: ndarray = eig(symmetric_array)[0]
             if (eigen_value_array <= 0.0).any():
-                self.is_strictly_convex = False
+                self._is_strictly_convex = False
 
             if (eigen_value_array < 0.0).any():
-                self.is_convex = False
+                self._is_convex = False
+
+            if (symmetric_array != 0.0).any():
+                self._is_affine = False
+
+    @property
+    def num_inputs(self) -> Optional[int]:
+        return self.slope_array_2d.shape[0]
+
+    @property
+    def num_outputs(self) -> Optional[int]:
+        return self.slope_array_2d.shape[1]
+
+    @property
+    def is_affine(self) -> Optional[bool]:
+        return self._is_affine
+
+    @property
+    def is_strictly_convex(self) -> Optional[bool]:
+        return self._is_strictly_convex
+
+    @property
+    def is_convex(self) -> Optional[bool]:
+        return self._is_convex
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         logger.debug(x_array_2d.shape)

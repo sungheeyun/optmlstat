@@ -1,4 +1,5 @@
 from logging import Logger, getLogger
+from typing import Optional
 
 from numpy import ndarray
 
@@ -21,10 +22,25 @@ class AffineFunction(FunctionBase):
         self.slope_array_2d: ndarray = slope_array_2d.copy()
         self.intercept_array_1d: ndarray = intercept_array_1d.copy()
 
-        super(AffineFunction, self).__init__(self.slope_array_2d.shape[0], self.slope_array_2d.shape[1])
+    @property
+    def num_inputs(self) -> Optional[int]:
+        return self.slope_array_2d.shape[0]
 
-        self.is_affine = True
-        self.is_convex = True
+    @property
+    def num_outputs(self) -> Optional[int]:
+        return self.slope_array_2d.shape[1]
+
+    @property
+    def is_affine(self) -> Optional[bool]:
+        return True
+
+    @property
+    def is_strictly_convex(self) -> Optional[bool]:
+        return False
+
+    @property
+    def is_convex(self) -> Optional[bool]:
+        return True
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         logger.debug(x_array_2d.shape)

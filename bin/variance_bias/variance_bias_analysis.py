@@ -8,11 +8,11 @@ from matplotlib.axes import Axes
 from freq_used.logging import set_logging_basic_config
 from freq_used.plotting import get_figure
 
+from functions.function_base import FunctionBase
 from ml.stochastic_process_samplers.stochastic_process_sampler_base import StochasticProcessSamplerBase
 from ml.stochastic_process_samplers.simple_sinusoidal_sampler import SimpleSinusoidalSampler
 from ml.modeling.linear_modeler import LinearModeler
 from ml.modeling.modeler_base import ModelerBase
-from ml.predictors.predictor_base import PredictorBase
 from functions.basis_functions.gaussian_basis_function import GaussianBasisFunction
 from plotting.plotting import plot_1d_data
 from ml.measure import mean_sum_squares
@@ -28,7 +28,7 @@ def variance_bias_analysis(
     draw: bool = True,
 ) -> Tuple[float, float, float, float]:
 
-    optimal_predictor: PredictorBase = stochastic_process_sampler.get_optimal_predictor()
+    optimal_predictor: FunctionBase = stochastic_process_sampler.get_optimal_predictor()
 
     y_array_3d_prediction: ndarray = ndarray(shape=(num_samples_for_measure, 1, num_trainings))
     noise_list: List[float] = list()
@@ -36,7 +36,7 @@ def variance_bias_analysis(
     for idx in range(num_trainings):
         x_train_array_2d, y_train_array_2d = stochastic_process_sampler.random_sample(training_dataset_size)
         modeler.train(x_train_array_2d, y_train_array_2d)
-        predictor: PredictorBase = modeler.get_predictor()
+        predictor: FunctionBase = modeler.get_predictor()
 
         y_array_2d_prediction = predictor.get_y_values_2d(x_array_2d_for_meas)
         y_array_3d_prediction[:, :, idx] = y_array_2d_prediction

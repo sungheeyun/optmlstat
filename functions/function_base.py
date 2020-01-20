@@ -11,13 +11,45 @@ class FunctionBase(OptMLStatClassBase):
     The base class for function classes.
     """
 
-    def __init__(self, num_inputs: Optional[int] = None, num_outputs: Optional[int] = None):
-        self.num_inputs: Optional[int] = num_inputs
-        self.num_outputs: Optional[int] = num_outputs
+    @property
+    @abstractmethod
+    def num_inputs(self) -> Optional[int]:
+        """
+        The number of inputs, i.e., the dimension of the domain of the function.
+        """
+        pass
 
-        self.is_affine: bool = False
-        self.is_convex: bool = False
-        self.is_strictly_convex: bool = False
+    @property
+    @abstractmethod
+    def num_outputs(self) -> Optional[int]:
+        """
+        The number of outputs, i.e., the dimension of the range of the function.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def is_affine(self) -> Optional[bool]:
+        """
+        Returns True if the function is an affine function.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def is_strictly_convex(self) -> Optional[bool]:
+        """
+        Returns True if the function is strictly convex.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def is_convex(self) -> Optional[bool]:
+        """
+        Returns True if the function is convex.
+        """
+        pass
 
     def get_shape(self) -> Tuple[Optional[int], Optional[int]]:
         return self.num_inputs, self.num_outputs

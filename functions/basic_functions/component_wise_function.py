@@ -27,9 +27,27 @@ class ComponentWiseFunction(FunctionBase):
         else:
             assert False, unit_fcn_or_list.__class__
 
-        num_inputs: Optional[int] = None if self.unit_fcn_list is None else len(self.unit_fcn_list)
+        self._num_inputs: Optional[int] = None if self.unit_fcn_list is None else len(self.unit_fcn_list)
 
-        super(ComponentWiseFunction, self).__init__(num_inputs, num_inputs)
+    @property
+    def num_inputs(self) -> Optional[int]:
+        return self._num_inputs
+
+    @property
+    def num_outputs(self) -> Optional[int]:
+        return self._num_inputs
+
+    @property
+    def is_affine(self) -> Optional[bool]:
+        return None
+
+    @property
+    def is_strictly_convex(self) -> Optional[bool]:
+        return None
+
+    @property
+    def is_convex(self) -> Optional[bool]:
+        return None
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         if self.vectorize_fcn_list is not None:

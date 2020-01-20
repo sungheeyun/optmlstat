@@ -3,8 +3,8 @@ from typing import Tuple
 from numpy import ndarray, pi, sin, sqrt
 from numpy.random import rand, randn
 
+from functions.function_base import FunctionBase
 from ml.stochastic_process_samplers.stochastic_process_sampler_base import StochasticProcessSamplerBase
-from ml.predictors.predictor_base import PredictorBase
 from ml.predictors.simple_sinusoidal_optimal_predictor import SimpleSinusoidalOptimalPredictor
 
 
@@ -34,5 +34,5 @@ class SimpleSinusoidalSampler(StochasticProcessSamplerBase):
 
         return x_array_2d, y_array_2d
 
-    def get_optimal_predictor(self) -> PredictorBase:
+    def get_optimal_predictor(self) -> FunctionBase:
         return SimpleSinusoidalOptimalPredictor()
