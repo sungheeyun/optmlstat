@@ -22,9 +22,7 @@ if __name__ == "__main__":
     num_plotting_points: int = 100
     num_plots: int = 10
 
-    num_inputs: int = 1
-    num_hidden_nodes_1: int = 1000
-    num_outputs: int = 1
+    dim_list: List[int] = [1, 1000, 100, 1]
 
     x_array_1d: ndarray = linspace(x_min, x_max, num_plotting_points)
 
@@ -33,13 +31,13 @@ if __name__ == "__main__":
     figure, axes = plt.subplots()
     for idx in range(num_plots):
         weight_array_list: List[ndarray] = [
-            10 * randn(num_inputs + 1, num_hidden_nodes_1),
-            randn(num_hidden_nodes_1 + 1, num_outputs),
+            5.0 * randn(dim_list[i] + 1, dim_list[i + 1]) for i in range(len(dim_list) - 1)
         ]
-        two_layer_feed_forward_neural_network: SimpleFeedforwardNeuralNetwork = SimpleFeedforwardNeuralNetwork(
+        simple_feed_forward_neural_network: SimpleFeedforwardNeuralNetwork = SimpleFeedforwardNeuralNetwork(
             weight_array_list, sigmoid
         )
-        y_array_1d: ndarray = two_layer_feed_forward_neural_network.get_y_values_2d_from_x_values_1d(x_array_1d).ravel()
+        logger.info(simple_feed_forward_neural_network.get_shape_tuple())
+        y_array_1d: ndarray = simple_feed_forward_neural_network.get_y_values_2d_from_x_values_1d(x_array_1d).ravel()
         axes.plot(x_array_1d, y_array_1d)
 
     figure.show()
