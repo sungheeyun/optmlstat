@@ -18,9 +18,7 @@ class QuadraticFunction(FunctionBase):
 
     """
 
-    def __init__(
-        self, intercept_array_1d: ndarray, slope_array_2d: ndarray, quad_array_3d: Optional[ndarray] = None
-    ) -> None:
+    def __init__(self, quad_array_3d: Optional[ndarray], slope_array_2d: ndarray, intercept_array_1d: ndarray) -> None:
         """
         If n is the number of inputs and m is that of outputs,
 

@@ -1,3 +1,3 @@
 TODO consider making sure that `FunctionBase.is_convex_function()` returns correct value for all function classes
-TODO make consistent the argument orders of AffineFunction and QuadraticFunction
-TODO (5) changed self.is_convex, self.num_inputs, etc. to member functions decorated by @property
+TODONE make consistent the argument orders of AffineFunction and QuadraticFunction
+TODONE (5) changed self.is_convex, self.num_inputs, etc. to member functions decorated by @property

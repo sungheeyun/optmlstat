@@ -45,7 +45,7 @@ class TestQuadraticFunctions(unittest.TestCase):
 
         # create a QuadraticFunction
 
-        quadratic_function: QuadraticFunction = QuadraticFunction(intercept_array_1d, slope_array_2d, quad_array_3d)
+        quadratic_function: QuadraticFunction = QuadraticFunction(quad_array_3d, slope_array_2d, intercept_array_1d)
 
         # check dimensions
 
@@ -72,7 +72,7 @@ class TestQuadraticFunctions(unittest.TestCase):
         slope_array_2d: ndarray = randn(num_inputs, num_outputs)
         quad_array_3d: ndarray = randn(num_inputs, num_inputs, num_outputs)
 
-        quadratic_function: QuadraticFunction = QuadraticFunction(intercept_array_1d, slope_array_2d, quad_array_3d)
+        quadratic_function: QuadraticFunction = QuadraticFunction(quad_array_3d, slope_array_2d, intercept_array_1d)
 
         x_array_2d: ndarray = randn(TestQuadraticFunctions.num_test_points, num_inputs)
         y_values_2d: ndarray = quadratic_function.get_y_values_2d(x_array_2d)
