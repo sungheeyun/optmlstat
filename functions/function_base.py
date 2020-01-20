@@ -34,14 +34,13 @@ class FunctionBase(ABC):
         x_array_2d: ndarray = array([x_array_1d]).T
         return self.get_y_values_2d(x_array_2d)
 
-    @abstractmethod
     def is_convex_function(self) -> bool:
         """
         Returns true is the function is a convex function.
         If the number of outputs is greater than 1,
         it means each of M functions are convex functions.
         """
-        pass
+        return False
 
     @abstractmethod
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
