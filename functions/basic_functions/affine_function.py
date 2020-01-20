@@ -1,6 +1,6 @@
 from numpy import ndarray
 
-from functions.basic_functions.function_base import FunctionBase
+from functions.function_base import FunctionBase
 
 
 class AffineFunction(FunctionBase):
@@ -20,3 +20,6 @@ class AffineFunction(FunctionBase):
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         return x_array_2d.dot(self.slope_array_2d) + self.intercept_array_1d
+
+    def is_convex_function(self) -> bool:
+        return True

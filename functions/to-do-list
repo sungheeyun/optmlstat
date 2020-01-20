@@ -1,0 +1,1 @@
+TODO consider making sure that `FunctionBase.is_convex_function()` returns correct value for all function classes

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Tuple
 
 from numpy import ndarray, array
 
@@ -19,6 +19,9 @@ class FunctionBase(ABC):
     def get_num_outputs(self) -> Optional[int]:
         return self.num_outputs
 
+    def get_shape(self) -> Tuple[Optional[int], Optional[int]]:
+        return self.get_num_inputs(), self.get_num_outputs()
+
     def check_x_array_dimension(self, x_array_2d: ndarray) -> None:
         if self.get_num_inputs() is not None:
             assert x_array_2d.shape[1] == self.get_num_inputs()
@@ -30,6 +33,15 @@ class FunctionBase(ABC):
     def get_y_values_2d_from_x_values_1d(self, x_array_1d: ndarray) -> ndarray:
         x_array_2d: ndarray = array([x_array_1d]).T
         return self.get_y_values_2d(x_array_2d)
+
+    @abstractmethod
+    def is_convex_function(self) -> bool:
+        """
+        Returns true is the function is a convex function.
+        If the number of outputs is greater than 1,
+        it means each of M functions are convex functions.
+        """
+        pass
 
     @abstractmethod
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:

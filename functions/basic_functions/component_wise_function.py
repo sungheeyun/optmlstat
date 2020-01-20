@@ -2,7 +2,7 @@ from typing import Callable, Iterable, Union, List, Optional
 
 from numpy import ndarray, vectorize, vstack
 
-from functions.basic_functions.function_base import FunctionBase
+from functions.function_base import FunctionBase
 
 
 class ComponentWiseFunction(FunctionBase):

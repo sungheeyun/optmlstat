@@ -5,7 +5,7 @@ from numpy import ndarray
 from functions.basic_functions.composite_function import CompositeFunction
 from functions.basic_functions.component_wise_function import ComponentWiseFunction
 from functions.basic_functions.affine_function import AffineFunction
-from functions.basic_functions.function_base import FunctionBase
+from functions.function_base import FunctionBase
 
 
 class SimpleFeedforwardNeuralNetwork(CompositeFunction):
@@ -30,7 +30,6 @@ class SimpleFeedforwardNeuralNetwork(CompositeFunction):
 
         for idx, next_weight_array in enumerate(weight_array_list[1:]):
             prev_weight_array: ndarray = weight_array_list[idx]
-            print(prev_weight_array.shape, next_weight_array.shape)
             assert prev_weight_array.shape[1] + 1 == next_weight_array.shape[0]
 
         weight_affine_function_list: List[FunctionBase] = list()
