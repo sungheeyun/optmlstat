@@ -55,12 +55,16 @@ class QuadraticFunction(FunctionBase):
 
         super(QuadraticFunction, self).__init__(self.slope_array_2d.shape[0], self.slope_array_2d.shape[1])
 
+        self.is_strictly_convex = True
         self.is_convex = True
         for idx3 in range(self.quad_array_3d.shape[2]):
             symmetric_array: ndarray = self.quad_array_3d[:, :, idx3] + self.quad_array_3d[:, :, idx3].T
-            if (eig(symmetric_array)[0] < 0.0).any():
+            eigen_value_array: ndarray = eig(symmetric_array)[0]
+            if (eigen_value_array <= 0.0).any():
+                self.is_strictly_convex = False
+
+            if (eigen_value_array < 0.0).any():
                 self.is_convex = False
-                break
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         logger.debug(x_array_2d.shape)

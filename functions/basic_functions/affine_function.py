@@ -1,6 +1,11 @@
+from logging import Logger, getLogger
+
 from numpy import ndarray
 
 from functions.function_base import FunctionBase
+
+
+logger: Logger = getLogger()
 
 
 class AffineFunction(FunctionBase):
@@ -22,4 +27,7 @@ class AffineFunction(FunctionBase):
         self.is_convex = True
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
+        logger.debug(x_array_2d.shape)
+        logger.debug(self.slope_array_2d.shape)
+        logger.debug(self.intercept_array_1d.shape)
         return x_array_2d.dot(self.slope_array_2d) + self.intercept_array_1d

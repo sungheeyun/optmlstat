@@ -15,12 +15,9 @@ class FunctionBase(OptMLStatClassBase):
         self.num_inputs: Optional[int] = num_inputs
         self.num_outputs: Optional[int] = num_outputs
 
-        # True is the function is a convex function.
-        # If self.num_outputs is greater than 1,
-        # it is True if and only if all self.num_outputs functions are convex functions.
-        self.is_convex: bool = False
-
         self.is_affine: bool = False
+        self.is_convex: bool = False
+        self.is_strictly_convex: bool = False
 
     def get_shape(self) -> Tuple[Optional[int], Optional[int]]:
         return self.num_inputs, self.num_outputs
