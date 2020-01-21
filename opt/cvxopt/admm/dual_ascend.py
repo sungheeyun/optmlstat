@@ -33,8 +33,9 @@ class DualAscend(OptimizationAlgorithmBase):
 
         # TODO need to accept more parameters, such as, stopping criteria, such as, size of (Ax - b),
         #  maximum number of iteration, difference in x and y, etc.
-        # TODO store optimization information to optiization result
+        # TODO store optimization information to optimization result
         # TODO implement argmin_x part in FunctionBase, not in here.
+        # TODO make this work for multi-input and multi-output
 
         assert opt_prob.is_convex
         assert opt_prob.ineq_cnst_fcn is None
