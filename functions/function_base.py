@@ -52,6 +52,8 @@ class FunctionBase(OptMLStatClassBase):
         """
         pass
 
+    # TODO (5) implemented the below method for all subclasses of FunctionBase
+
     @property
     @abstractmethod
     def conjugate(self) -> FunctionBase:
