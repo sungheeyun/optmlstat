@@ -1,8 +1,9 @@
-from typing import Optional
+from __future__ import annotations
+from typing import Optional, List
 from logging import Logger, getLogger
 
-from numpy import ndarray
-from numpy.linalg import eig
+from numpy import ndarray, vstack, array
+from numpy.linalg import eig, inv, solve
 
 from functions.function_base import FunctionBase
 
@@ -86,6 +87,41 @@ class QuadraticFunction(FunctionBase):
     @property
     def is_convex(self) -> Optional[bool]:
         return self._is_convex
+
+    @property
+    def conjugate(self) -> QuadraticFunction:
+        """
+        If the (quadratic) function is not convex, this value can be infinity. (not always though)
+        If the function is convex, but not strictly convex, the conjugate is bounded,
+         but the calculation is a bit complicated.
+        For now, we implement this function only when the function is strictly convex.
+
+        In this case, when f(x) = x^T P x + q^T x + r,
+        the conjugate is (y^T P^{-1} y - 2 q^T P^{-1} y + q^T P^{-1} q)/4 - r.
+        """
+        assert self.is_strictly_convex
+
+        conjugate_quad_array_3d: ndarray = ndarray(shape=self.quad_array_3d.shape, dtype=float)
+        conjugate_slope_array_1d_list: List[ndarray] = list()
+        conjugate_intercept_list: List[float] = list()
+
+        for idx in range(self.quad_array_3d.shape[2]):
+            p_array_2d: ndarray = self.quad_array_3d[:, :, idx]
+            conjugate_quad_array_3d[:, :, idx] = 0.25 * inv(p_array_2d)
+
+            q_array_1d: ndarray = self.slope_array_2d[:, idx]
+            p_inv_q_array_1d: ndarray = solve(p_array_2d, q_array_1d)
+            conjugate_slope_array_1d_list.append(- 0.5 * p_inv_q_array_1d)
+
+            conjugate_intercept_list.append(0.25 * q_array_1d.dot(p_inv_q_array_1d))
+
+        conjugate_slope_array_2d: ndarray = vstack(conjugate_slope_array_1d_list).T
+        conjugate_intercept_array_1d: ndarray = array(conjugate_intercept_list, float) - self.intercept_array_1d
+
+        logger.debug(f"conjugate_slope_array_1d_list: {conjugate_slope_array_1d_list}")
+        logger.debug(f"conjugate_slope_array_2d.shape: {conjugate_slope_array_2d.shape}")
+
+        return QuadraticFunction(conjugate_quad_array_3d, conjugate_slope_array_2d, conjugate_intercept_array_1d)
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         logger.debug(x_array_2d.shape)

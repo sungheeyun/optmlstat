@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import abstractmethod
 from typing import Optional, Tuple
 
@@ -48,6 +49,15 @@ class FunctionBase(OptMLStatClassBase):
     def is_convex(self) -> Optional[bool]:
         """
         Returns True if the function is convex.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def conjugate(self) -> FunctionBase:
+        """
+        Returns the conjugate of this function.
+        Thus, the function should be at least convex.
         """
         pass
 
