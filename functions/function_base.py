@@ -110,18 +110,20 @@ class FunctionBase(OptMLStatClassBase):
         """
         pass
 
+    # TODO defined decorator to check whether a function is convex for conjugate and conjugate_arg
+
     @property
     @abstractmethod
     def conjugate(self) -> FunctionBase:
         """
         Returns the conjugate of this function:
 
-          :math:`f^\ast (y) = sup_x ( y^T x - f(x) )`
+          :math:`f^\ast (z) = sup_x ( z^T x - f(x) )`
 
         Since is a supremum of a linear function (in x), this function is always convex.
         It also has the following property (by definition): for all x and y, it satisfies
 
-          :math:`f(x) + f^\ast(y) >= x^T y`.
+          :math:`f(x) + f^\ast(z) >= x^T z`.
 
         Note that the domain of this function is also n-dimensional vector space,
         but it represents a different vector space than the domain of :math:`f`.
@@ -129,27 +131,27 @@ class FunctionBase(OptMLStatClassBase):
         pass
 
     @abstractmethod
-    def conjugate_arg(self, y_array_2d: ndarray) -> ndarray:
+    def conjugate_arg(self, z_array_2d: ndarray) -> ndarray:
         """
-        Returns the x values which attain the conjugate function for :math:`y`, i.e.,
+        Returns the x values which attain the conjugate function for :math:`z`, i.e.,
 
-          :math:`argsup_x ( y^T x - f(x) )`
+          :math:`argsup_x ( z^T x - f(x) )`
 
-        Note that for each :math:`y`, the output is a n-dimensional vector (not a scalar as in the case of normal
+        Note that for each :math:`z`, the output is a n-dimensional vector (not a scalar as in the case of normal
         function evaluation by get_y_values_2d, the return value of this function is 3-dimensional array.
         (Note here 'dimensional' is used for different meanings. You should understand it correctly in the context.)
 
-        More precisely, the argsup value of y_array_2d[i, :] for the jth output (function) is stored in
+        More precisely, the argsup value of z_array_2d[i, :] for the jth output (function) is stored in
         x_array_3d[i, :, j].
 
         Parameters
         ----------
-        y_array_2d:
-          N-by-n array representing :math:`y`.
+        z_array_2d:
+          N-by-n array representing :math:`z`.
 
         Returns
         -------
         x_array_3d:
-          N-by-m-by-n array representing argsup :math:`(y^T x - f(x))`.
+          N-by-m-by-n array representing argsup :math:`(z^T x - f(x))`.
         """
         pass

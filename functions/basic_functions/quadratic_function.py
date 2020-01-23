@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Optional, List, Tuple
 from logging import Logger, getLogger
 
-from numpy import ndarray, vstack, array
+from numpy import ndarray, vstack, array, stack
 from numpy.linalg import eig, inv, solve
 
 from functions.function_base import FunctionBase
@@ -15,7 +15,7 @@ class QuadraticFunction(FunctionBase):
     """
     Quadratic function. The ith function is
 
-      f_i(x) = x^T P x + q^T x + r
+      :math:`f_i(x) = x^T P x + q^T x + r`
 
     where x is n-dimensional real column-vector, P is an real n-by-n matrix, q is an real n-dimensional
     column vector, and r is a real scalar. i goes from 1 to m.
@@ -42,9 +42,9 @@ class QuadraticFunction(FunctionBase):
     def __init__(self, quad_array_3d: Optional[ndarray], slope_array_2d: ndarray, intercept_array_1d: ndarray) -> None:
         """
         If n is the number of inputs and m is that of outputs, quad_array_3d[:, :, i], slope_array_2d[:, i] and
-        intercept_array_1d[i] represents P, q, and r respectively in the following equation:
+        intercept_array_1d[i] represents :math:`P`, :math:`q`, and :math:`r` respectively in the following equation:
 
-          f_i(x) = x^T P x + q^T x + r
+          :math:`f_i(x) = x^T P x + q^T x + r`
 
         Parameters
         ----------
@@ -82,7 +82,7 @@ class QuadraticFunction(FunctionBase):
         self._is_strictly_concave: bool
 
         self._is_convex, self._is_strictly_convex = QuadraticFunction.test_convexity(self.quad_array_3d)
-        self._is_concave, self._is_strictly_concave = QuadraticFunction.test_convexity(- self.quad_array_3d)
+        self._is_concave, self._is_strictly_concave = QuadraticFunction.test_convexity(-self.quad_array_3d)
 
     @property
     def num_inputs(self) -> Optional[int]:
@@ -120,8 +120,8 @@ class QuadraticFunction(FunctionBase):
          but the calculation is a bit complicated.
         For now, we implement this function only when the function is strictly convex.
 
-        In this case, when f(x) = x^T P x + q^T x + r,
-        the conjugate is (y^T P^{-1} y - 2 q^T P^{-1} y + q^T P^{-1} q)/4 - r.
+        In this case, when :math:`f(x) = x^T P x + q^T x + r`,
+        the conjugate is :math:`(z^T P^{-1} z - 2 q^T P^{-1} z + q^T P^{-1} q)/4 - r`.
         """
         assert self.is_strictly_convex
 
@@ -135,7 +135,7 @@ class QuadraticFunction(FunctionBase):
 
             q_array_1d: ndarray = self.slope_array_2d[:, idx]
             p_inv_q_array_1d: ndarray = solve(p_array_2d, q_array_1d)
-            conjugate_slope_array_1d_list.append(- 0.5 * p_inv_q_array_1d)
+            conjugate_slope_array_1d_list.append(-0.5 * p_inv_q_array_1d)
 
             conjugate_intercept_list.append(0.25 * q_array_1d.dot(p_inv_q_array_1d))
 
@@ -146,6 +146,41 @@ class QuadraticFunction(FunctionBase):
         logger.debug(f"conjugate_slope_array_2d.shape: {conjugate_slope_array_2d.shape}")
 
         return QuadraticFunction(conjugate_quad_array_3d, conjugate_slope_array_2d, conjugate_intercept_array_1d)
+
+    def conjugate_arg(self, z_array_2d: ndarray) -> ndarray:
+        """
+        The gradient of :math:`z^T x - f(x) = z^T x - x^T P x - q^T x - r` is
+
+          :math:`z - 2 P x - q`
+
+        hence, the argsup is can be obtained when x makes the gradient zero (when P is positive definite), which is
+
+          :math:`(1/2) P^{-1} (z-q)`
+        """
+        assert self.is_strictly_convex
+        assert self.num_inputs is None or z_array_2d.shape[1] == self.num_inputs
+
+        x_array_2d_list: List[ndarray] = list()
+
+        for idx3 in range(self.quad_array_3d.shape[2]):
+            p_array_2d: ndarray = self.quad_array_3d[:, :, idx3]
+            q_array_1d: ndarray = self.slope_array_2d[:, idx3]
+
+            assert z_array_2d.shape[1] == q_array_1d.size
+
+            x_array_2d: ndarray = solve(p_array_2d, (z_array_2d - q_array_1d).T).T / 2.0
+
+            assert x_array_2d.shape == z_array_2d.shape
+
+            x_array_2d_list.append(x_array_2d)
+
+        x_array_3d: ndarray = stack(x_array_2d_list, axis=2)
+
+        assert x_array_3d.shape == (z_array_2d.shape[0], self.num_inputs, self.num_outputs)
+
+        return x_array_3d
+
+    # TODO (2) check x_array_2d and y_array_2 in all get_y_values_2d methods
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         logger.debug(x_array_2d.shape)
