@@ -10,7 +10,7 @@ from freq_used.logging import set_logging_basic_config
 logger: Logger = getLogger()
 
 
-class TestBasicNumpyOperations(unittest.TestCase):
+class TestNumpyLinAlg(unittest.TestCase):
     dim_of_domain: int = 100
     dim_of_range: int = 1000
     num_of_data: int = 50
@@ -20,7 +20,7 @@ class TestBasicNumpyOperations(unittest.TestCase):
         set_logging_basic_config(__file__)
 
     def test_solve_1d(self) -> None:
-        dim_of_domain: int = TestBasicNumpyOperations.dim_of_domain
+        dim_of_domain: int = TestNumpyLinAlg.dim_of_domain
 
         a_array_2d: ndarray = randn(dim_of_domain, dim_of_domain)
         b_array_1d: ndarray = randn(dim_of_domain)
@@ -32,8 +32,8 @@ class TestBasicNumpyOperations(unittest.TestCase):
         self.assertTrue(allclose(x_array_1d.dot(a_array_2d.T), b_array_1d))
 
     def test_solve_2d(self) -> None:
-        dim_of_domain: int = TestBasicNumpyOperations.dim_of_domain
-        num_of_data: int = TestBasicNumpyOperations.num_of_data
+        dim_of_domain: int = TestNumpyLinAlg.dim_of_domain
+        num_of_data: int = TestNumpyLinAlg.num_of_data
 
         a_array_2d: ndarray = randn(dim_of_domain, dim_of_domain)
         b_array_2d: ndarray = randn(dim_of_domain, num_of_data)
@@ -45,8 +45,8 @@ class TestBasicNumpyOperations(unittest.TestCase):
         self.assertTrue(allclose(a_array_2d.dot(x_array_2d), b_array_2d))
 
     def test_lstsq_1d(self) -> None:
-        dim_of_domain: int = TestBasicNumpyOperations.dim_of_domain
-        dim_of_range: int = TestBasicNumpyOperations.dim_of_range
+        dim_of_domain: int = TestNumpyLinAlg.dim_of_domain
+        dim_of_range: int = TestNumpyLinAlg.dim_of_range
 
         self.assertGreater(dim_of_range, dim_of_domain)
 
@@ -71,9 +71,9 @@ class TestBasicNumpyOperations(unittest.TestCase):
         self.assertTrue(allclose(norm(a_array_2d.dot(x_array_1d) - b_array_1d) ** 2, residuals_1d[0]))
 
     def test_lstsq_2d(self) -> None:
-        dim_of_domain: int = TestBasicNumpyOperations.dim_of_domain
-        dim_of_range: int = TestBasicNumpyOperations.dim_of_range
-        num_of_data: int = TestBasicNumpyOperations.num_of_data
+        dim_of_domain: int = TestNumpyLinAlg.dim_of_domain
+        dim_of_range: int = TestNumpyLinAlg.dim_of_range
+        num_of_data: int = TestNumpyLinAlg.num_of_data
 
         self.assertGreater(dim_of_range, dim_of_domain)
 
