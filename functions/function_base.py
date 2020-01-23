@@ -10,6 +10,9 @@ from basic_modueles.class_base import OptMLStatClassBase
 class FunctionBase(OptMLStatClassBase):
     """
     The base class for function classes.
+
+    A function represented by a subclass of this class is a function whose domain is n-dimensional (Euclidean)
+    vector space and the range is m-dimensional vector space in general where m and n are positive integers.
     """
 
     @property
@@ -52,6 +55,22 @@ class FunctionBase(OptMLStatClassBase):
         """
         pass
 
+    @property
+    @abstractmethod
+    def is_strictly_concave(self) -> Optional[bool]:
+        """
+        Returns True if the function is strictly convex.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def is_concave(self) -> Optional[bool]:
+        """
+        Returns True if the function is convex.
+        """
+        pass
+
     # TODO (5) implemented the below method for all subclasses of FunctionBase
 
     @property
@@ -81,7 +100,10 @@ class FunctionBase(OptMLStatClassBase):
     @abstractmethod
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         """
-        Returns y values for given x values.
+        Returns y values for given x values. Each row of x_array_2d represents each x vector (n-dimensional vector)
+        and each row of y_array_2d represents the corresponding y value (m-dimensional vector).
+        Unlike generally accepted linear algebra standard, we use row-vector representation for each data point
+        to conform to Machine Learning convention where each row represents data and each column represent the feature.
 
         Parameters
         ----------
