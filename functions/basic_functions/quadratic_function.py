@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional, List
+from typing import Optional, List, Tuple
 from logging import Logger, getLogger
 
 from numpy import ndarray, vstack, array
@@ -13,15 +13,38 @@ logger: Logger = getLogger()
 
 class QuadraticFunction(FunctionBase):
     """
-    Quadratic function.
+    Quadratic function. The ith function is
 
-    x^T A x + b^T x + c
+      f_i(x) = x^T P x + q^T x + r
 
+    where x is n-dimensional real column-vector, P is an real n-by-n matrix, q is an real n-dimensional
+    column vector, and r is a real scalar. i goes from 1 to m.
+
+    Note that when data are actually interchanged, e.g., though method, QuadraticFunction.get_y_array_2d,
+    x is represented by row vectors (not column vectors).
     """
+
+    @staticmethod
+    def test_convexity(quad_array_3d: ndarray) -> Tuple[bool, bool]:
+        is_strictly_convex: bool = True
+        is_convex: bool = True
+        for idx3 in range(quad_array_3d.shape[2]):
+            symmetric_array: ndarray = quad_array_3d[:, :, idx3] + quad_array_3d[:, :, idx3].T
+            eigen_value_array: ndarray = eig(symmetric_array)[0]
+            if (eigen_value_array <= 0.0).any():
+                is_strictly_convex = False
+
+            if (eigen_value_array < 0.0).any():
+                is_convex = False
+
+        return is_convex, is_strictly_convex
 
     def __init__(self, quad_array_3d: Optional[ndarray], slope_array_2d: ndarray, intercept_array_1d: ndarray) -> None:
         """
-        If n is the number of inputs and m is that of outputs,
+        If n is the number of inputs and m is that of outputs, quad_array_3d[:, :, i], slope_array_2d[:, i] and
+        intercept_array_1d[i] represents P, q, and r respectively in the following equation:
+
+          f_i(x) = x^T P x + q^T x + r
 
         Parameters
         ----------
@@ -52,21 +75,14 @@ class QuadraticFunction(FunctionBase):
         self.slope_array_2d: ndarray = slope_array_2d.copy()
         self.quad_array_3d: ndarray = None if quad_array_3d is None else quad_array_3d.copy()
 
-        self._is_affine: bool = True
-        self._is_convex: bool = True
-        self._is_strictly_convex: bool = True
+        self._is_affine: bool = (self.quad_array_3d == 0.0).all()
+        self._is_convex: bool
+        self._is_strictly_convex: bool
+        self._is_concave: bool
+        self._is_strictly_concave: bool
 
-        for idx3 in range(self.quad_array_3d.shape[2]):
-            symmetric_array: ndarray = self.quad_array_3d[:, :, idx3] + self.quad_array_3d[:, :, idx3].T
-            eigen_value_array: ndarray = eig(symmetric_array)[0]
-            if (eigen_value_array <= 0.0).any():
-                self._is_strictly_convex = False
-
-            if (eigen_value_array < 0.0).any():
-                self._is_convex = False
-
-            if (symmetric_array != 0.0).any():
-                self._is_affine = False
+        self._is_convex, self._is_strictly_convex = QuadraticFunction.test_convexity(self.quad_array_3d)
+        self._is_concave, self._is_strictly_concave = QuadraticFunction.test_convexity(- self.quad_array_3d)
 
     @property
     def num_inputs(self) -> Optional[int]:
@@ -81,12 +97,20 @@ class QuadraticFunction(FunctionBase):
         return self._is_affine
 
     @property
+    def is_convex(self) -> Optional[bool]:
+        return self._is_convex
+
+    @property
     def is_strictly_convex(self) -> Optional[bool]:
         return self._is_strictly_convex
 
     @property
-    def is_convex(self) -> Optional[bool]:
-        return self._is_convex
+    def is_concave(self) -> Optional[bool]:
+        return self._is_concave
+
+    @property
+    def is_strictly_concave(self) -> Optional[bool]:
+        return self._is_strictly_concave
 
     @property
     def conjugate(self) -> QuadraticFunction:
