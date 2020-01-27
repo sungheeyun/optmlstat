@@ -9,7 +9,7 @@ from functions.basic_functions.quadratic_function import QuadraticFunction
 from opt.opt_alg.optimization_algorithm_base import OptimizationAlgorithmBase
 from opt.opt_prob.optimization_problem import OptimizationProblem
 from opt.optimization_result import OptimizationResult
-from opt.solve_decorator import solver
+from opt.opt_decorators import solver, single_obj_solver, eq_cnst_solver, linear_eq_cnst_solver, convex_solver
 
 
 logger: Logger = getLogger()
@@ -23,6 +23,10 @@ class DualAscend(OptimizationAlgorithmBase):
     def __init__(self, learning_rate: float):
         super(DualAscend, self).__init__(learning_rate)
 
+    @convex_solver
+    @linear_eq_cnst_solver
+    @single_obj_solver
+    @eq_cnst_solver
     @solver
     def solve(
         self,
@@ -69,25 +73,20 @@ class DualAscend(OptimizationAlgorithmBase):
         # TODO implement argmin_x part in FunctionBase, not in here.
         # TODO make this work for multi-input and multi-output
 
-        assert opt_prob.is_convex
-        assert opt_prob.ineq_cnst_fcn is None
-        assert opt_prob.eq_cnst_fcn is not None and opt_prob.eq_cnst_fcn.is_affine
-
         obj_fcn: FunctionBase = opt_prob.obj_fcn
-        assert obj_fcn is not None
-        assert obj_fcn.is_convex
-        assert obj_fcn.num_outputs == 1
 
         conjugate: QuadraticFunction = obj_fcn.conjugate
         assert conjugate.is_convex
 
-        assert isinstance(opt_prob.eq_cnst_fcn, AffineFunction)
         eq_cnst_fcn: AffineFunction = opt_prob.eq_cnst_fcn
+
+        assert initial_x_array_2d is not None
+        assert initial_nu_array_2d is not None
 
         x_array_2d: ndarray = initial_x_array_2d.copy()
         y_array_2d: ndarray = initial_nu_array_2d.copy()
 
-        for idx in range(333):
+        for idx in range(1000):
             logger.debug(x_array_2d.shape)
             logger.debug(y_array_2d.shape)
             logger.debug(obj_fcn.slope_array_2d[:, 0])
@@ -97,7 +96,7 @@ class DualAscend(OptimizationAlgorithmBase):
             nu_array_2d_for_x_update: ndarray = -y_array_2d.dot(eq_cnst_fcn.slope_array_2d.T)
 
             # x-minimization step
-            x_array_2d: ndarray = obj_fcn.conjugate_arg(nu_array_2d_for_x_update)[:, :, 0]
+            x_array_2d = obj_fcn.conjugate_arg(nu_array_2d_for_x_update)[:, :, 0]
 
             logger.debug(f"x_array_2d: {x_array_2d}")
 
@@ -112,9 +111,9 @@ class DualAscend(OptimizationAlgorithmBase):
                 nu_array_2d_for_dual_function_eval
             ) + y_array_2d.dot(eq_cnst_fcn.intercept_array_1d[:, newaxis])
 
-            logger.info(f"primal: {primal_fcn_array_2d}")
-            logger.info(f"dual: {dual_fcn_array_2d}")
-            logger.info(f"GAP: {primal_fcn_array_2d - dual_fcn_array_2d}")
+            logger.debug(f"primal: {primal_fcn_array_2d}")
+            logger.debug(f"dual: {dual_fcn_array_2d}")
+            logger.debug(f"GAP: {primal_fcn_array_2d - dual_fcn_array_2d}")
 
         optimization_result: OptimizationResult = OptimizationResult()
 

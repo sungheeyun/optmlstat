@@ -4,7 +4,7 @@ import logging
 import json
 import os
 
-from numpy import block, ndarray, newaxis, zeros, abs
+from numpy import block, ndarray, newaxis, zeros, abs, allclose
 from numpy.random import randn, seed
 from numpy.linalg import solve
 from freq_used.logging import set_logging_basic_config
@@ -58,8 +58,8 @@ class TestDualAscend(unittest.TestCase):
         )
         kkt_b_array: ndarray = block([-obj_fcn.slope_array_2d[:, 0], -eq_cnst_fcn.intercept_array_1d])
 
-        logger.info(kkt_a_array.shape)
-        logger.info(kkt_b_array.shape)
+        logger.debug(kkt_a_array.shape)
+        logger.debug(kkt_b_array.shape)
 
         opt_sol: ndarray = solve(kkt_a_array, kkt_b_array)
 
@@ -75,26 +75,27 @@ class TestDualAscend(unittest.TestCase):
 
         learning_rate: float = 0.01
         dual_ascend: DualAscend = DualAscend(learning_rate)
-        optimization_result: OptimizationResult = dual_ascend.solve(
+        opt_res: OptimizationResult = dual_ascend.solve(
             opt_prob,
             initial_x_array_2d=initial_x_point_2d,
             initial_nu_array_2d=initial_nu_point_2d,
         )
 
         logger.info(
-            json.dumps(opt_prob.to_json_data(optimization_result.opt_x), indent=2, default=ndarray_to_list)
+            json.dumps(opt_prob.to_json_data(opt_res.opt_x), indent=2, default=ndarray_to_list)
         )
-        logger.info(f"opt_nu: {optimization_result.opt_nu}")
+        logger.debug(f"opt_nu: {opt_res.opt_nu}")
 
         logger.info(json.dumps(opt_prob.to_json_data(opt_x[newaxis, :]), indent=2, default=ndarray_to_list))
-        logger.info(f"true_opt_y: {opt_y}")
+        logger.debug(f"true_opt_y: {opt_y}")
 
-        logger.info(f"x diff: {optimization_result.opt_x - opt_x}")
-        logger.info(f"max x diff: {abs(optimization_result.opt_x - opt_x).max()}")
-        logger.info(f"nu diff: {optimization_result.opt_nu - opt_y}")
-        logger.info(f"max nu diff: {abs(optimization_result.opt_nu - opt_y).max()}")
+        logger.debug(f"x diff: {opt_res.opt_x - opt_x}")
+        logger.info(f"max x diff: {abs(opt_res.opt_x - opt_x).max()}")
+        logger.debug(f"nu diff: {opt_res.opt_nu - opt_y}")
+        logger.info(f"max nu diff: {abs(opt_res.opt_nu - opt_y).max()}")
 
-        self.assertEqual(1, 1)
+        self.assertTrue(allclose(opt_res.opt_x - opt_x, 0.0))
+        self.assertTrue(allclose(opt_res.opt_nu - opt_y, 0.0))
 
     @classmethod
     def _get_simple_quad_problem(cls) -> OptimizationProblem:

@@ -39,8 +39,20 @@ class OptimizationProblem(OptMLStatClassBase):
         self.obj_fcn: Optional[FunctionBase] = obj_fcn
         self.eq_cnst_fcn: Optional[FunctionBase] = eq_cnst
         self.ineq_cnst_fcn: Optional[FunctionBase] = ineq_cnst
-        self._num_eq_cnst: int = 0 if self.eq_cnst_fcn is None else self.eq_cnst_fcn.num_outputs
-        self._num_ineq_cnst: int = 0 if self.ineq_cnst_fcn is None else self.ineq_cnst_fcn.num_outputs
+
+        self._num_eq_cnst: int
+        if self.eq_cnst_fcn is None:
+            self._num_eq_cnst = 0
+        else:
+            assert self.eq_cnst_fcn.num_outputs is not None
+            self._num_eq_cnst = self.eq_cnst_fcn.num_outputs
+
+        self._num_ineq_cnst: int
+        if self.ineq_cnst_fcn is None:
+            self._num_ineq_cnst = 0
+        else:
+            assert self.ineq_cnst_fcn.num_outputs is not None
+            self._num_ineq_cnst = self.ineq_cnst_fcn.num_outputs
 
         domain_dim: Optional[int] = None
         if self.obj_fcn is not None:
@@ -64,15 +76,15 @@ class OptimizationProblem(OptMLStatClassBase):
         assert isinstance(domain_dim, int)
         self._domain_dim: int = domain_dim
 
-        self.is_convex: bool = True
+        self._is_convex: bool = True
         if self.obj_fcn is not None and not self.obj_fcn.is_convex:
-            self.is_convex = False
+            self._is_convex = False
 
         if self.eq_cnst_fcn is not None and not self.eq_cnst_fcn.is_affine:
-            self.is_convex = False
+            self._is_convex = False
 
         if self.ineq_cnst_fcn is not None and not self.ineq_cnst_fcn.is_convex:
-            self.is_convex = False
+            self._is_convex = False
 
     @property
     def domain_dim(self) -> int:
@@ -85,6 +97,10 @@ class OptimizationProblem(OptMLStatClassBase):
     @property
     def num_ineq_cnst(self):
         return self._num_ineq_cnst
+
+    @property
+    def is_convex(self):
+        return self._is_convex
 
     def to_json_data(self, x_array_2d: Optional[ndarray] = None) -> Dict[str, Any]:
         if x_array_2d is None:

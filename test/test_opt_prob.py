@@ -27,7 +27,7 @@ class TestOptimizationProblem(unittest.TestCase):
         optimization_problem: OptimizationProblem = OptimizationProblem(obj_fcn, eq_cnst_fcn)
 
         logger.info(f"optimization_problem.domain_dim: {optimization_problem.domain_dim}")
-        logger.info(f"optimization_problem.is_convex: {optimization_problem.is_convex}")
+        logger.info(f"optimization_problem.is_convex: {optimization_problem._is_convex}")
 
         logger.info("optimization_problem:")
         logger.info(f"{json.dumps(optimization_problem.to_json_data(), indent=2)}")
