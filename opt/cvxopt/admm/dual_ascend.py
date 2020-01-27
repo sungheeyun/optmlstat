@@ -1,9 +1,7 @@
 from typing import Optional
 from logging import Logger, getLogger
 
-from numpy import ndarray, newaxis, allclose
-from numpy.random import randn
-import numpy.linalg as la
+from numpy import ndarray, newaxis
 
 from functions.function_base import FunctionBase
 from functions.basic_functions.affine_function import AffineFunction
@@ -11,6 +9,7 @@ from functions.basic_functions.quadratic_function import QuadraticFunction
 from opt.opt_alg.optimization_algorithm_base import OptimizationAlgorithmBase
 from opt.opt_prob.optimization_problem import OptimizationProblem
 from opt.optimization_result import OptimizationResult
+from opt.solve_decorator import solver
 
 
 logger: Logger = getLogger()
@@ -24,12 +23,13 @@ class DualAscend(OptimizationAlgorithmBase):
     def __init__(self, learning_rate: float):
         super(DualAscend, self).__init__(learning_rate)
 
-    @property
+    @solver
     def solve(
         self,
         opt_prob: OptimizationProblem,
         initial_x_2d: Optional[ndarray] = None,
-        initial_y_2d: Optional[ndarray] = None,
+        initial_lambda_2d: Optional[ndarray] = None,
+        initial_nu_2d: Optional[ndarray] = None,
     ) -> OptimizationResult:
         """
         This only deals with a single objective optimization problem with one linear equality constraint
@@ -50,12 +50,12 @@ class DualAscend(OptimizationAlgorithmBase):
         ----------
         opt_prob:
          The optimization problem to solve.
-
         initial_x_2d:
          N-by-n array representing initial points for x.
-
-        initial_y_2d:
-         N-by-1 array representing initial points for y.
+        initial_lambda_2d:
+         N-by-m array representing initial points for Lagrange multipliers for inequality constraints.
+        initial_nu_2d:
+         N-by-p array representing initial points for Lagrange multipliers for equality constraints.
 
         Returns
         -------
@@ -84,28 +84,17 @@ class DualAscend(OptimizationAlgorithmBase):
         assert isinstance(opt_prob.eq_cnst_fcn, AffineFunction)
         eq_cnst_fcn: AffineFunction = opt_prob.eq_cnst_fcn
 
-        if initial_x_2d is None and initial_y_2d is None:
-            initial_x_2d = randn(1, opt_prob.domain_dim)
-            initial_y_2d = randn(1, eq_cnst_fcn.num_outputs)
-        else:
-            assert initial_x_2d is not None and initial_y_2d is not None
-
-        assert initial_x_2d.shape[0] == initial_y_2d.shape[0]
-        assert initial_x_2d.shape[1] == opt_prob.domain_dim
-        assert initial_y_2d.shape[1] == eq_cnst_fcn.num_outputs
-
         x_array_1d: ndarray = initial_x_2d[0, :]
-        y_array_1d: ndarray = initial_y_2d[0, :]
+        y_array_1d: ndarray = initial_nu_2d[0, :]
 
-
-        for idx in range(1000):
+        for idx in range(100):
             logger.debug(x_array_1d.shape)
             logger.debug(y_array_1d.shape)
             logger.debug(obj_fcn.slope_array_2d[:, 0])
             logger.debug(eq_cnst_fcn.slope_array_2d.T)
             logger.debug(y_array_1d.dot(eq_cnst_fcn.slope_array_2d.T))
 
-            nu_array_1d_for_x_update: ndarray = - y_array_1d.dot(eq_cnst_fcn.slope_array_2d.T)
+            nu_array_1d_for_x_update: ndarray = -y_array_1d.dot(eq_cnst_fcn.slope_array_2d.T)
 
             # x-minimization step
             x_array_1d: ndarray = obj_fcn.conjugate_arg(nu_array_1d_for_x_update[newaxis, :])[0, :, 0]
@@ -117,15 +106,23 @@ class DualAscend(OptimizationAlgorithmBase):
             # dual variable update
             y_array_1d += self.learning_rate * eq_cnst_fcn.get_y_values_2d(x_array_1d)
 
-            nu_array_1d_for_dual_function_eval: ndarray = - y_array_1d.dot(eq_cnst_fcn.slope_array_2d.T)
+            nu_array_1d_for_dual_function_eval: ndarray = -y_array_1d.dot(eq_cnst_fcn.slope_array_2d.T)
 
             logger.debug(f"y_1d: {y_array_1d}")
 
             primal_fcn_val: float = obj_fcn.get_y_values_2d(x_array_1d[newaxis, :])[0, 0]
-            dual_fcn_val: float = -conjugate.get_y_values_2d(nu_array_1d_for_dual_function_eval[newaxis, :])[0, 0] + y_array_1d.dot(eq_cnst_fcn.intercept_array_1d)
+            dual_fcn_val: float = -conjugate.get_y_values_2d(nu_array_1d_for_dual_function_eval[newaxis, :])[
+                0, 0
+            ] + y_array_1d.dot(eq_cnst_fcn.intercept_array_1d)
 
-            logger.info(f"primal: {primal_fcn_val}")
-            logger.info(f"dual: {dual_fcn_val}")
+            logger.debug(f"primal: {primal_fcn_val}")
+            logger.debug(f"dual: {dual_fcn_val}")
             logger.info(f"GAP: {primal_fcn_val - dual_fcn_val}")
+            logger.info(f"eq_cnst: {eq_cnst_fcn.get_y_values_2d(x_array_1d[newaxis, :])}")
 
-        return OptimizationResult()
+        optimization_result: OptimizationResult = OptimizationResult()
+
+        optimization_result.opt_x = x_array_1d
+        optimization_result.opt_nu = y_array_1d
+
+        return optimization_result

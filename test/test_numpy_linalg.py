@@ -95,7 +95,7 @@ class TestNumpyLinAlg(unittest.TestCase):
         self.assertTrue(allclose(sv_array_1d, svd(a_array_2d)[1]))
 
         self.assertEqual(a_array_2d.dot(x_array_2d).shape, b_array_2d.shape)
-        self.assertTrue(allclose(power(a_array_2d.dot(x_array_2d)-b_array_2d, 2.0).sum(axis=0), residuals_1d))
+        self.assertTrue(allclose(power(a_array_2d.dot(x_array_2d) - b_array_2d, 2.0).sum(axis=0), residuals_1d))
 
 
 if __name__ == "__main__":

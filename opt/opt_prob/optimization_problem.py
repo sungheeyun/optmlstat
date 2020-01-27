@@ -37,6 +37,8 @@ class OptimizationProblem(OptMLStatClassBase):
         self.obj_fcn: Optional[FunctionBase] = obj_fcn
         self.eq_cnst_fcn: Optional[FunctionBase] = eq_cnst
         self.ineq_cnst_fcn: Optional[FunctionBase] = ineq_cnst
+        self._num_eq_cnst: int = 0 if self.eq_cnst_fcn is None else self.eq_cnst_fcn.num_outputs
+        self._num_ineq_cnst: int = 0 if self.ineq_cnst_fcn is None else self.ineq_cnst_fcn.num_outputs
 
         domain_dim: Optional[int] = None
         if self.obj_fcn is not None:
@@ -58,7 +60,7 @@ class OptimizationProblem(OptMLStatClassBase):
                 assert domain_dim == self.ineq_cnst_fcn.num_inputs
 
         assert isinstance(domain_dim, int)
-        self.domain_dim: int = domain_dim
+        self._domain_dim: int = domain_dim
 
         self.is_convex: bool = True
         if self.obj_fcn is not None and not self.obj_fcn.is_convex:
@@ -69,6 +71,18 @@ class OptimizationProblem(OptMLStatClassBase):
 
         if self.ineq_cnst_fcn is not None and not self.ineq_cnst_fcn.is_convex:
             self.is_convex = False
+
+    @property
+    def domain_dim(self) -> int:
+        return self._domain_dim
+
+    @property
+    def num_eq_cnst(self) -> int:
+        return self._num_eq_cnst
+
+    @property
+    def num_ineq_cnst(self):
+        return self._num_ineq_cnst
 
     def to_json_data(self) -> Union[int, float, str, dict, list]:
         return dict(

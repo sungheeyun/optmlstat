@@ -13,6 +13,13 @@ class OptimizationAlgorithmBase(OptMLStatClassBase):
     Optimization Algorithm
     """
 
+    def __init__(self, learning_rate: float) -> None:
+        self._learning_rate: float = learning_rate
+
+    @property
+    def learning_rate(self) -> float:
+        return self._learning_rate
+
     @abstractmethod
     def solve(
         self, opt_prob: OptimizationProblem, initial_point_or_list: Optional[Union[ndarray, List[ndarray]]]

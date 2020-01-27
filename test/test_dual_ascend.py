@@ -13,9 +13,11 @@ from functions.basic_functions.quadratic_function import QuadraticFunction
 from functions.basic_functions.affine_function import AffineFunction
 from functions.example_functions import get_sum_function, get_sum_of_square_function
 from opt.opt_prob.optimization_problem import OptimizationProblem
+from opt.optimization_result import OptimizationResult
 from opt.cvxopt.admm.dual_ascend import DualAscend
 
 
+logging
 logger: Logger = getLogger()
 
 
@@ -58,11 +60,15 @@ class TestDualAscend(unittest.TestCase):
 
         learning_rate: float = 0.01
         dual_ascend: DualAscend = DualAscend(learning_rate)
-        dual_ascend.solve(opt_prob)
+        optimization_result: OptimizationResult = dual_ascend.solve(opt_prob)
 
-        logger.info(f"opt_x: {opt_x}")
-        logger.info(f"opt_y: {opt_y}")
-        logger.info(obj_fcn.get_y_values_2d(opt_x[newaxis, :]))
+        logger.info(f"opt_x: {optimization_result.opt_x}")
+        logger.info(f"opt_nu: {optimization_result.opt_nu}")
+        logger.info(f"opt_fcn: {obj_fcn.get_y_values_2d(optimization_result.opt_x[newaxis, :])}")
+
+        logger.info(f"true_opt_x: {opt_x}")
+        logger.info(f"true_opt_y: {opt_y}")
+        logger.info(f"true_opt_fcn: {obj_fcn.get_y_values_2d(opt_x[newaxis, :])}")
 
         self.assertEqual(1, 1)
 
