@@ -1,8 +1,10 @@
 import unittest
 from logging import Logger, getLogger
+import logging
 import json
+import os
 
-from numpy import block, ndarray
+from numpy import block, ndarray, newaxis
 from numpy.linalg import solve
 from freq_used.logging import set_logging_basic_config
 
@@ -22,11 +24,12 @@ class TestDualAscend(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        set_logging_basic_config(__file__)
+        set_logging_basic_config(__file__, level=eval(f"logging.{os.environ.get('TEST_LOG_LEVEL', 'INFO')}"))
 
-    def test_dual_ascend(self):
+    def test_dual_ascend_with_simple_example(self) -> None:
+        self._test_dual_ascend(TestDualAscend.get_simple_quad_problem())
 
-        opt_prob: OptimizationProblem = TestDualAscend.get_simple_quad_problem()
+    def _test_dual_ascend(self, opt_prob: OptimizationProblem) -> None:
 
         obj_fcn: FunctionBase = opt_prob.obj_fcn
         eq_cnst_fcn: FunctionBase = opt_prob.eq_cnst_fcn
@@ -53,12 +56,13 @@ class TestDualAscend(unittest.TestCase):
         opt_x: ndarray = opt_sol[: opt_prob.domain_dim]
         opt_y: ndarray = opt_sol[opt_prob.domain_dim:]
 
-        learning_rate: float = 0.1
+        learning_rate: float = 0.01
         dual_ascend: DualAscend = DualAscend(learning_rate)
         dual_ascend.solve(opt_prob)
 
         logger.info(f"opt_x: {opt_x}")
         logger.info(f"opt_y: {opt_y}")
+        logger.info(obj_fcn.get_y_values_2d(opt_x[newaxis, :]))
 
         self.assertEqual(1, 1)
 
