@@ -9,7 +9,7 @@ def get_sum_of_square_function(num_inputs: int) -> QuadraticFunction:
     slope_array_2d: ndarray = zeros((num_inputs, 1))
     quad_array_3d: ndarray = eye(num_inputs)[:, :, newaxis]
 
-    return QuadraticFunction(intercept_array_1d, slope_array_2d, quad_array_3d)
+    return QuadraticFunction(quad_array_3d, slope_array_2d, intercept_array_1d)
 
 
 def get_sum_function(num_inputs: int, constant: float = 0.0) -> AffineFunction:
