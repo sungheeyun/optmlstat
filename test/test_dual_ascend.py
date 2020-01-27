@@ -5,7 +5,7 @@ import json
 import os
 
 from numpy import block, ndarray, newaxis, zeros
-from numpy.random import randn
+from numpy.random import randn, seed
 from numpy.linalg import solve
 from freq_used.logging import set_logging_basic_config
 
@@ -16,6 +16,7 @@ from functions.example_functions import get_sum_function, get_sum_of_square_func
 from opt.opt_prob.optimization_problem import OptimizationProblem
 from opt.optimization_result import OptimizationResult
 from opt.cvxopt.admm.dual_ascend import DualAscend
+from formatting import ndarray_to_list
 
 
 logging
@@ -33,6 +34,7 @@ class TestDualAscend(unittest.TestCase):
         self._test_dual_ascend(TestDualAscend._get_simple_quad_problem())
 
     def test_dual_ascend_with_quad_prob_with_random_eq_cnsts(self) -> None:
+        seed(760104)
         self._test_dual_ascend(TestDualAscend._get_quad_problem_with_random_eq_cnsts(2))
 
     def _test_dual_ascend(self, opt_prob: OptimizationProblem) -> None:
@@ -68,13 +70,11 @@ class TestDualAscend(unittest.TestCase):
         dual_ascend: DualAscend = DualAscend(learning_rate)
         optimization_result: OptimizationResult = dual_ascend.solve(opt_prob)
 
-        logger.info(f"opt_x: {optimization_result.opt_x}")
+        logger.info(json.dumps(opt_prob.to_json_data(optimization_result.opt_x[newaxis, :]), indent=2, default=ndarray_to_list))
         logger.info(f"opt_nu: {optimization_result.opt_nu}")
-        logger.info(f"opt_fcn: {obj_fcn.get_y_values_2d(optimization_result.opt_x[newaxis, :])}")
 
-        logger.info(f"true_opt_x: {opt_x}")
+        logger.info(json.dumps(opt_prob.to_json_data(opt_x[newaxis, :]), indent=2, default=ndarray_to_list))
         logger.info(f"true_opt_y: {opt_y}")
-        logger.info(f"true_opt_fcn: {obj_fcn.get_y_values_2d(opt_x[newaxis, :])}")
 
         self.assertEqual(1, 1)
 

@@ -1,4 +1,6 @@
-from typing import Optional, Union
+from typing import Optional, Any, Dict
+
+from numpy import ndarray
 
 from basic_modueles.class_base import OptMLStatClassBase
 from functions.function_base import FunctionBase
@@ -84,10 +86,18 @@ class OptimizationProblem(OptMLStatClassBase):
     def num_ineq_cnst(self):
         return self._num_ineq_cnst
 
-    def to_json_data(self) -> Union[int, float, str, dict, list]:
-        return dict(
-            class_category="OptimizationProblem",
-            obj_fcn=None if self.obj_fcn is None else self.obj_fcn.to_json_data(),
-            eq_cnst=None if self.eq_cnst_fcn is None else self.eq_cnst_fcn.to_json_data(),
-            ineq_cnst=None if self.ineq_cnst_fcn is None else self.ineq_cnst_fcn.to_json_data(),
-        )
+    def to_json_data(self, x_array_2d: Optional[ndarray] = None) -> Dict[str, Any]:
+        if x_array_2d is None:
+            return dict(
+                class_category="OptimizationProblem",
+                obj_fcn=None if self.obj_fcn is None else self.obj_fcn.to_json_data(),
+                eq_cnst=None if self.eq_cnst_fcn is None else self.eq_cnst_fcn.to_json_data(),
+                ineq_cnst=None if self.ineq_cnst_fcn is None else self.ineq_cnst_fcn.to_json_data(),
+            )
+        else:
+            return dict(
+                class_category="OptimizationProblemEvaluated",
+                obj_fcn=None if self.obj_fcn is None else self.obj_fcn.get_y_values_2d(x_array_2d),
+                eq_cnst=None if self.eq_cnst_fcn is None else self.eq_cnst_fcn.get_y_values_2d(x_array_2d),
+                ineq_cnst=None if self.ineq_cnst_fcn is None else self.ineq_cnst_fcn.get_y_values_2d(x_array_2d),
+            )
