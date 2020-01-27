@@ -87,7 +87,7 @@ class DualAscend(OptimizationAlgorithmBase):
         x_array_1d: ndarray = initial_x_2d[0, :]
         y_array_1d: ndarray = initial_nu_2d[0, :]
 
-        for idx in range(100):
+        for idx in range(333):
             logger.debug(x_array_1d.shape)
             logger.debug(y_array_1d.shape)
             logger.debug(obj_fcn.slope_array_2d[:, 0])

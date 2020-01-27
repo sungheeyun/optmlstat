@@ -4,7 +4,8 @@ import logging
 import json
 import os
 
-from numpy import block, ndarray, newaxis
+from numpy import block, ndarray, newaxis, zeros
+from numpy.random import randn
 from numpy.linalg import solve
 from freq_used.logging import set_logging_basic_config
 
@@ -22,14 +23,17 @@ logger: Logger = getLogger()
 
 
 class TestDualAscend(unittest.TestCase):
-    num_inputs: int = 10
+    domain_dim: int = 10
 
     @classmethod
     def setUpClass(cls) -> None:
         set_logging_basic_config(__file__, level=eval(f"logging.{os.environ.get('TEST_LOG_LEVEL', 'INFO')}"))
 
-    def test_dual_ascend_with_simple_example(self) -> None:
-        self._test_dual_ascend(TestDualAscend.get_simple_quad_problem())
+    def _test_dual_ascend_with_simple_example(self) -> None:
+        self._test_dual_ascend(TestDualAscend._get_simple_quad_problem())
+
+    def test_dual_ascend_with_quad_prob_with_random_eq_cnsts(self) -> None:
+        self._test_dual_ascend(TestDualAscend._get_quad_problem_with_random_eq_cnsts(2))
 
     def _test_dual_ascend(self, opt_prob: OptimizationProblem) -> None:
 
@@ -41,8 +45,10 @@ class TestDualAscend(unittest.TestCase):
 
         logger.info(json.dumps(opt_prob.to_json_data(), indent=2))
 
+        p = eq_cnst_fcn.intercept_array_1d.size
+
         kkt_a_array: ndarray = block(
-            [[2.0 * obj_fcn.quad_array_3d[:, :, 0], eq_cnst_fcn.slope_array_2d], [eq_cnst_fcn.slope_array_2d.T, 0]]
+            [[2.0 * obj_fcn.quad_array_3d[:, :, 0], eq_cnst_fcn.slope_array_2d], [eq_cnst_fcn.slope_array_2d.T, zeros((p, p))]]
         )
         kkt_b_array: ndarray = block([-obj_fcn.slope_array_2d[:, 0], -eq_cnst_fcn.intercept_array_1d])
 
@@ -73,9 +79,15 @@ class TestDualAscend(unittest.TestCase):
         self.assertEqual(1, 1)
 
     @classmethod
-    def get_simple_quad_problem(cls) -> OptimizationProblem:
-        obj_fcn: QuadraticFunction = get_sum_of_square_function(cls.num_inputs)
-        eq_cnst_fcn: AffineFunction = get_sum_function(cls.num_inputs, -1.0)
+    def _get_simple_quad_problem(cls) -> OptimizationProblem:
+        obj_fcn: QuadraticFunction = get_sum_of_square_function(cls.domain_dim)
+        eq_cnst_fcn: AffineFunction = get_sum_function(cls.domain_dim, -1.0)
+        return OptimizationProblem(obj_fcn, eq_cnst_fcn)
+
+    @classmethod
+    def _get_quad_problem_with_random_eq_cnsts(cls, num_eq_cnsts: int) -> OptimizationProblem:
+        obj_fcn: QuadraticFunction = get_sum_of_square_function(cls.domain_dim)
+        eq_cnst_fcn: AffineFunction = AffineFunction(randn(cls.domain_dim, num_eq_cnsts), randn(num_eq_cnsts))
         return OptimizationProblem(obj_fcn, eq_cnst_fcn)
 
 
