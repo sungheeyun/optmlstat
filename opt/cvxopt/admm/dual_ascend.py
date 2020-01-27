@@ -7,9 +7,11 @@ from functions.function_base import FunctionBase
 from functions.basic_functions.affine_function import AffineFunction
 from functions.basic_functions.quadratic_function import QuadraticFunction
 from opt.opt_alg.optimization_algorithm_base import OptimizationAlgorithmBase
-from opt.opt_prob.optimization_problem import OptimizationProblem
+from opt.optimization_problem import OptimizationProblem
 from opt.optimization_result import OptimizationResult
+from opt.opt_prob_evaluation import OptimizationProblemEvaluation
 from opt.opt_decorators import solver, single_obj_solver, eq_cnst_solver, linear_eq_cnst_solver, convex_solver
+from opt.iteration import Iteration
 
 
 logger: Logger = getLogger()
@@ -74,50 +76,42 @@ class DualAscend(OptimizationAlgorithmBase):
         # TODO make this work for multi-input and multi-output
 
         obj_fcn: FunctionBase = opt_prob.obj_fcn
-
-        conjugate: QuadraticFunction = obj_fcn.conjugate
-        assert conjugate.is_convex
-
         eq_cnst_fcn: AffineFunction = opt_prob.eq_cnst_fcn
 
         assert initial_x_array_2d is not None
         assert initial_nu_array_2d is not None
 
-        x_array_2d: ndarray = initial_x_array_2d.copy()
+        conjugate: QuadraticFunction = obj_fcn.conjugate
+        assert conjugate.is_convex
+
+        opt_res: OptimizationResult = OptimizationResult(opt_prob, self)
+
+        opt_res.register_solution(iteration=Iteration(0), primal_prob_evaluation=opt_prob.evaluate(initial_x_array_2d))
+
         y_array_2d: ndarray = initial_nu_array_2d.copy()
 
         for idx in range(1000):
-            logger.debug(x_array_2d.shape)
-            logger.debug(y_array_2d.shape)
-            logger.debug(obj_fcn.slope_array_2d[:, 0])
-            logger.debug(eq_cnst_fcn.slope_array_2d.T)
-            logger.debug(y_array_2d.dot(eq_cnst_fcn.slope_array_2d.T))
+            iteration = Iteration(idx + 1)
 
             nu_array_2d_for_x_update: ndarray = -y_array_2d.dot(eq_cnst_fcn.slope_array_2d.T)
 
             # x-minimization step
-            x_array_2d = obj_fcn.conjugate_arg(nu_array_2d_for_x_update)[:, :, 0]
-
-            logger.debug(f"x_array_2d: {x_array_2d}")
+            x_array_2d: ndarray = obj_fcn.conjugate_arg(nu_array_2d_for_x_update)[:, :, 0]
 
             # dual variable update
             y_array_2d += self.learning_rate * eq_cnst_fcn.get_y_values_2d(x_array_2d)
 
-            logger.debug(f"y_array_2d: {y_array_2d}")
-
             nu_array_2d_for_dual_function_eval: ndarray = -y_array_2d.dot(eq_cnst_fcn.slope_array_2d.T)
-            primal_fcn_array_2d: ndarray = obj_fcn.get_y_values_2d(x_array_2d)
             dual_fcn_array_2d: ndarray = -conjugate.get_y_values_2d(
                 nu_array_2d_for_dual_function_eval
             ) + y_array_2d.dot(eq_cnst_fcn.intercept_array_1d[:, newaxis])
 
-            logger.debug(f"primal: {primal_fcn_array_2d}")
-            logger.debug(f"dual: {dual_fcn_array_2d}")
-            logger.debug(f"GAP: {primal_fcn_array_2d - dual_fcn_array_2d}")
+            opt_res.register_solution(
+                iteration=iteration,
+                primal_prob_evaluation=opt_prob.evaluate(x_array_2d),
+                dual_prob_evaluation=OptimizationProblemEvaluation(
+                    opt_prob=opt_prob, x_array_2d=y_array_2d, obj_fcn_array_2d=dual_fcn_array_2d
+                ),
+            )
 
-        optimization_result: OptimizationResult = OptimizationResult()
-
-        optimization_result.opt_x = x_array_2d
-        optimization_result.opt_nu = y_array_2d
-
-        return optimization_result
+        return opt_res

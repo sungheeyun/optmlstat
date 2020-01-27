@@ -19,8 +19,32 @@ class AffineFunction(FunctionBase):
         assert intercept_array_1d.ndim == 1, intercept_array_1d.ndim
         assert slope_array_2d.shape[1] == intercept_array_1d.size, (slope_array_2d.shape, intercept_array_1d.shape)
 
-        self.slope_array_2d: ndarray = slope_array_2d.copy()
-        self.intercept_array_1d: ndarray = intercept_array_1d.copy()
+        self._slope_array_2d: ndarray = slope_array_2d.copy()
+        self._intercept_array_1d: ndarray = intercept_array_1d.copy()
+
+    @property
+    def slope_array_2d(self) -> ndarray:
+        return self._slope_array_2d
+
+    @property
+    def intercept_array_1d(self) -> ndarray:
+        return self._intercept_array_1d
+
+    @property
+    def coef_array_2d(self):
+        return self.slope_array_2d
+
+    @property
+    def constant_array_1d(self):
+        return self.intercept_array_1d
+
+    @property
+    def a_array_2d(self):
+        return self.slope_array_2d
+
+    @property
+    def b_array_1d(self):
+        return self.intercept_array_1d
 
     @property
     def num_inputs(self) -> Optional[int]:

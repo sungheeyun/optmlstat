@@ -1,10 +1,9 @@
 import unittest
 from logging import Logger, getLogger
 import logging
-import json
 import os
 
-from numpy import block, ndarray, newaxis, zeros, abs, allclose
+from numpy import block, ndarray, zeros, abs, allclose
 from numpy.random import randn, seed
 from numpy.linalg import solve
 from freq_used.logging import set_logging_basic_config
@@ -13,10 +12,10 @@ from functions.function_base import FunctionBase
 from functions.basic_functions.quadratic_function import QuadraticFunction
 from functions.basic_functions.affine_function import AffineFunction
 from functions.example_functions import get_sum_function, get_sum_of_square_function
-from opt.opt_prob.optimization_problem import OptimizationProblem
+from opt.optimization_problem import OptimizationProblem
 from opt.optimization_result import OptimizationResult
 from opt.cvxopt.admm.dual_ascend import DualAscend
-from formatting import ndarray_to_list
+from opt.opt_iterate import OptimizationIterate
 
 
 logging
@@ -43,10 +42,9 @@ class TestDualAscend(unittest.TestCase):
         obj_fcn: FunctionBase = opt_prob.obj_fcn
         eq_cnst_fcn: FunctionBase = opt_prob.eq_cnst_fcn
 
-        assert isinstance(obj_fcn, QuadraticFunction)
-        assert isinstance(eq_cnst_fcn, AffineFunction)
+        logger.info(str(opt_prob))
 
-        logger.info(json.dumps(opt_prob.to_json_data(), indent=2))
+        # calculate true solution
 
         p = eq_cnst_fcn.intercept_array_1d.size
 
@@ -58,17 +56,12 @@ class TestDualAscend(unittest.TestCase):
         )
         kkt_b_array: ndarray = block([-obj_fcn.slope_array_2d[:, 0], -eq_cnst_fcn.intercept_array_1d])
 
-        logger.debug(kkt_a_array.shape)
-        logger.debug(kkt_b_array.shape)
+        opt_sol_array_1d: ndarray = solve(kkt_a_array, kkt_b_array)
 
-        opt_sol: ndarray = solve(kkt_a_array, kkt_b_array)
+        opt_x_array_1d: ndarray = opt_sol_array_1d[: opt_prob.domain_dim]
+        opt_nu_array_1d: ndarray = opt_sol_array_1d[opt_prob.domain_dim:]
 
-        logger.debug(opt_sol)
-        logger.debug(opt_sol.shape)
-        logger.debug(opt_sol.__class__)
-
-        opt_x: ndarray = opt_sol[: opt_prob.domain_dim]
-        opt_y: ndarray = opt_sol[opt_prob.domain_dim:]
+        # solve by dual ascend
 
         initial_x_point_2d: ndarray = randn(num_data_points, opt_prob.domain_dim)
         initial_nu_point_2d: ndarray = randn(num_data_points, opt_prob.num_eq_cnst)
@@ -81,21 +74,20 @@ class TestDualAscend(unittest.TestCase):
             initial_nu_array_2d=initial_nu_point_2d,
         )
 
-        logger.info(
-            json.dumps(opt_prob.to_json_data(opt_res.opt_x), indent=2, default=ndarray_to_list)
-        )
-        logger.debug(f"opt_nu: {opt_res.opt_nu}")
+        final_iterate: OptimizationIterate = opt_res.final_iterate
 
-        logger.info(json.dumps(opt_prob.to_json_data(opt_x[newaxis, :]), indent=2, default=ndarray_to_list))
-        logger.debug(f"true_opt_y: {opt_y}")
+        logger.info(final_iterate)
 
-        logger.debug(f"x diff: {opt_res.opt_x - opt_x}")
-        logger.info(f"max x diff: {abs(opt_res.opt_x - opt_x).max()}")
-        logger.debug(f"nu diff: {opt_res.opt_nu - opt_y}")
-        logger.info(f"max nu diff: {abs(opt_res.opt_nu - opt_y).max()}")
+        logger.debug(f"true_opt_x: {opt_x_array_1d}")
+        logger.debug(f"true_opt_y: {opt_nu_array_1d}")
 
-        self.assertTrue(allclose(opt_res.opt_x - opt_x, 0.0))
-        self.assertTrue(allclose(opt_res.opt_nu - opt_y, 0.0))
+        logger.debug(f"x diff: {final_iterate.x_array_2d - opt_x_array_1d}")
+        logger.info(f"max x diff: {abs(final_iterate.x_array_2d - opt_x_array_1d).max()}")
+        logger.debug(f"nu diff: {final_iterate.nu_array_2d - opt_nu_array_1d}")
+        logger.info(f"max nu diff: {abs(final_iterate.nu_array_2d - opt_nu_array_1d).max()}")
+
+        self.assertTrue(allclose(final_iterate.x_array_2d - opt_x_array_1d, 0.0))
+        self.assertTrue(allclose(final_iterate.nu_array_2d - opt_nu_array_1d, 0.0))
 
     @classmethod
     def _get_simple_quad_problem(cls) -> OptimizationProblem:

@@ -5,7 +5,7 @@ from functools import wraps
 from numpy import ndarray
 from numpy.random import randn
 
-from opt.opt_prob.optimization_problem import OptimizationProblem
+from opt.optimization_problem import OptimizationProblem
 from opt.optimization_result import OptimizationResult
 
 logger: Logger = getLogger()
