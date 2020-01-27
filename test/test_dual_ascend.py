@@ -4,7 +4,7 @@ import logging
 import json
 import os
 
-from numpy import block, ndarray, newaxis, zeros
+from numpy import block, ndarray, newaxis, zeros, abs
 from numpy.random import randn, seed
 from numpy.linalg import solve
 from freq_used.logging import set_logging_basic_config
@@ -25,19 +25,20 @@ logger: Logger = getLogger()
 
 class TestDualAscend(unittest.TestCase):
     domain_dim: int = 10
+    num_data_points: int = 5
 
     @classmethod
     def setUpClass(cls) -> None:
         set_logging_basic_config(__file__, level=eval(f"logging.{os.environ.get('TEST_LOG_LEVEL', 'INFO')}"))
 
     def _test_dual_ascend_with_simple_example(self) -> None:
-        self._test_dual_ascend(TestDualAscend._get_simple_quad_problem())
+        self._test_dual_ascend(TestDualAscend._get_simple_quad_problem(), TestDualAscend.num_data_points)
 
     def test_dual_ascend_with_quad_prob_with_random_eq_cnsts(self) -> None:
         seed(760104)
-        self._test_dual_ascend(TestDualAscend._get_quad_problem_with_random_eq_cnsts(2))
+        self._test_dual_ascend(TestDualAscend._get_quad_problem_with_random_eq_cnsts(2), TestDualAscend.num_data_points)
 
-    def _test_dual_ascend(self, opt_prob: OptimizationProblem) -> None:
+    def _test_dual_ascend(self, opt_prob: OptimizationProblem, num_data_points: int = 1) -> None:
 
         obj_fcn: FunctionBase = opt_prob.obj_fcn
         eq_cnst_fcn: FunctionBase = opt_prob.eq_cnst_fcn
@@ -50,7 +51,10 @@ class TestDualAscend(unittest.TestCase):
         p = eq_cnst_fcn.intercept_array_1d.size
 
         kkt_a_array: ndarray = block(
-            [[2.0 * obj_fcn.quad_array_3d[:, :, 0], eq_cnst_fcn.slope_array_2d], [eq_cnst_fcn.slope_array_2d.T, zeros((p, p))]]
+            [
+                [2.0 * obj_fcn.quad_array_3d[:, :, 0], eq_cnst_fcn.slope_array_2d],
+                [eq_cnst_fcn.slope_array_2d.T, zeros((p, p))],
+            ]
         )
         kkt_b_array: ndarray = block([-obj_fcn.slope_array_2d[:, 0], -eq_cnst_fcn.intercept_array_1d])
 
@@ -66,15 +70,29 @@ class TestDualAscend(unittest.TestCase):
         opt_x: ndarray = opt_sol[: opt_prob.domain_dim]
         opt_y: ndarray = opt_sol[opt_prob.domain_dim:]
 
+        initial_x_point_2d: ndarray = randn(num_data_points, opt_prob.domain_dim)
+        initial_nu_point_2d: ndarray = randn(num_data_points, opt_prob.num_eq_cnst)
+
         learning_rate: float = 0.01
         dual_ascend: DualAscend = DualAscend(learning_rate)
-        optimization_result: OptimizationResult = dual_ascend.solve(opt_prob)
+        optimization_result: OptimizationResult = dual_ascend.solve(
+            opt_prob,
+            initial_x_array_2d=initial_x_point_2d,
+            initial_nu_array_2d=initial_nu_point_2d,
+        )
 
-        logger.info(json.dumps(opt_prob.to_json_data(optimization_result.opt_x[newaxis, :]), indent=2, default=ndarray_to_list))
+        logger.info(
+            json.dumps(opt_prob.to_json_data(optimization_result.opt_x), indent=2, default=ndarray_to_list)
+        )
         logger.info(f"opt_nu: {optimization_result.opt_nu}")
 
         logger.info(json.dumps(opt_prob.to_json_data(opt_x[newaxis, :]), indent=2, default=ndarray_to_list))
         logger.info(f"true_opt_y: {opt_y}")
+
+        logger.info(f"x diff: {optimization_result.opt_x - opt_x}")
+        logger.info(f"max x diff: {abs(optimization_result.opt_x - opt_x).max()}")
+        logger.info(f"nu diff: {optimization_result.opt_nu - opt_y}")
+        logger.info(f"max nu diff: {abs(optimization_result.opt_nu - opt_y).max()}")
 
         self.assertEqual(1, 1)
 
