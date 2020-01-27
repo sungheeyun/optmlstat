@@ -42,6 +42,24 @@ class AffineFunction(FunctionBase):
     def is_convex(self) -> Optional[bool]:
         return True
 
+    @property
+    def is_strictly_concave(self) -> Optional[bool]:
+        return False
+
+    @property
+    def is_concave(self) -> Optional[bool]:
+        return True
+
+    @property
+    def conjugate(self) -> FunctionBase:
+        assert False
+        # TODO should we defined non-function? :)
+        return FunctionBase()
+
+    def conjugate_arg(self, z_array_2d: ndarray) -> ndarray:
+        assert False
+        return ndarray(0)
+
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         logger.debug(x_array_2d.shape)
         logger.debug(self.slope_array_2d.shape)
