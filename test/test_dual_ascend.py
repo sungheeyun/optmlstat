@@ -46,6 +46,9 @@ class TestDualAscend(unittest.TestCase):
 
         # calculate true solution
 
+        # TODO (2) implement a separate function or method to calculate exact solutions for equality constrained
+        #  strictly convex quadratic problem
+
         p = eq_cnst_fcn.intercept_array_1d.size
 
         kkt_a_array: ndarray = block(

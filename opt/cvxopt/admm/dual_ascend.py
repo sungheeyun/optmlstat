@@ -69,11 +69,8 @@ class DualAscend(OptimizationAlgorithmBase):
          OptimizationResult instance.
         """
 
-        # TODO need to accept more parameters, such as, stopping criteria, such as, size of (Ax - b),
+        # TODO (4) need to accept more parameters, such as, stopping criteria, such as, size of (Ax - b),
         #  maximum number of iteration, difference in x and y, etc.
-        # TODO store optimization information to optimization result
-        # TODO implement argmin_x part in FunctionBase, not in here.
-        # TODO make this work for multi-input and multi-output
 
         obj_fcn: FunctionBase = opt_prob.obj_fcn
         eq_cnst_fcn: AffineFunction = opt_prob.eq_cnst_fcn

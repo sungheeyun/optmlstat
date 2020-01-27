@@ -71,7 +71,7 @@ class FunctionBase(OptMLStatClassBase):
         """
         pass
 
-    # TODO (5) implemented the below method for all subclasses of FunctionBase
+    # TODO (2) implemented the below method for all subclasses of FunctionBase
 
     def get_shape(self) -> Tuple[Optional[int], Optional[int]]:
         return self.num_inputs, self.num_outputs
@@ -110,7 +110,7 @@ class FunctionBase(OptMLStatClassBase):
         """
         pass
 
-    # TODO defined decorator to check whether a function is convex for conjugate and conjugate_arg
+    # TODO (2) defined decorator to check whether a function is convex for conjugate and conjugate_arg
 
     @property
     @abstractmethod

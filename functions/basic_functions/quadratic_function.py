@@ -180,7 +180,7 @@ class QuadraticFunction(FunctionBase):
 
         return x_array_3d
 
-    # TODO (2) check x_array_2d and y_array_2 in all get_y_values_2d methods
+    # TODO (2) check x_array_2d and y_array_2 in all get_y_values_2d methods using decorators
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         logger.debug(x_array_2d.shape)

@@ -13,15 +13,18 @@ from opt.opt_prob_evaluation import OptimizationProblemEvaluation
 logger: Logger = getLogger()
 
 
+# TODO (5) implement plotter for OptimizaitonResult
+
+
 class OptimizationResult(OptMLStatClassBase):
     """
     Stores optimization history and final results.
     """
 
     def __init__(self, opt_prob: OptimizationProblem, opt_alg: OptimizationAlgorithmBase) -> None:
-        self.opt_prob: OptimizationProblem = opt_prob
-        self.opt_alg: OptimizationAlgorithmBase = opt_alg
-        self.iter_iterate_dict: Dict[Iteration, OptimizationIterate] = dict()
+        self._opt_prob: OptimizationProblem = opt_prob
+        self._opt_alg: OptimizationAlgorithmBase = opt_alg
+        self._iter_iterate_dict: Dict[Iteration, OptimizationIterate] = dict()
 
     def register_solution(
         self,
@@ -32,12 +35,24 @@ class OptimizationResult(OptMLStatClassBase):
         nu_array_2d: Optional[ndarray] = None,
         dual_prob_evaluation: Optional[OptimizationProblemEvaluation] = None,
     ) -> None:
-        assert iteration not in self.iter_iterate_dict
+        assert iteration not in self._iter_iterate_dict
 
-        self.iter_iterate_dict[iteration] = OptimizationIterate(
+        self._iter_iterate_dict[iteration] = OptimizationIterate(
             x_array_2d, primal_prob_evaluation, lambda_array_2d, nu_array_2d, dual_prob_evaluation
         )
 
     @property
+    def opt_prob(self) -> OptimizationProblem:
+        return self._opt_prob
+
+    @property
+    def opt_alg(self) -> OptimizationAlgorithmBase:
+        return self._opt_alg
+
+    @property
+    def iter_iterate_dict(self) -> Dict[Iteration, OptimizationIterate]:
+        return self._iter_iterate_dict
+
+    @property
     def final_iterate(self) -> OptimizationIterate:
-        return sorted(self.iter_iterate_dict.items(), key=lambda x: x[0])[-1][1]
+        return sorted(self._iter_iterate_dict.items(), key=lambda x: x[0])[-1][1]
