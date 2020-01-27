@@ -14,7 +14,7 @@ from ml.stochastic_process_samplers.simple_sinusoidal_sampler import SimpleSinus
 from ml.modeling.linear_modeler import LinearModeler
 from ml.modeling.modeler_base import ModelerBase
 from functions.basis_functions.gaussian_basis_function import GaussianBasisFunction
-from plotting.plotting import plot_1d_data
+from plotting.plotter import plot_1d_data
 from ml.measure import mean_sum_squares
 
 

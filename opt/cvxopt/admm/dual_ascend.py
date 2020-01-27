@@ -7,9 +7,9 @@ from functions.function_base import FunctionBase
 from functions.basic_functions.affine_function import AffineFunction
 from functions.basic_functions.quadratic_function import QuadraticFunction
 from opt.opt_alg.optimization_algorithm_base import OptimizationAlgorithmBase
-from opt.optimization_problem import OptimizationProblem
-from opt.optimization_result import OptimizationResult
-from opt.opt_prob_evaluation import OptimizationProblemEvaluation
+from opt.opt_prob import OptimizationProblem
+from opt.opt_res import OptimizationResult
+from opt.opt_prob_eval import OptimizationProblemEvaluation
 from opt.opt_decorators import solver, single_obj_solver, eq_cnst_solver, linear_eq_cnst_solver, convex_solver
 from opt.iteration import Iteration
 

@@ -7,7 +7,7 @@ from freq_used.logging import set_logging_basic_config
 from functions.example_functions import get_sum_of_square_function, get_sum_function
 from functions.basic_functions.quadratic_function import QuadraticFunction
 from functions.basic_functions.affine_function import AffineFunction
-from opt.optimization_problem import OptimizationProblem
+from opt.opt_prob import OptimizationProblem
 
 
 logger: Logger = getLogger()

@@ -4,7 +4,7 @@ from numpy import ndarray
 
 from basic_modueles.class_base import OptMLStatClassBase
 from functions.function_base import FunctionBase
-from opt.opt_prob_evaluation import OptimizationProblemEvaluation
+from opt.opt_prob_eval import OptimizationProblemEvaluation
 
 
 class OptimizationProblem(OptMLStatClassBase):

@@ -5,8 +5,8 @@ from functools import wraps
 from numpy import ndarray
 from numpy.random import randn
 
-from opt.optimization_problem import OptimizationProblem
-from opt.optimization_result import OptimizationResult
+from opt.opt_prob import OptimizationProblem
+from opt.opt_res import OptimizationResult
 
 logger: Logger = getLogger()
 

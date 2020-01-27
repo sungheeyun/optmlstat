@@ -6,16 +6,20 @@ import os
 from numpy import block, ndarray, zeros, abs, allclose
 from numpy.random import randn, seed
 from numpy.linalg import solve
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
+from matplotlib import pyplot as plt
 from freq_used.logging import set_logging_basic_config
 
 from functions.function_base import FunctionBase
 from functions.basic_functions.quadratic_function import QuadraticFunction
 from functions.basic_functions.affine_function import AffineFunction
 from functions.example_functions import get_sum_function, get_sum_of_square_function
-from opt.optimization_problem import OptimizationProblem
-from opt.optimization_result import OptimizationResult
+from opt.opt_prob import OptimizationProblem
+from opt.opt_res import OptimizationResult
 from opt.cvxopt.admm.dual_ascend import DualAscend
 from opt.opt_iterate import OptimizationIterate
+from plotting.opt_res_plotter import OptimizationResultPlotter
 
 
 logging
@@ -91,6 +95,14 @@ class TestDualAscend(unittest.TestCase):
 
         self.assertTrue(allclose(final_iterate.x_array_2d - opt_x_array_1d, 0.0))
         self.assertTrue(allclose(final_iterate.nu_array_2d - opt_nu_array_1d, 0.0))
+
+        opt_res_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
+
+        figure: Figure
+        axis: Axes
+        figure, axes = plt.subplots()
+        opt_res_plotter.plot_primal_and_dual_objs(axes, '-')
+        figure.show()
 
     @classmethod
     def _get_simple_quad_problem(cls) -> OptimizationProblem:

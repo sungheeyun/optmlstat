@@ -4,7 +4,7 @@ from typing import Optional, List, Union, Any
 from numpy import ndarray
 
 from basic_modueles.class_base import OptMLStatClassBase
-from opt.optimization_problem import OptimizationProblem
+from opt.opt_prob import OptimizationProblem
 
 
 class OptimizationAlgorithmBase(OptMLStatClassBase):
