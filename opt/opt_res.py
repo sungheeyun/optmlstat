@@ -48,4 +48,4 @@ class OptimizationResult(OptMLStatClassBase):
 
     @property
     def final_iterate(self) -> OptimizationIterate:
-        return sorted(self._iter_iterate_dict.items(), key=lambda x: x[0])[-1][1]
+        return sorted(self._iter_iterate_dict.items())[-1][1]
