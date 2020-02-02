@@ -29,17 +29,17 @@ class OptimizationIterate:
     @property
     def nu_array_2d(self) -> Optional[ndarray]:
         if self.dual_prob_evaluation is not None:
-            opt_prob: OptimizationProblem = self.dual_prob_evaluation.opt_prob
-            return self.dual_prob_evaluation.x_array_2d[:, opt_prob.num_ineq_cnst:]
+            primal_opt_prob: OptimizationProblem = self.primal_prob_evaluation.opt_prob
+            return self.dual_prob_evaluation.x_array_2d[:, primal_opt_prob.num_ineq_cnst:]
         else:
             return None
 
     def to_json_data(self) -> Dict[str, Any]:
         return dict(
-            x_array_2d=self.x_array_2d,
+            # x_array_2d=self.x_array_2d,
             primal_prob_evaluation=self.primal_prob_evaluation,
-            lambda_array_2d=self.lambda_array_2d,
-            nu_array_2d=self.nu_array_2d,
+            # lambda_array_2d=self.lambda_array_2d,
+            # nu_array_2d=self.nu_array_2d,
             dual_prob_evaluation=self.dual_prob_evaluation,
         )
 

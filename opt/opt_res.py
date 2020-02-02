@@ -11,9 +11,6 @@ from opt.opt_prob_eval import OptimizationProblemEvaluation
 logger: Logger = getLogger()
 
 
-# TODO (5) implement plotter for OptimizaitonResult
-
-
 class OptimizationResult(OptMLStatClassBase):
     """
     Stores optimization history and final results.

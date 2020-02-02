@@ -71,9 +71,9 @@ class QuadraticFunction(FunctionBase):
             intercept_array_1d.shape,
         )
 
-        self.intercept_array_1d: ndarray = intercept_array_1d.copy()
-        self.slope_array_2d: ndarray = slope_array_2d.copy()
         self.quad_array_3d: ndarray = None if quad_array_3d is None else quad_array_3d.copy()
+        self.slope_array_2d: ndarray = slope_array_2d.copy()
+        self.intercept_array_1d: ndarray = intercept_array_1d.copy()
 
         self._is_affine: bool = (self.quad_array_3d == 0.0).all()
         self._is_convex: bool

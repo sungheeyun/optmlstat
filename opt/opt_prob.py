@@ -96,11 +96,11 @@ class OptimizationProblem(OptMLStatClassBase):
         return self._num_eq_cnst
 
     @property
-    def num_ineq_cnst(self):
+    def num_ineq_cnst(self) -> int:
         return self._num_ineq_cnst
 
     @property
-    def is_convex(self):
+    def is_convex(self) -> bool:
         return self._is_convex
 
     def to_json_data(self) -> Dict[str, Any]:

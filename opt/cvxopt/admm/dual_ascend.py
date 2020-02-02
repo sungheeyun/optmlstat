@@ -43,7 +43,7 @@ class DualAscend(OptimizationAlgorithmBase):
         The objective function should properly implement its methods, conjugate and conjugate_arg
         since this function depends on the correct behavior of those functions.
 
-        This only deals with the function which as only one output.
+        This only deals with the function which has only one output.
         To parallelize the optimization process for multiple outputs,
         the client should consider a parallelization procedure wrapping this method,
         which does not depend on the details of this method.
@@ -87,7 +87,7 @@ class DualAscend(OptimizationAlgorithmBase):
 
         y_array_2d: ndarray = initial_nu_array_2d.copy()
 
-        for idx in range(1000):
+        for idx in range(200):
             iteration = Iteration(idx + 1)
 
             nu_array_2d_for_x_update: ndarray = -y_array_2d.dot(eq_cnst_fcn.slope_array_2d.T)
@@ -107,7 +107,7 @@ class DualAscend(OptimizationAlgorithmBase):
                 iteration=iteration,
                 primal_prob_evaluation=opt_prob.evaluate(x_array_2d),
                 dual_prob_evaluation=OptimizationProblemEvaluation(
-                    opt_prob=opt_prob, x_array_2d=y_array_2d, obj_fcn_array_2d=dual_fcn_array_2d
+                    opt_prob=None, x_array_2d=y_array_2d, obj_fcn_array_2d=dual_fcn_array_2d
                 ),
             )
 

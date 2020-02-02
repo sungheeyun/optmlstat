@@ -1,7 +1,5 @@
 from abc import abstractmethod
-from typing import Optional, List, Union, Any
-
-from numpy import ndarray
+from typing import Any
 
 from basic_modueles.class_base import OptMLStatClassBase
 from opt.opt_prob import OptimizationProblem
@@ -20,9 +18,7 @@ class OptimizationAlgorithmBase(OptMLStatClassBase):
         return self._learning_rate
 
     @abstractmethod
-    def solve(
-        self, opt_prob: OptimizationProblem, initial_point_or_list: Optional[Union[ndarray, List[ndarray]]]
-    ) -> Any:
+    def solve(self, opt_prob: OptimizationProblem, *args, **kwargs) -> Any:
         """
         Solve the optimization problem.
 
