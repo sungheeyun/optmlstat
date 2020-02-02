@@ -3,6 +3,7 @@ from typing import Any
 
 from basic_modueles.class_base import OptMLStatClassBase
 from opt.opt_prob import OptimizationProblem
+from opt.opt_parameter import OptimizationParameter
 
 
 class OptimizationAlgorithmBase(OptMLStatClassBase):
@@ -10,20 +11,18 @@ class OptimizationAlgorithmBase(OptMLStatClassBase):
     Optimization Algorithm
     """
 
-    def __init__(self, learning_rate: float) -> None:
-        self._learning_rate: float = learning_rate
-
     @property
     def learning_rate(self) -> float:
         return self._learning_rate
 
     @abstractmethod
-    def solve(self, opt_prob: OptimizationProblem, *args, **kwargs) -> Any:
+    def solve(self, opt_prob: OptimizationProblem, opt_param: OptimizationParameter, *args, **kwargs) -> Any:
         """
         Solve the optimization problem.
 
         Parameters
         ----------
+        opt_param
         opt_prob:
          OptimizationProblem instance
         initial_point_or_list:

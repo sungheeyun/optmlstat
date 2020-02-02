@@ -12,6 +12,8 @@ from opt.opt_res import OptimizationResult
 from opt.opt_prob_eval import OptimizationProblemEvaluation
 from opt.opt_decorators import solver, single_obj_solver, eq_cnst_solver, linear_eq_cnst_solver, convex_solver
 from opt.iteration import Iteration
+from opt.opt_parameter import OptimizationParameter
+from opt.learning_rate.learning_rate_strategy import LearningRateStrategy
 
 
 logger: Logger = getLogger()
@@ -22,9 +24,6 @@ class DualAscend(OptimizationAlgorithmBase):
     Dual Ascend algorithm
     """
 
-    def __init__(self, learning_rate: float):
-        super(DualAscend, self).__init__(learning_rate)
-
     @convex_solver
     @linear_eq_cnst_solver
     @single_obj_solver
@@ -33,6 +32,7 @@ class DualAscend(OptimizationAlgorithmBase):
     def solve(
         self,
         opt_prob: OptimizationProblem,
+        opt_param: OptimizationParameter,
         initial_x_array_2d: Optional[ndarray] = None,
         initial_lambda_array_2d: Optional[ndarray] = None,
         initial_nu_array_2d: Optional[ndarray] = None,
@@ -56,6 +56,8 @@ class DualAscend(OptimizationAlgorithmBase):
         ----------
         opt_prob:
          The optimization problem to solve.
+        opt_param:
+         Optimization parameter
         initial_x_array_2d:
          N-by-n array representing initial points for x.
         initial_lambda_array_2d:
@@ -68,9 +70,6 @@ class DualAscend(OptimizationAlgorithmBase):
         optimization_result:
          OptimizationResult instance.
         """
-
-        # TODO (4) need to accept more parameters, such as, stopping criteria, such as, size of (Ax - b),
-        #  maximum number of iteration, difference in x and y, etc.
 
         obj_fcn: FunctionBase = opt_prob.obj_fcn
         eq_cnst_fcn: AffineFunction = opt_prob.eq_cnst_fcn
@@ -87,7 +86,8 @@ class DualAscend(OptimizationAlgorithmBase):
 
         y_array_2d: ndarray = initial_nu_array_2d.copy()
 
-        for idx in range(200):
+        learning_rate_strategy: LearningRateStrategy = opt_param.learning_rate_strategy
+        for idx in range(opt_param.max_num_outer_iterations):
             iteration = Iteration(idx + 1)
 
             nu_array_2d_for_x_update: ndarray = -y_array_2d.dot(eq_cnst_fcn.slope_array_2d.T)
@@ -96,7 +96,7 @@ class DualAscend(OptimizationAlgorithmBase):
             x_array_2d: ndarray = obj_fcn.conjugate_arg(nu_array_2d_for_x_update)[:, :, 0]
 
             # dual variable update
-            y_array_2d += self.learning_rate * eq_cnst_fcn.get_y_values_2d(x_array_2d)
+            y_array_2d += learning_rate_strategy.get_learning_rate(iteration) * eq_cnst_fcn.get_y_values_2d(x_array_2d)
 
             nu_array_2d_for_dual_function_eval: ndarray = -y_array_2d.dot(eq_cnst_fcn.slope_array_2d.T)
             dual_fcn_array_2d: ndarray = -conjugate.get_y_values_2d(

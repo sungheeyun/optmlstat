@@ -20,6 +20,7 @@ from opt.opt_res import OptimizationResult
 from opt.cvxopt.admm.dual_ascend import DualAscend
 from opt.opt_iterate import OptimizationIterate
 from opt.special_solvers import strictly_convex_quadratic_with_linear_equality_constraints
+from opt.opt_parameter import OptimizationParameter
 from plotting.opt_res_plotter import OptimizationResultPlotter
 
 
@@ -35,7 +36,9 @@ class TestDualAscend(unittest.TestCase):
     domain_dim: int = 10
     num_data_points: int = 3
     num_eq_cnst: int = 2
-    ABS_TOLERANCE_USED_FOR_COMPARE: float = 1e-1
+    abs_tolerance_used_for_compare: float = 1e-1
+
+    opt_param: OptimizationParameter = OptimizationParameter(0.1, 200)
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -91,10 +94,12 @@ class TestDualAscend(unittest.TestCase):
         initial_x_point_2d: ndarray = randn(num_data_points, opt_prob.domain_dim)
         initial_nu_point_2d: ndarray = randn(num_data_points, opt_prob.num_eq_cnst)
 
-        learning_rate: float = 0.01
-        dual_ascend: DualAscend = DualAscend(learning_rate)
+        dual_ascend: DualAscend = DualAscend()
         opt_res: OptimizationResult = dual_ascend.solve(
-            opt_prob, initial_x_array_2d=initial_x_point_2d, initial_nu_array_2d=initial_nu_point_2d
+            opt_prob,
+            TestDualAscend.opt_param,
+            initial_x_array_2d=initial_x_point_2d,
+            initial_nu_array_2d=initial_nu_point_2d,
         )
 
         final_iterate: OptimizationIterate = opt_res.final_iterate
@@ -110,10 +115,10 @@ class TestDualAscend(unittest.TestCase):
         logger.info(f"max nu diff: {abs(final_iterate.nu_array_2d - opt_nu_array_1d).max()}")
 
         self.assertTrue(
-            allclose(final_iterate.x_array_2d, opt_x_array_1d, atol=TestDualAscend.ABS_TOLERANCE_USED_FOR_COMPARE)
+            allclose(final_iterate.x_array_2d, opt_x_array_1d, atol=TestDualAscend.abs_tolerance_used_for_compare)
         )
         self.assertTrue(
-            allclose(final_iterate.nu_array_2d, opt_nu_array_1d, atol=TestDualAscend.ABS_TOLERANCE_USED_FOR_COMPARE)
+            allclose(final_iterate.nu_array_2d, opt_nu_array_1d, atol=TestDualAscend.abs_tolerance_used_for_compare)
         )
 
         axis1: Axes
