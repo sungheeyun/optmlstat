@@ -21,6 +21,7 @@ from opt.cvxopt.admm.dual_ascend import DualAscend
 from opt.opt_iterate import OptimizationIterate
 from opt.special_solvers import strictly_convex_quadratic_with_linear_equality_constraints
 from opt.opt_parameter import OptimizationParameter
+from opt.learning_rate.vanishing_learning_rate_strategy import VanishingLearningRateStrategy
 from plotting.opt_res_plotter import OptimizationResultPlotter
 
 
@@ -33,12 +34,14 @@ def get_fcn_name(frame_info: FrameInfo) -> str:
 
 
 class TestDualAscend(unittest.TestCase):
-    domain_dim: int = 10
-    num_data_points: int = 3
+    domain_dim: int = 20
+    num_data_points: int = 5
     num_eq_cnst: int = 2
-    abs_tolerance_used_for_compare: float = 1e-1
+    abs_tolerance_used_for_compare: float = 1e-10
+    rel_tolerance_used_for_compare: float = 1e-10
 
-    opt_param: OptimizationParameter = OptimizationParameter(0.1, 200)
+    # opt_param: OptimizationParameter = OptimizationParameter(0.1077, 100)
+    opt_param: OptimizationParameter = OptimizationParameter(VanishingLearningRateStrategy(0.1, 1.0, 200), 100)
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -49,26 +52,24 @@ class TestDualAscend(unittest.TestCase):
         plt.show()
 
     def test_dual_ascend_with_simple_example(self) -> None:
-        seed(7601)
-        figure: Figure = self._test_dual_ascend_with_quadratic_problem(
+        seed(760104)
+        self._test_dual_ascend_with_quadratic_problem(
             TestDualAscend._get_simple_quad_problem(),
             num_data_points=TestDualAscend.num_data_points,
             frame_info=stack()[0],
         )
-        figure.show()
 
     def test_dual_ascend_with_quad_prob_with_random_eq_cnsts(self) -> None:
         seed(760104)
-        figure: Figure = self._test_dual_ascend_with_quadratic_problem(
+        self._test_dual_ascend_with_quadratic_problem(
             TestDualAscend._get_quad_problem_with_random_eq_cnsts(TestDualAscend.num_eq_cnst),
             num_data_points=TestDualAscend.num_data_points,
             frame_info=stack()[0],
         )
-        figure.show()
 
     def _test_dual_ascend_with_quadratic_problem(
         self, opt_prob: OptimizationProblem, *, num_data_points: int = 1, frame_info: FrameInfo
-    ) -> Figure:
+    ) -> None:
 
         assert isinstance(opt_prob.obj_fcn, QuadraticFunction)
         assert isinstance(opt_prob.eq_cnst_fcn, AffineFunction)
@@ -114,13 +115,6 @@ class TestDualAscend(unittest.TestCase):
         logger.debug(f"nu diff: {final_iterate.nu_array_2d - opt_nu_array_1d}")
         logger.info(f"max nu diff: {abs(final_iterate.nu_array_2d - opt_nu_array_1d).max()}")
 
-        self.assertTrue(
-            allclose(final_iterate.x_array_2d, opt_x_array_1d, atol=TestDualAscend.abs_tolerance_used_for_compare)
-        )
-        self.assertTrue(
-            allclose(final_iterate.nu_array_2d, opt_nu_array_1d, atol=TestDualAscend.abs_tolerance_used_for_compare)
-        )
-
         axis1: Axes
         axis2: Axes
 
@@ -128,8 +122,24 @@ class TestDualAscend(unittest.TestCase):
         axis1, axis2 = figure.get_axes()
         OptimizationResultPlotter(opt_res).plot_primal_and_dual_objs(axis1, "-", gap_axis=axis2)
         figure.suptitle(get_fcn_name(frame_info), fontsize=15)
+        figure.show()
 
-        return figure
+        self.assertTrue(
+            allclose(
+                final_iterate.x_array_2d,
+                opt_x_array_1d,
+                atol=TestDualAscend.abs_tolerance_used_for_compare,
+                rtol=TestDualAscend.rel_tolerance_used_for_compare,
+            )
+        )
+        self.assertTrue(
+            allclose(
+                final_iterate.nu_array_2d,
+                opt_nu_array_1d,
+                atol=TestDualAscend.abs_tolerance_used_for_compare,
+                rtol=TestDualAscend.rel_tolerance_used_for_compare,
+            )
+        )
 
     @classmethod
     def _get_simple_quad_problem(cls) -> OptimizationProblem:

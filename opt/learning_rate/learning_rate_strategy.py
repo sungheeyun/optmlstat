@@ -1,5 +1,6 @@
-from typing import Optional
 from dataclasses import dataclass
+
+from opt.iteration import Iteration
 
 
 @dataclass()
@@ -9,5 +10,5 @@ class LearningRateStrategy:
     """
     constant_learning_rate: float
 
-    def get_learning_rate(self, outer_iteration: Optional[int] = None, inner_iteration: Optional[int] = None) -> float:
+    def get_learning_rate(self, iteration: Iteration) -> float:
         return self.constant_learning_rate

@@ -42,8 +42,6 @@ class OptimizationResultPlotter:
             [opt_iterate.primal_prob_evaluation.obj_fcn_array_2d[:, 0] for opt_iterate in opt_iterate_list]
         )
 
-        logger.info(primal_obj_fcn_array_2d[:3, :])
-
         dual_obj_fcn_dim_list: List[int] = [
             opt_iterate.dual_prob_evaluation.obj_fcn_array_2d.shape[0]
             for opt_iterate in opt_iterate_list
