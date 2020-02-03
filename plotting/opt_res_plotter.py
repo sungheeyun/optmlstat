@@ -32,7 +32,7 @@ class OptimizationResultPlotter:
     major_xtick_label_font_size: float = 10.0
     major_ytick_label_font_size: float = 10.0
 
-    def get_sorted_iteration_and_iterate(self) -> Tuple[List[Iteration], List[OptimizationIterate]]:
+    def _get_sorted_iteration_and_iterate(self) -> Tuple[List[Iteration], List[OptimizationIterate]]:
         iteration_list: List[Iteration]
         opt_iterate_list: List[OptimizationIterate]
         iteration_list, opt_iterate_list = zip(*sorted(self.opt_res.iter_iterate_dict.items()))
@@ -45,7 +45,7 @@ class OptimizationResultPlotter:
 
         iteration_list: List[Iteration]
         opt_iterate_list: List[OptimizationIterate]
-        iteration_list, opt_iterate_list = self.get_sorted_iteration_and_iterate()
+        iteration_list, opt_iterate_list = self._get_sorted_iteration_and_iterate()
         outer_iteration_list: List[int] = Iteration.get_outer_iteration_list(iteration_list)
 
         primal_obj_fcn_array_2d: ndarray = vstack(
@@ -115,12 +115,14 @@ class OptimizationResultPlotter:
 
         return line2d_line_1, line2d_line_2, line2d_list_3
 
-    def animate_primal_sol(self) -> MultiAxesAnimation:
+    def animate_primal_sol(self, head_ratio: float = .1) -> MultiAxesAnimation:
+
+        assert 0.0 < head_ratio < 1.0
 
         opt_iterate_list: List[OptimizationIterate]
-        _, opt_iterate_list = self.get_sorted_iteration_and_iterate()
+        _, opt_iterate_list = self._get_sorted_iteration_and_iterate()
 
-        time_array_1d: ndarray = linspace(0.0, 2.0, len(opt_iterate_list))
+        time_array_1d: ndarray = linspace(0.0, 1.0, len(opt_iterate_list))
 
         idx1 = 0
         idx2 = 1
@@ -143,9 +145,7 @@ class OptimizationResultPlotter:
             time_array_1d,
             x_array_2d,
             y_array_2d,
+            head_time_period=head_ratio,
         )
-
-        axis.set_xlim(-5.0, 5.0)
-        axis.set_ylim(-5.0, 5.0)
 
         return multi_axes_animation

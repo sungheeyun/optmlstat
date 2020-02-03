@@ -42,7 +42,7 @@ class TestDualAscend(unittest.TestCase):
     rel_tolerance_used_for_compare: float = 1e-10
 
     # opt_param: OptimizationParameter = OptimizationParameter(0.1077, 100)
-    opt_param: OptimizationParameter = OptimizationParameter(VanishingLearningRateStrategy(5e-3, 1.0, 200), 100)
+    opt_param: OptimizationParameter = OptimizationParameter(VanishingLearningRateStrategy(10e-3, 1.0, 200), 100)
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -52,7 +52,7 @@ class TestDualAscend(unittest.TestCase):
     def tearDownClass(cls) -> None:
         plt.show()
 
-    def _test_dual_ascend_with_simple_example(self) -> None:
+    def test_dual_ascend_with_simple_example(self) -> None:
         # seed(760104)
         self._test_dual_ascend_with_quadratic_problem(
             TestDualAscend._get_simple_quad_problem(),
@@ -61,7 +61,7 @@ class TestDualAscend(unittest.TestCase):
         )
 
     def test_dual_ascend_with_quad_prob_with_random_eq_cnsts(self) -> None:
-        seed(760104)
+        # seed(760104)
         self._test_dual_ascend_with_quadratic_problem(
             TestDualAscend._get_quad_problem_with_random_eq_cnsts(TestDualAscend.num_eq_cnst),
             num_data_points=TestDualAscend.num_data_points,

@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 from functools import reduce
 
 from numpy import ndarray
@@ -6,6 +6,8 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
 import matplotlib.animation as animation
+
+from utils.interval import Interval
 
 
 class MultiAxesAnimation(animation.TimedAnimation):
@@ -49,8 +51,10 @@ class MultiAxesAnimation(animation.TimedAnimation):
                 line1a=Line2D([], [], color="red", linewidth=2),
                 line1e=Line2D([], [], color="red", marker="o", markeredgecolor="r"),
             )
-            for axis in self.axis_list
+            for _ in self.axis_list
         ]
+
+        axis_interval_dict: Dict[Axes, Tuple[Interval, Interval]] = dict()
 
         for axis_idx, axis in enumerate(self.axis_list):
             for line2d in self.name_line2d_dict_list[axis_idx].values():
@@ -58,8 +62,19 @@ class MultiAxesAnimation(animation.TimedAnimation):
 
             x_array_1d: ndarray = self.x_array_2d[:, axis_idx]
             y_array_1d: ndarray = self.y_array_2d[:, axis_idx]
-            axis.set_xlim(x_array_1d.min(), x_array_1d.max())
-            axis.set_ylim(y_array_1d.min(), y_array_1d.max())
+
+            xlim: Interval = Interval(x_array_1d.min(), x_array_1d.max())
+            ylim: Interval = Interval(y_array_1d.min(), y_array_1d.max())
+
+            if axis in axis_interval_dict:
+                axis_interval_dict[axis][0].update(xlim)
+                axis_interval_dict[axis][1].update(ylim)
+            else:
+                axis_interval_dict[axis] = (xlim, ylim)
+
+        for axis, (xlim, ylim) in axis_interval_dict.items():
+            axis.set_xlim(xlim.lower_bound, xlim.upper_bound)
+            axis.set_ylim(ylim.lower_bound, ylim.upper_bound)
 
         self._drawn_artists: List[Line2D] = reduce(
             list.__add__, [list(name_line2d_dict.values()) for name_line2d_dict in self.name_line2d_dict_list]
