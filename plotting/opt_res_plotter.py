@@ -28,6 +28,9 @@ class OptimizationResultPlotter:
     major_xtick_label_font_size: float = 15.0
     major_ytick_label_font_size: float = 15.0
 
+    def get_sorted_iteration_and_iterate(self):
+        iteration_list, opt_iterate_list = zip(*sorted(self.opt_res.iter_iterate_dict.items(), key=lambda x: x[0]))
+
     def plot_primal_and_dual_objs(
         self, axis: Axes, *args, **kwargs
     ) -> Tuple[List[Line2D], Optional[List[Line2D]], Optional[List[Line2D]]]:
@@ -37,7 +40,7 @@ class OptimizationResultPlotter:
         opt_iterate_list: List[OptimizationIterate]
         iteration_list, opt_iterate_list = zip(*sorted(self.opt_res.iter_iterate_dict.items(), key=lambda x: x[0]))
 
-        outer_iter_list: List[int] = [iteration.outer_iter for iteration in iteration_list]
+        outer_iter_list: List[int] = [iteration.outer_iteration for iteration in iteration_list]
         primal_obj_fcn_array_2d: ndarray = vstack(
             [opt_iterate.primal_prob_evaluation.obj_fcn_array_2d[:, 0] for opt_iterate in opt_iterate_list]
         )

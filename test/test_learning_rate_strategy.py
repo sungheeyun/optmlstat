@@ -49,7 +49,7 @@ class TestLearningRateStrategy(unittest.TestCase):
             Iteration(outer_iteration) for outer_iteration in range(1, TestLearningRateStrategy.max_outer_iteration + 1)
         ]
         axis.plot(
-            [iteration.outer_iter for iteration in iteration_list],
+            [iteration.outer_iteration for iteration in iteration_list],
             [vanishing_learning_rate_strategy.get_learning_rate(iteration) for iteration in iteration_list],
             "-",
         )

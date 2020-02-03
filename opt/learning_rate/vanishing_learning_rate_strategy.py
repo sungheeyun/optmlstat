@@ -59,5 +59,5 @@ class VanishingLearningRateStrategy(LearningRateStrategy):
         self.constant_a: float = float(self.constant_learning_rate) * power(1.0 + self.constant_b, self.exponent)
 
     def get_learning_rate(self, iteration: Iteration) -> float:
-        assert iteration.outer_iter > 0
-        return self.constant_a / power(float(iteration.outer_iter) + self.constant_b, self.exponent)
+        assert iteration.outer_iteration > 0
+        return self.constant_a / power(float(iteration.outer_iteration) + self.constant_b, self.exponent)
