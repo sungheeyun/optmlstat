@@ -23,6 +23,7 @@ from opt.special_solvers import strictly_convex_quadratic_with_linear_equality_c
 from opt.opt_parameter import OptimizationParameter
 from opt.learning_rate.vanishing_learning_rate_strategy import VanishingLearningRateStrategy
 from plotting.opt_res_plotter import OptimizationResultPlotter
+from plotting.multi_axes_animation import MultiAxesAnimation
 
 
 logging
@@ -41,7 +42,7 @@ class TestDualAscend(unittest.TestCase):
     rel_tolerance_used_for_compare: float = 1e-10
 
     # opt_param: OptimizationParameter = OptimizationParameter(0.1077, 100)
-    opt_param: OptimizationParameter = OptimizationParameter(VanishingLearningRateStrategy(0.1, 1.0, 200), 100)
+    opt_param: OptimizationParameter = OptimizationParameter(VanishingLearningRateStrategy(5e-3, 1.0, 200), 100)
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -51,8 +52,8 @@ class TestDualAscend(unittest.TestCase):
     def tearDownClass(cls) -> None:
         plt.show()
 
-    def test_dual_ascend_with_simple_example(self) -> None:
-        seed(760104)
+    def _test_dual_ascend_with_simple_example(self) -> None:
+        # seed(760104)
         self._test_dual_ascend_with_quadratic_problem(
             TestDualAscend._get_simple_quad_problem(),
             num_data_points=TestDualAscend.num_data_points,
@@ -118,11 +119,18 @@ class TestDualAscend(unittest.TestCase):
         axis1: Axes
         axis2: Axes
 
-        figure: Figure = get_figure(2, 1)
+        optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
+
+        figure: Figure = get_figure(
+            2, 1, axis_width=3.0, axis_height=2.5, top_margin=0.5, bottom_margin=0.5, vertical_padding=0.5
+        )
         axis1, axis2 = figure.get_axes()
-        OptimizationResultPlotter(opt_res).plot_primal_and_dual_objs(axis1, "-", gap_axis=axis2)
-        figure.suptitle(get_fcn_name(frame_info), fontsize=15)
+        optimization_result_plotter.plot_primal_and_dual_objs(axis1, "-", gap_axis=axis2)
+        figure.suptitle(get_fcn_name(frame_info), fontsize=10)
         figure.show()
+
+        multi_axes_animation: MultiAxesAnimation = optimization_result_plotter.animate_primal_sol()
+        multi_axes_animation.figure.show()
 
         self.assertTrue(
             allclose(

@@ -37,6 +37,7 @@ class TestMultiAxesAnimation(unittest.TestCase):
             time_array_1d=t_array_1d,
             x_array_2d=x_array_2d,
             y_array_2d=y_array_2d,
+            interval=5,
         )
 
         ax1.set_xlabel("x")
