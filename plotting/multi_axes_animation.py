@@ -43,6 +43,8 @@ class MultiAxesAnimation(animation.TimedAnimation):
         self.y_array_2d: ndarray = y_array_2d.copy()
         self.head_time_period: float = head_time_period
 
+        # TODO (2) control color, line width, etc. using constructor arguments.
+
         self.figure: Figure = figure
         self.axis_list: List[Axes] = axis_list
         self.name_line2d_dict_list: List[Dict[str, Line2D]] = [
@@ -104,6 +106,3 @@ class MultiAxesAnimation(animation.TimedAnimation):
     def _init_draw(self):
         for line2d in self._drawn_artists:
             line2d.set_data([], [])
-
-
-# ani.save('test_sub.mp4')

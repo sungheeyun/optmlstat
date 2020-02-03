@@ -115,7 +115,25 @@ class OptimizationResultPlotter:
 
         return line2d_line_1, line2d_line_2, line2d_list_3
 
+    # TODO (4) add method for drawing dual variable trajectories
+    # TODO (2) add a method for drawing 3-d trajectories.
+    # TODO (3) add a method for drawing variable trajectories and (primal and/or dual) obj functions together.
+
+    # TODO (4) add arguments for selection of variables to draw
     def animate_primal_sol(self, head_ratio: float = .1) -> MultiAxesAnimation:
+        """
+        Create animation for primal solution trajectories.
+
+        Parameters
+        ----------
+        head_ratio:
+         the ratio of the head part when drawing the trajector
+
+        Returns
+        -------
+        multi_axes_animation:
+         MultiAxesAnimation:
+        """
 
         assert 0.0 < head_ratio < 1.0
 

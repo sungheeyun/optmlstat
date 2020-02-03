@@ -15,6 +15,7 @@ logger: Logger = getLogger()
 
 # TODO (3) Sridhar told me that a decorator shouldn't add any functionalities
 #  just checking conditions. probably the below decorator violates that condition.
+#  Review whether the below decorators satisfy the requirements after a little research on this aspect.
 
 def solver(func: Callable) -> Callable:
     """

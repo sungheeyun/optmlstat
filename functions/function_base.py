@@ -110,7 +110,7 @@ class FunctionBase(OptMLStatClassBase):
         """
         pass
 
-    # TODO (2) defined decorator to check whether a function is convex for conjugate and conjugate_arg
+    # TODO (2) define decorator to check whether a function is convex for conjugate and conjugate_arg
 
     @property
     @abstractmethod
