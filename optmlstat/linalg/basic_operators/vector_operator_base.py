@@ -11,8 +11,8 @@ class VectorOperatorBase(ABC):
     """
 
     def __init__(self, input_dim: Optional[int] = None, output_dim: Optional[int] = None) -> None:
-        self.input_dim: int = input_dim
-        self.output_dim: int = output_dim
+        self.input_dim: Optional[int] = input_dim
+        self.output_dim: Optional[int] = output_dim
 
     @abstractmethod
     def transform(self, input_array_1d: ndarray) -> ndarray:
