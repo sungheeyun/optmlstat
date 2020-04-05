@@ -167,7 +167,7 @@ class LagrangianIllustrator:
         lagrangian_line_2d_list: List[Line2D] = axis.plot(x_array_1d, zeros_like(x_array_1d), "r-", label="Lagrangian")
         lagrangian_minimum_x_list_2d_list = axis.plot(zeros(2), ylim, "r-.", label="Lagrangian minimum x")
         lagrangian_minimum_y_line_2d_list: List[Line2D] = axis.plot(
-            [x_min, x_max], zeros(2), "r-", label="Lagrangian minimum y"
+            [x_min, x_max], zeros(2), "r-.", label="Lagrangian minimum y"
         )
 
         obj_minimum_point_line_2d_list: List[Line2D] = axis.plot([0.0], [0.0], "o", markersize=8)
