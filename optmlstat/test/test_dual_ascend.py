@@ -88,7 +88,7 @@ class TestDualAscend(unittest.TestCase):
             obj_fcn.quad_array_3d[:, :, 0],
             obj_fcn.slope_array_2d[:, 0],
             eq_cnst_fcn.slope_array_2d.T,
-            - eq_cnst_fcn.intercept_array_1d,
+            -eq_cnst_fcn.intercept_array_1d,
         )
 
         # solve by dual ascend

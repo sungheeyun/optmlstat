@@ -10,7 +10,6 @@ logger: Logger = getLogger()
 
 
 class TestMatrixMultiplicationOperator(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls) -> None:
         set_logging_basic_config(__file__)
@@ -29,5 +28,5 @@ class TestMatrixMultiplicationOperator(unittest.TestCase):
         self.assertTrue(allclose(matrix_multiplication_operator.transform(array_1d), [10, 32]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

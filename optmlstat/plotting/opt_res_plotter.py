@@ -120,7 +120,7 @@ class OptimizationResultPlotter:
     # TODO (3) add a method for drawing variable trajectories and (primal and/or dual) obj functions together.
 
     # TODO (4) add arguments for selection of variables to draw
-    def animate_primal_sol(self, head_ratio: float = .1, max_num_iterations_to_draw: int = 50) -> MultiAxesAnimation:
+    def animate_primal_sol(self, head_ratio: float = 0.1, max_num_iterations_to_draw: int = 50) -> MultiAxesAnimation:
         """
         Create animation for primal solution trajectories.
 
@@ -161,12 +161,7 @@ class OptimizationResultPlotter:
         figure, axis = plt.subplots()
 
         multi_axes_animation: MultiAxesAnimation = MultiAxesAnimation(
-            figure,
-            [axis] * x_array_2d.shape[1],
-            time_array_1d,
-            x_array_2d,
-            y_array_2d,
-            head_time_period=head_ratio,
+            figure, [axis] * x_array_2d.shape[1], time_array_1d, x_array_2d, y_array_2d, head_time_period=head_ratio
         )
 
         return multi_axes_animation

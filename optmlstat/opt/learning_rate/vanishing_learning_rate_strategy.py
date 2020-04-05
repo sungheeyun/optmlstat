@@ -53,7 +53,7 @@ class VanishingLearningRateStrategy(LearningRateStrategy):
         self.exponent: float = exponent
         self.half_life: int = half_life
 
-        tmp_val: float = power(2.0, 1.0/exponent)
+        tmp_val: float = power(2.0, 1.0 / exponent)
 
         self.constant_b: float = float(self.half_life - tmp_val) / (tmp_val - 1.0)
         self.constant_a: float = float(self.constant_learning_rate) * power(1.0 + self.constant_b, self.exponent)

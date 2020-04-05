@@ -17,6 +17,7 @@ logger: Logger = getLogger()
 #  just checking conditions. probably the below decorator violates that condition.
 #  Review whether the below decorators satisfy the requirements after a little research on this aspect.
 
+
 def solver(func: Callable) -> Callable:
     """
     A decorator for OptimizationAlgorithmBase.solve method.

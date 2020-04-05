@@ -6,6 +6,7 @@ class Interval:
     One dimensional interval.
 
     """
+
     def __init__(self, lower_bound: float, upper_bound: float) -> None:
         self.lower_bound: float = lower_bound
         self.upper_bound: float = upper_bound

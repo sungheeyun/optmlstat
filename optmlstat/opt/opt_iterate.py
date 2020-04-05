@@ -22,7 +22,7 @@ class OptimizationIterate:
     def lambda_array_2d(self) -> Optional[ndarray]:
         if self.dual_prob_evaluation is not None:
             opt_prob: OptimizationProblem = self.dual_prob_evaluation.opt_prob
-            return self.dual_prob_evaluation.x_array_2d[:, :opt_prob.num_ineq_cnst]
+            return self.dual_prob_evaluation.x_array_2d[:, : opt_prob.num_ineq_cnst]
         else:
             return None
 
