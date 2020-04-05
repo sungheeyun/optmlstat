@@ -1,7 +1,7 @@
 import unittest
 from logging import Logger, getLogger
 
-from numpy import ndarray, allclose, int32, power
+from numpy import ndarray, allclose, power
 from numpy.random import randn
 from numpy.linalg import solve, lstsq, svd, norm
 from freq_used.logging import set_logging_basic_config

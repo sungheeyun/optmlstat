@@ -2,7 +2,7 @@ import unittest
 from logging import Logger, getLogger
 
 from numpy import ndarray, set_printoptions, allclose, hstack
-from numpy.random import randn, seed
+from numpy.random import randn
 from numpy.linalg import eig
 from freq_used.logging import set_logging_basic_config
 
@@ -13,7 +13,7 @@ class TestLinAlgFacts(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         set_logging_basic_config(__file__)
-        set_printoptions(formatter={'float': '{: 0.3f}'.format})
+        set_printoptions(formatter={"float": "{: 0.3f}".format})
 
     def test_upper_block_triangular(self):
         n: int = 3
@@ -53,9 +53,9 @@ class TestLinAlgFacts(unittest.TestCase):
         logger.info(V[n, n:])
         logger.info(v2[0, :])
         logger.info(V[n:, n:])
-        logger.info(V[n, n:]/ v2[0, :] * v2)
+        logger.info(V[n, n:] / v2[0, :] * v2)
         self.assertTrue(allclose(V[n:, n:], V[n, n:] / v2[0, :] * v2))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
