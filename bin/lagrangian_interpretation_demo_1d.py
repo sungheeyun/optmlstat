@@ -3,6 +3,7 @@ from logging import Logger, getLogger
 from enum import Enum
 
 from numpy import ndarray, linspace, power, ones, zeros, zeros_like
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
@@ -17,6 +18,7 @@ from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunc
 
 
 logger: Logger = getLogger()
+mpl.use("TkAgg")
 
 
 LAGRANGE_MULTIPLIER_SLIDER_WIDTH: float = 0.2

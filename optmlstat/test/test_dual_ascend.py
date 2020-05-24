@@ -6,6 +6,7 @@ from inspect import FrameInfo, stack
 
 from numpy import ndarray, abs, allclose
 from numpy.random import randn, seed
+import matplotlib as mpl
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib import pyplot as plt
@@ -23,9 +24,9 @@ from optmlstat.opt.special_solvers import strictly_convex_quadratic_with_linear_
 from optmlstat.opt.opt_parameter import OptimizationParameter
 from optmlstat.opt.learning_rate.vanishing_learning_rate_strategy import VanishingLearningRateStrategy
 from optmlstat.plotting.opt_res_plotter import OptimizationResultPlotter
-from optmlstat.plotting.multi_axes_animation import MultiAxesAnimation
 
 
+mpl.use("TkAgg")
 logging
 logger: Logger = getLogger()
 
@@ -127,10 +128,8 @@ class TestDualAscend(unittest.TestCase):
         axis1, axis2 = figure.get_axes()
         optimization_result_plotter.plot_primal_and_dual_objs(axis1, "-", gap_axis=axis2)
         figure.suptitle(get_fcn_name(frame_info), fontsize=10)
-        figure.show()
 
-        multi_axes_animation: MultiAxesAnimation = optimization_result_plotter.animate_primal_sol()
-        multi_axes_animation.figure.show()
+        optimization_result_plotter.animate_primal_sol()
 
         logger.info(f"MAX_ERR_1: {abs(final_iterate.x_array_2d - opt_x_array_1d).max()}")
         self.assertTrue(
