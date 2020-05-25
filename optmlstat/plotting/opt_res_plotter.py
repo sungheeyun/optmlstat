@@ -127,7 +127,7 @@ class OptimizationResultPlotter:
         Parameters
         ----------
         head_ratio:
-         the ratio of the head part when drawing the trajector
+         the ratio of the head part when drawing the trajectory
         max_num_iterations_to_draw:
          maximum number of iterations to draw
 
