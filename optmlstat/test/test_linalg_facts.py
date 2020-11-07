@@ -31,9 +31,9 @@ class TestLinAlgFacts(unittest.TestCase):
         logger.info(V.shape)
         logger.info(L.shape)
 
-        logger.info(f"eigenvalues:")
+        logger.info("eigenvalues:")
         logger.info(L)
-        logger.info(f"eigenvectors:")
+        logger.info("eigenvectors:")
         logger.info(V)
 
         l1, v1 = eig(X[:n, :n])
