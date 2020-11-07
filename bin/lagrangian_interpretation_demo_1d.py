@@ -9,7 +9,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.widgets import Slider, Button
 from matplotlib.lines import Line2D
-from freq_used.logging import set_logging_basic_config
+from freq_used.logging_utils import set_logging_basic_config
 from freq_used.plotting import get_figure
 
 from optmlstat.functions.function_base import FunctionBase

@@ -3,7 +3,7 @@ from logging import Logger, getLogger
 
 from numpy import ndarray, linspace
 from numpy.random import randn
-from freq_used.logging import set_logging_basic_config
+from freq_used.logging_utils import set_logging_basic_config
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes

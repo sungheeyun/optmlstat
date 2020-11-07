@@ -5,7 +5,7 @@ from numpy import linspace, ndarray, array, power, newaxis, exp
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
-from freq_used.logging import set_logging_basic_config
+from freq_used.logging_utils import set_logging_basic_config
 from freq_used.plotting import get_figure
 
 from functions.function_base import FunctionBase
