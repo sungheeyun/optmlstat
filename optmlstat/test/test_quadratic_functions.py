@@ -3,7 +3,7 @@ from logging import Logger, getLogger
 
 from numpy import ndarray, array, newaxis, allclose, moveaxis
 from numpy.random import randn
-from freq_used.logging import set_logging_basic_config
+from freq_used.logging_utils import set_logging_basic_config
 
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
 

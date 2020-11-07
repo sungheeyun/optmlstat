@@ -2,7 +2,7 @@ import unittest
 from logging import Logger, getLogger
 
 from numpy import ndarray, linspace, array
-from freq_used.logging import set_logging_basic_config
+from freq_used.logging_utils import set_logging_basic_config
 from freq_used.plotting import get_figure
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes

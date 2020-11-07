@@ -4,7 +4,7 @@ from logging import Logger, getLogger
 from numpy import ndarray, set_printoptions, allclose, hstack
 from numpy.random import randn
 from numpy.linalg import eig
-from freq_used.logging import set_logging_basic_config
+from freq_used.logging_utils import set_logging_basic_config
 
 logger: Logger = getLogger()
 

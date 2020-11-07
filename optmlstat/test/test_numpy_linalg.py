@@ -1,10 +1,10 @@
 import unittest
 from logging import Logger, getLogger
 
-from numpy import ndarray, allclose, power
+from numpy import ndarray, allclose, power, int32
 from numpy.random import randn
 from numpy.linalg import solve, lstsq, svd, norm
-from freq_used.logging import set_logging_basic_config
+from freq_used.logging_utils import set_logging_basic_config
 
 
 logger: Logger = getLogger()
@@ -57,7 +57,7 @@ class TestNumpyLinAlg(unittest.TestCase):
 
         self.assertTrue(isinstance(x_array_1d, ndarray))
         self.assertTrue(isinstance(residuals_1d, ndarray))
-        self.assertTrue(isinstance(rank, int))
+        self.assertTrue(isinstance(rank, int32))
         self.assertTrue(isinstance(sv_array_1d, ndarray))
 
         self.assertEqual(x_array_1d.shape, (dim_of_domain,))
@@ -84,7 +84,7 @@ class TestNumpyLinAlg(unittest.TestCase):
 
         self.assertTrue(isinstance(x_array_2d, ndarray))
         self.assertTrue(isinstance(residuals_1d, ndarray))
-        self.assertTrue(isinstance(rank, int))
+        self.assertTrue(isinstance(rank, int32))
         self.assertTrue(isinstance(sv_array_1d, ndarray))
 
         self.assertEqual(x_array_2d.shape, (dim_of_domain, num_of_data))

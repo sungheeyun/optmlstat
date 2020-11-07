@@ -2,7 +2,7 @@ import unittest
 from logging import Logger, getLogger
 import json
 
-from freq_used.logging import set_logging_basic_config
+from freq_used.logging_utils import set_logging_basic_config
 
 from optmlstat.functions.example_functions import get_sum_of_square_function, get_sum_function
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction

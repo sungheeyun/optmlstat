@@ -1,8 +1,6 @@
 from typing import Callable
 import unittest
 
-# from freq_used.logging import set_logging_basic_config
-# from freq_used.plotting import get_figure
 from numpy import ndarray, linspace, arctan
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes

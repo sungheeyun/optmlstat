@@ -2,7 +2,7 @@ import unittest
 from logging import Logger, getLogger
 
 from numpy import eye, zeros, ndarray, newaxis, ones, allclose, array
-from freq_used.logging import set_logging_basic_config
+from freq_used.logging_utils import set_logging_basic_config
 
 from optmlstat.opt.special_solvers import strictly_convex_quadratic_with_linear_equality_constraints
 

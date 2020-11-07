@@ -3,7 +3,7 @@ from logging import Logger, getLogger
 
 from numpy import ndarray, power, allclose
 from numpy.random import randn
-from freq_used.logging import set_logging_basic_config
+from freq_used.logging_utils import set_logging_basic_config
 
 from optmlstat.functions.function_base import FunctionBase
 from optmlstat.functions.example_functions import get_sum_of_square_function, get_sum_function

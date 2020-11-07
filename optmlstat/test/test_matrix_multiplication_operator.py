@@ -2,7 +2,7 @@ import unittest
 from logging import Logger, getLogger
 
 from numpy import ndarray, array, arange, allclose
-from freq_used.logging import set_logging_basic_config
+from freq_used.logging_utils import set_logging_basic_config
 
 from optmlstat.linalg.basic_operators.matrix_multiplication_operator import MatrixMultiplicationOperator
 

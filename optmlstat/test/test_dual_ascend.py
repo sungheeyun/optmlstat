@@ -10,7 +10,7 @@ import matplotlib as mpl
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib import pyplot as plt
-from freq_used.logging import set_logging_basic_config
+from freq_used.logging_utils import set_logging_basic_config
 from freq_used.plotting import get_figure
 
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
