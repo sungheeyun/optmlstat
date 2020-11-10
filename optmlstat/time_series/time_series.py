@@ -1,5 +1,7 @@
-from typing import Set
-from pandas import DataFrame, Timestamp
+from typing import Set, Optional
+from datetime import datetime
+
+from pandas import DataFrame
 
 from optmlstat.basic_modules.class_base import OptMLStatClassBase
 
@@ -30,17 +32,19 @@ class TimeSeries(OptMLStatClassBase):
 
         return time_series_name
 
-    def __init__(self, time_series_data_frame: DataFrame, start_time: Timestamp = None, name: str = None) -> None:
+    def __init__(
+        self, time_series_data_frame: DataFrame, start_time: Optional[datetime] = None, name: str = None
+    ) -> None:
         """
         The constructor assumes that the time_series_data_fram is sorted by index (time) in increasing order.
 
         Parameters
         ----------
         time_series_data_frame: pandas.DataFrame
-         pandas.DataFrame the index of which is pandas.TimeStamp
+         pandas.DataFrame the (contents of) indices of which are of datetime.datetime type.
         """
         self.time_series_data_frame: DataFrame = time_series_data_frame.copy()
-        self.start_time: Timestamp
+        self.start_time: datetime
         if start_time is None:
             self.start_time = time_series_data_frame.index[0]
         else:

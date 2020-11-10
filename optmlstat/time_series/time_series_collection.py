@@ -6,7 +6,7 @@ from optmlstat.time_series.time_series import TimeSeries
 
 class TimeSeriesCollection(OptMLStatClassBase):
     """
-    Collection of TimeSeries instances.
+    Ordered collection of TimeSeries instances.
     """
 
     def __init__(self, time_series_list: List[TimeSeries]) -> None:
