@@ -4,7 +4,7 @@ from datetime import datetime
 from numpy import ndarray, logical_and, hstack
 from pandas import DataFrame, Index
 
-from optmlstat.time_series.feature_extractor import FeatureExtractorBase
+from optmlstat.time_series.feature_extractor_base import FeatureExtractorBase
 from optmlstat.time_series.time_series_collection import TimeSeriesCollection
 
 
