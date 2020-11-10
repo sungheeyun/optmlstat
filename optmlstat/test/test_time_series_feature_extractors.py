@@ -12,7 +12,7 @@ from optmlstat.time_series.time_series_collection import TimeSeriesCollection
 from optmlstat.time_series.time_interval_feature_extractor import TimeIntervalFeatureExtractor
 
 
-class TestFeatureExtractors(unittest.TestCase):
+class TestTimeSeriesFeatureExtractors(unittest.TestCase):
 
     NUM_TIME_POINTS: int = 100
     START_TIME: int = Timestamp("2020-01-01 06:00:00")
@@ -42,25 +42,25 @@ class TestFeatureExtractors(unittest.TestCase):
     def test_basic_feature_extractor(self) -> None:
 
         time_interval_feature_extractor: TimeIntervalFeatureExtractor = TimeIntervalFeatureExtractor(
-            TestFeatureExtractors.INTERVAL_START_TIME,
-            TestFeatureExtractors.INTERVAL_END_TIME,
+            TestTimeSeriesFeatureExtractors.INTERVAL_START_TIME,
+            TestTimeSeriesFeatureExtractors.INTERVAL_END_TIME,
             lambda array_1d: array([array_1d.mean()]),
         )
 
         figure: Figure
         axes_array: ndarray
-        figure, axes_array = subplots(TestFeatureExtractors.FEATURES.size, 1)
+        figure, axes_array = subplots(TestTimeSeriesFeatureExtractors.FEATURES.size, 1)
 
-        for idx, time_series in enumerate(TestFeatureExtractors.time_series_collection.time_series_list):
+        for idx, time_series in enumerate(TestTimeSeriesFeatureExtractors.time_series_collection.time_series_list):
             time_series.time_series_data_frame.plot(ax=axes_array[idx])
 
         figure.show()
 
         features: ndarray = time_interval_feature_extractor.get_features_from_time_series_collection(
-            TestFeatureExtractors.time_series_collection
+            TestTimeSeriesFeatureExtractors.time_series_collection
         )
 
-        self.assertLess(abs(features - TestFeatureExtractors.FEATURES).max(), 0.1)
+        self.assertLess(abs(features - TestTimeSeriesFeatureExtractors.FEATURES).max(), 0.1)
 
 
 if __name__ == "__main__":
