@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import List
 
-from numpy import ndarray, concatenate
+from numpy import ndarray, hstack
 
 from optmlstat.basic_modules.class_base import OptMLStatClassBase
 from optmlstat.time_series.time_series_collection import TimeSeriesCollection
@@ -41,7 +41,7 @@ class FeatureExtractorBase(OptMLStatClassBase):
         feature_array: numpy.ndarray
          2-d numpy.ndarray containing list of features
         """
-        return concatenate(
+        return hstack(
             [
                 self.get_features_from_time_series_collection(times_series)
                 for times_series in time_series_collection_list
