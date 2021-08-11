@@ -13,7 +13,9 @@ class ModelerBase(ABC):
     """
 
     @abstractmethod
-    def train(self, x_array_2d: ndarray, y_array_2d, **kwargs) -> ModelingResult:
+    def train(
+        self, x_array_2d: ndarray, y_array_2d: ndarray, **kwargs
+    ) -> ModelingResult:
         """
         Trains the model. This can be called multiple times.
 
@@ -27,14 +29,15 @@ class ModelerBase(ABC):
         Returns
         -------
         modeling_result:
-          Result of modeling. For example, number of iterations used, training error, exit status, etc.
+          Result of modeling. For example, number of iterations used,
+          training error, exit status, etc.
         """
         pass
 
     @abstractmethod
     def get_predictor(self) -> FunctionBase:
         """
-        Returns the resulting predictor obtained from the tranings so far.
+        Returns the resulting predictor obtained from the trainings so far.
 
         Returns
         -------
