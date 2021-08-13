@@ -7,11 +7,11 @@ from functions.function_base import FunctionBase
 from stats.dists.gaussian import Gaussian
 from ml.features.feature_transformer_base import FeatureTransformerBase
 from ml.features.identity_feature_transformer import IdentityFeatureTransformer
-from ml.modeling.modeler_base import ModelerBase
 from ml.modeling.modeling_result import ModelingResult
+from ml.modeling.bayesian_modeler_base import BayesianModelerBase
 
 
-class BayesianLeastSquares(ModelerBase):
+class BayesianLeastSquaresBruteforce(BayesianModelerBase):
     """
     Bayesian Least Squares
     """
