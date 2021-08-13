@@ -8,10 +8,10 @@ from stats.dists.gaussian import Gaussian
 from ml.features.feature_transformer_base import FeatureTransformerBase
 from ml.features.identity_feature_transformer import IdentityFeatureTransformer
 from ml.modeling.modeling_result import ModelingResult
-from ml.modeling.bayesian_modeler_base import BayesianModelerBase
+from ml.modeling.bayesian_least_squares_base import BayesianLeastSquaresBase
 
 
-class BayesianLeastSquaresBruteforce(BayesianModelerBase):
+class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
     """
     Bayesian Least Squares
     """
@@ -21,6 +21,7 @@ class BayesianLeastSquaresBruteforce(BayesianModelerBase):
         prior: Gaussian,
         noise_precision: float,
         feature_trans: FeatureTransformerBase = None,
+        use_factorization: bool = True,
     ) -> None:
         if feature_trans is None:
             feature_trans = IdentityFeatureTransformer()
@@ -31,9 +32,21 @@ class BayesianLeastSquaresBruteforce(BayesianModelerBase):
         self.initial_prior: Gaussian = prior
         self.feature_trans: FeatureTransformerBase = feature_trans
         self.noise_precision: float = noise_precision
+        self.use_factorization: bool = use_factorization
 
         self.prior_list: List[Gaussian] = list()
-        self.prior_list.append(self.initial_prior)
+        self.lower_tri_list: List[np.ndarray] = list()
+
+        self.push_to_prior_list(self.initial_prior)
+        if self.use_factorization:
+            lower_tri: np.ndarray = la.cholesky(self.initial_prior.precision)
+            self.push_to_lower_tri_list(lower_tri)
+
+    def push_to_prior_list(self, prior: Gaussian) -> None:
+        self.prior_list.append(prior)
+
+    def push_to_lower_tri_list(self, lower_tri: np.ndarray) -> None:
+        self.lower_tri_list.append(lower_tri)
 
     def train(
         self, x_array_2d: np.ndarray, y_array_1d: np.ndarray, **kwargs
@@ -46,17 +59,26 @@ class BayesianLeastSquaresBruteforce(BayesianModelerBase):
         precision: np.ndarray = (
             prior.precision
             + self.noise_precision * np.dot(feature_array.T, feature_array)
-        )  # udpate
-        mean: np.ndarray = la.lstsq(
-            precision,
-            self.noise_precision * np.dot(y_array_1d, feature_array)
-            + np.dot(prior.mean, prior.precision),
-            rcond=None,
-        )[0]
+        )  # update
+
+        rhs: np.ndarray = self.noise_precision * np.dot(
+            y_array_1d, feature_array
+        ) + np.dot(prior.mean, prior.precision)
+
+        lower_tri: np.ndarray = la.cholesky(precision)
+        if self.use_factorization:
+            mean: np.ndarray = (
+                self.solve_linear_sys_using_lower_tri_from_chol_fac(
+                    lower_tri, rhs
+                )
+            )
+        else:
+            mean: np.ndarray = la.lstsq(precision, rhs, rcond=None)[0]
 
         posterior: Gaussian = Gaussian(mean, precision=precision)
-
-        self.prior_list.append(posterior)
+        self.push_to_prior_list(posterior)
+        if self.use_factorization:
+            self.push_to_lower_tri_list(lower_tri)
 
     def get_predictor(self) -> FunctionBase:
         assert False
@@ -76,11 +98,19 @@ class BayesianLeastSquaresBruteforce(BayesianModelerBase):
         posterior = self.prior_list[-1]
 
         mean: float = np.dot(posterior.mean, feature)
-        variance: float = (
-            np.dot(
-                feature, la.lstsq(posterior.precision, feature, rcond=None)[0]
+        if self.use_factorization:
+            temp_array_1d: np.ndarray = (
+                self.solve_linear_sys_using_lower_tri_from_chol_fac(
+                    self.lower_tri_list[-1], feature
+                )
             )
-            + 1.0 / self.noise_precision
+        else:
+            temp_array_1d: np.ndarray = la.lstsq(
+                posterior.precision, feature, rcond=None
+            )[0]
+
+        variance: float = (
+            np.dot(feature, temp_array_1d) + 1.0 / self.noise_precision
         )
 
         return mean, variance
