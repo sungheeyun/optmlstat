@@ -1,11 +1,22 @@
-from abc import ABC
+from typing import Tuple
+import abc
 
 import numpy as np
 
+from functions.function_base import FunctionBase
 from ml.modeling.bayesian_modeler_base import BayesianModelerBase
 
 
-class BayesianLeastSquaresBase(BayesianModelerBase, ABC):
+class BayesianLeastSquaresBase(BayesianModelerBase):
+    def get_predictor(self) -> FunctionBase:
+        assert False
+
+    @abc.abstractmethod
+    def get_predictive_dist(
+        self, x_array_1d: np.ndarray
+    ) -> Tuple[float, float]:
+        pass
+
     @classmethod
     def solve_linear_sys_using_lower_tri_from_chol_fac(
         cls, lower_tri: np.ndarray, y_array_1d: np.ndarray

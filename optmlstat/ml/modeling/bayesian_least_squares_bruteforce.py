@@ -3,7 +3,6 @@ from typing import List, Tuple
 import numpy as np
 import numpy.linalg as la
 
-from functions.function_base import FunctionBase
 from stats.dists.gaussian import Gaussian
 from ml.features.feature_transformer_base import FeatureTransformerBase
 from ml.features.identity_feature_transformer import IdentityFeatureTransformer
@@ -80,9 +79,6 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
         if self.use_factorization:
             self.push_to_lower_tri_list(lower_tri)
 
-    def get_predictor(self) -> FunctionBase:
-        assert False
-
     def get_predictive_dist(
         self, x_array_1d: np.ndarray
     ) -> Tuple[float, float]:
@@ -94,7 +90,9 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
         prob_dist:
           The predictive distribution.
         """
-        feature: np.ndarray = x_array_1d
+        feature: np.ndarray = self.feature_trans.get_transformed_features(
+            x_array_1d
+        )
         posterior = self.prior_list[-1]
 
         mean: float = np.dot(posterior.mean, feature)
