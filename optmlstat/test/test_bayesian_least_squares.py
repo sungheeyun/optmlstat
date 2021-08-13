@@ -17,6 +17,9 @@ from ml.modeling.bayesian_least_squares_bruteforce import (
 from ml.modeling.bayesian_least_squares_standard import (
     BayesianLeastSquaresStandard,
 )
+from ml.modeling.bayesian_least_squares_low_rank_udpate import (
+    BayesianLeastSquaresLowRankUpdate,
+)
 
 
 logger: logging.Logger = logging.getLogger()
@@ -33,11 +36,14 @@ class TestBayesianLeastSquares(unittest.TestCase):
     def setUp(self) -> None:
         nr.seed(760104)
 
-    def test_bayesian_least_squares_bruteforce(self) -> None:
+    def _test_bayesian_least_squares_bruteforce(self) -> None:
         self._test_bayesian_least_squares(BayesianLeastSquaresBruteforce)
 
-    def test_bayesian_least_squares_standard(self) -> None:
+    def _test_bayesian_least_squares_standard(self) -> None:
         self._test_bayesian_least_squares(BayesianLeastSquaresStandard)
+
+    def test_bayesian_least_squares_low_rank_update(self) -> None:
+        self._test_bayesian_least_squares(BayesianLeastSquaresLowRankUpdate)
 
     def _test_bayesian_least_squares(self, bayesian_ls_cls: Type[U]) -> None:
         input_dim: int = 300
