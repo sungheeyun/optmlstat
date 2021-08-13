@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, TypeVar, Type
 import unittest
 import logging
 import time
@@ -10,25 +10,40 @@ import scipy.stats as ss
 import freq_used.logging_utils as fl
 
 from stats.dists.gaussian import Gaussian
+from ml.modeling.bayesian_least_squares_base import BayesianLeastSquaresBase
 from ml.modeling.bayesian_least_squares_bruteforce import (
     BayesianLeastSquaresBruteforce,
+)
+from ml.modeling.bayesian_least_squares_standard import (
+    BayesianLeastSquaresStandard,
 )
 
 
 logger: logging.Logger = logging.getLogger()
 
 
+U = TypeVar("U", bound=BayesianLeastSquaresBase)
+
+
 class TestBayesianLeastSquares(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         fl.set_logging_basic_config(__file__)
-        # nr.seed(760104)
 
-    def test_bayesian_least_squares(self):
+    def setUp(self) -> None:
+        nr.seed(760104)
+
+    def test_bayesian_least_squares_bruteforce(self) -> None:
+        self._test_bayesian_least_squares(BayesianLeastSquaresBruteforce)
+
+    def test_bayesian_least_squares_standard(self) -> None:
+        self._test_bayesian_least_squares(BayesianLeastSquaresStandard)
+
+    def _test_bayesian_least_squares(self, bayesian_ls_cls: Type[U]) -> None:
         input_dim: int = 300
 
         batch_size: int = 10
-        num_trainings: int = 73
+        num_trainings: int = 23
 
         logger.info(f"input dimension: {input_dim}")
         logger.info(f"batch size: {batch_size}")
@@ -49,10 +64,8 @@ class TestBayesianLeastSquares(unittest.TestCase):
         )
 
         logger.info("Instantiate the modeling class.")
-        bayesian_least_squares: BayesianLeastSquaresBruteforce = (
-            BayesianLeastSquaresBruteforce(
-                prior, noise_precision, use_factorization=False
-            )
+        bayesian_least_squares: BayesianLeastSquaresBase = bayesian_ls_cls(
+            prior, noise_precision
         )
 
         y_list: List[float] = list()
