@@ -53,6 +53,9 @@ class BayesianLeastSquaresLowRankUpdate(BayesianLeastSquaresBase):
             )
             self.Q = self.initial_prior.covariance * self.noise_precision
 
+    def get_prior(self) -> Gaussian:
+        return Gaussian(np.dot(self.Q, self.m), self.Q / self.noise_precision)
+
     def train(
         self, x_array_2d: np.ndarray, y_array_1d: np.ndarray, **kwargs
     ) -> ModelingResult:

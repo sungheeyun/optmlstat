@@ -3,6 +3,7 @@ import abc
 
 import numpy as np
 
+from stats.dists.gaussian import Gaussian
 from functions.function_base import FunctionBase
 from ml.modeling.bayesian_modeler_base import BayesianModelerBase
 
@@ -15,6 +16,10 @@ class BayesianLeastSquaresBase(BayesianModelerBase):
     def get_predictive_dist(
         self, x_array_1d: np.ndarray
     ) -> Tuple[float, float]:
+        pass
+
+    @abc.abstractmethod
+    def get_prior(self) -> Gaussian:
         pass
 
     @classmethod
