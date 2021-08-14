@@ -20,7 +20,7 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
         prior: Gaussian,
         noise_precision: float,
         feature_trans: FeatureTransformerBase = None,
-        use_factorization: bool = True,
+        use_factorization: bool = False,
     ) -> None:
         if feature_trans is None:
             feature_trans = IdentityFeatureTransformer()

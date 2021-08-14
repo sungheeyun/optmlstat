@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 
 from numpy import ndarray, array
 
-from optmlstat.basic_modules.class_base import OptMLStatClassBase
+from basic_modules.class_base import OptMLStatClassBase
 
 
 class FunctionBase(OptMLStatClassBase):
