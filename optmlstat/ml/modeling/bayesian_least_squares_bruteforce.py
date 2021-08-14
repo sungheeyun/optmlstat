@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 import numpy as np
 import numpy.linalg as la
+import scipy
 
 from stats.dists.gaussian import Gaussian
 from ml.features.feature_transformer_base import FeatureTransformerBase
@@ -72,7 +73,9 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
                 )
             )
         else:
-            mean: np.ndarray = la.lstsq(precision, rhs, rcond=None)[0]
+            mean: np.ndarray = scipy.linalg.solve(
+                precision, rhs, assume_a="pos"
+            )
 
         posterior: Gaussian = Gaussian(mean, precision=precision)
         self.push_to_prior_list(posterior)
@@ -103,9 +106,9 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
                 )
             )
         else:
-            temp_array_1d: np.ndarray = la.lstsq(
+            temp_array_1d: np.ndarray = scipy.linalg.solve(
                 posterior.precision, feature, rcond=None
-            )[0]
+            )
 
         variance: float = (
             np.dot(feature, temp_array_1d) + 1.0 / self.noise_precision

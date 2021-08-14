@@ -2,6 +2,7 @@ from typing import Tuple
 
 import numpy as np
 import numpy.linalg as la
+import scipy
 
 from stats.dists.gaussian import Gaussian
 from ml.features.feature_transformer_base import FeatureTransformerBase
@@ -41,11 +42,11 @@ class BayesianLeastSquaresStandard(BayesianLeastSquaresBase):
                 la.inv(self.initial_prior.covariance) / self.noise_precision
             )
             self.m = (
-                la.lstsq(
+                scipy.linalg.solve(
                     self.initial_prior.covariance,
                     self.initial_prior.mean,
-                    rcond=None,
-                )[0]
+                    assume_a="pos",
+                )
                 / self.noise_precision
             )
 

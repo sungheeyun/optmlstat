@@ -44,11 +44,11 @@ class BayesianLeastSquaresLowRankUpdate(BayesianLeastSquaresBase):
             )
         else:
             self.m = (
-                la.lstsq(
+                scipy.linalg.solve(
                     self.initial_prior.covariance,
                     self.initial_prior.mean,
-                    rcond=None,
-                )[0]
+                    assume_a="pos",
+                )
                 / self.noise_precision
             )
             self.Q = self.initial_prior.covariance * self.noise_precision
