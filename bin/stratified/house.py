@@ -1,51 +1,31 @@
 """House price prediction.
 The data is from: https://www.kaggle.com/harlfoxem/housesalesprediction
 """
-import multiprocessing
+# import multiprocessing
+import logging
+import sys
 
 import numpy as np
 import pandas as pd
 import networkx as nx
-import matplotlib
+# import matplotlib
 import matplotlib.pyplot as plt
 import sklearn.model_selection as model_selection
-import scipy.spatial.distance as distance
-from sklearn.utils import shuffle
+# import scipy.spatial.distance as distance
+# from sklearn.utils import shuffle
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 
-import sys
 sys.path.append("..")
-
+from freq_used.logging_utils import set_logging_basic_config
 import strat_models
-import scipy.sparse.linalg
+# import latexify
 
-import latexify
+logger: logging.Logger = logging.getLogger()
 
 
-multiprocessing.freeze_support()
-
-# Load data
-df = pd.read_csv('data/kc_house_data.csv',
-                 usecols=["price", "bedrooms", "bathrooms", "sqft_living", "sqft_lot",
-                          "floors", "waterfront", "condition", "grade", "yr_built", "lat", "long"],
-                 low_memory=False)
-
-df['log_price'] = np.log(df['price'])
-df = df.query('long <= -121.6')
-bins = 50
-df['lat_bin'] = pd.cut(df['lat'], bins=bins)
-df['long_bin'] = pd.cut(df['long'], bins=bins)
-code_to_latbin = dict(enumerate(df['lat_bin'].cat.categories))
-code_to_longbin = dict(enumerate(df['long_bin'].cat.categories))
-df['lat_bin'] = df['lat_bin'].cat.codes
-df['long_bin'] = df['long_bin'].cat.codes
-df.drop(["price"], axis=1, inplace=True)
-
-# Create dataset
-np.random.seed(0)
-df_train, df_test = model_selection.train_test_split(df)
-G = nx.grid_2d_graph(bins, bins)
+def rms(x):
+    return np.sqrt(np.mean(np.square(x)))
 
 
 def get_data(df):
@@ -66,88 +46,126 @@ def get_data(df):
 
     return np.concatenate(Xs, axis=0), np.concatenate(Ys, axis=0)[:, np.newaxis], Zs
 
-X_train, Y_train, Z_train = get_data(df_train)
-X_test, Y_test, Z_test = get_data(df_test)
 
-K, n = bins * bins, X_train.shape[1]
-print("The stratified model will have", K * n, "variables.")
+if __name__ == "__main__":
+    set_logging_basic_config(__file__)
+    # multiprocessing.freeze_support()
 
-ss = StandardScaler()
-X_train = ss.fit_transform(X_train)
-X_test = ss.transform(X_test)
+    # Load data
+    df = pd.read_csv('data/kc_house_data.csv',
+                     usecols=["price", "bedrooms", "bathrooms", "sqft_living", "sqft_lot",
+                              "floors", "waterfront", "condition", "grade", "yr_built", "lat", "long"],
+                     low_memory=False)
 
-# Fit models
-data_train = dict(X=X_train, Y=Y_train, Z=Z_train)
-data_test = dict(X=X_test, Y=Y_test, Z=Z_test)
+    df['log_price'] = np.log(df['price'])
+    df = df.query('long <= -121.6')
+    bins = 50
+    df['lat_bin'] = pd.cut(df['lat'], bins=bins)
+    df['long_bin'] = pd.cut(df['long'], bins=bins)
+    code_to_latbin = dict(enumerate(df['lat_bin'].cat.categories))
+    code_to_longbin = dict(enumerate(df['long_bin'].cat.categories))
+    df['lat_bin'] = df['lat_bin'].cat.codes
+    df['long_bin'] = df['long_bin'].cat.codes
+    df.drop(["price"], axis=1, inplace=True)
 
-kwargs = dict(rel_tol=1e-5, abs_tol=1e-5, maxiter=1000, n_jobs=2, verbose=False)
+    # Create dataset
+    np.random.seed(0)
+    df_train, df_test = model_selection.train_test_split(df)
+    G = nx.grid_2d_graph(bins, bins)
 
-def rms(x):
-    return np.sqrt(np.mean(np.square(x)))
 
-loss=strat_models.sum_squares_loss(intercept=True)
-reg= strat_models.sum_squares_reg(lambd=1e-4)
-bm = strat_models.BaseModel(loss=loss, reg=reg)
+    X_train, Y_train, Z_train = get_data(df_train)
+    X_test, Y_test, Z_test = get_data(df_test)
 
-strat_models.set_edge_weight(G, 1e-8)
+    K, n = bins * bins, X_train.shape[1]
+    print("The stratified model will have", K * n, "variables.")
+    logger.info(f"The stratified model will have {K * n} variables.")
 
-sm_fully = strat_models.StratifiedModel(bm, graph=G)
+    ss = StandardScaler()
+    X_train = ss.fit_transform(X_train)
+    X_test = ss.transform(X_test)
 
-info = sm_fully.fit(data_train, **kwargs)
-score = sm_fully.scores(data_test)
-print("Separate model")
-print("\t Info =", info)
-print("\t Loss =", score)
+    # Fit models
+    data_train = dict(X=X_train, Y=Y_train, Z=Z_train)
+    data_test = dict(X=X_test, Y=Y_test, Z=Z_test)
 
-strat_models.set_edge_weight(G, 15)
-sm_strat = strat_models.StratifiedModel(bm, graph=G)
+    kwargs = dict(rel_tol=1e-5, abs_tol=1e-5, maxiter=1000, n_jobs=2, verbose=False)
 
-info = sm_strat.fit(data_train, **kwargs)
-score = sm_strat.scores(data_test)
-print("Stratified model")
-print("\t Info =", info)
-print("\t Loss =", score)
+    loss=strat_models.sum_squares_loss(intercept=True)
+    reg= strat_models.sum_squares_reg(lambd=1e-4)
+    bm = strat_models.BaseModel(loss=loss, reg=reg)
 
-G = nx.empty_graph(1)
-sm_common = strat_models.StratifiedModel(bm, graph=G)
+    strat_models.set_edge_weight(G, 1e-8)
 
-data_common_train = dict(X=X_train, Y=Y_train, Z=[0]*len(Y_train))
-data_common_test = dict(X=X_test, Y=Y_test, Z=[0]*len(Y_test))
+    sm_fully = strat_models.StratifiedModel(bm, graph=G)
 
-info = sm_common.fit(data_common_train, **kwargs)
-score = sm_common.scores(data_common_test)
-print("Common model")
-print("\t Info =", info)
-print("\t Loss =", score)
+    info = sm_fully.fit(data_train, **kwargs)
+    score = sm_fully.scores(data_test)
+    print("Separate model")
+    logger.info("Separate model")
+    print("\t Info =", info)
+    logger.info(f"\t Info = {info}")
+    print("\t Loss =", score)
+    logger.info(f"\t Loss = {score}")
 
-rf = RandomForestRegressor(n_estimators=50, min_samples_leaf=1, n_jobs=-1)
-rf.fit(df_train.drop(['log_price', 'lat_bin', 'long_bin'],
-                     axis=1), df_train['log_price'])
-score = rms(rf.predict(df_test.drop(
-    ['log_price', 'lat_bin', 'long_bin'], axis=1)) - df_test['log_price'])
-print("Random Forest")
-print("\t Loss =", score)
-print("\t No. Parameters", np.sum([rf.estimators_[i].tree_.node_count for i in range(50)]))
+    strat_models.set_edge_weight(G, 15)
+    sm_strat = strat_models.StratifiedModel(bm, graph=G)
 
-# Visualize
-latexify(fig_width=8)
-params = np.array([sm_strat.G._node[node]['theta'] for node in sm_strat.G.nodes()])
-params = params.reshape(bins, bins, 10)[::-1, :, :]
-feats = ['bedrooms', 'bathrooms', 'sqft living', 'sqft lot', 'floors',
-         'waterfront', 'condition', 'grade', 'yr built', 'intercept']
-min_lat = df['lat'].min()
-max_lat = df['lat'].max()
-min_long = df['long'].min()
-max_long = df['long'].max()
-lat_labels = ["%.1f" % x for x in np.linspace(min_lat, max_lat, 6)]
-long_labels = ["%.1f" % x for x in np.linspace(min_long, max_long, 6)]
+    info = sm_strat.fit(data_train, **kwargs)
+    score = sm_strat.scores(data_test)
+    print("Stratified model")
+    logger.info("Stratified model")
+    print("\t Info =", info)
+    logger.info(f"\t Info = {info}")
+    print("\t Loss =", score)
+    logger.info(f"\t Loss = {score}")
 
-fig, axes = plt.subplots(2, 5)
-for i, feat in enumerate(feats):
-    ax = axes[i // 5, i % 5]
-    ax.imshow(params[:, :, i])
-    ax.axis('off')
-    ax.set_title(feat)
-plt.tight_layout()
-plt.subplots_adjust(wspace=.1, hspace=.1)
-plt.savefig('./figs/house_price_coef.pdf')
+    G = nx.empty_graph(1)
+    sm_common = strat_models.StratifiedModel(bm, graph=G)
+
+    data_common_train = dict(X=X_train, Y=Y_train, Z=[0]*len(Y_train))
+    data_common_test = dict(X=X_test, Y=Y_test, Z=[0]*len(Y_test))
+
+    info = sm_common.fit(data_common_train, **kwargs)
+    score = sm_common.scores(data_common_test)
+    print("Common model")
+    logger.info("Common model")
+    print("\t Info =", info)
+    logger.info(f"\t Info = {info}")
+    print("\t Loss =", score)
+    logger.info(f"\t Loss = {score}")
+
+    rf = RandomForestRegressor(n_estimators=50, min_samples_leaf=1, n_jobs=-1)
+    rf.fit(df_train.drop(['log_price', 'lat_bin', 'long_bin'],
+                         axis=1), df_train['log_price'])
+    score = rms(rf.predict(df_test.drop(
+        ['log_price', 'lat_bin', 'long_bin'], axis=1)) - df_test['log_price'])
+    print("Random Forest")
+    logger.info("Random Forest")
+    print("\t Loss =", score)
+    logger.info(f"\t Loss = {score}")
+    print("\t No. Parameters", np.sum([rf.estimators_[i].tree_.node_count for i in range(50)]))
+    logger.info(f"\t No. Parameters {np.sum([rf.estimators_[i].tree_.node_count for i in range(50)])}")
+
+    # Visualize
+    # latexify(fig_width=8)
+    params = np.array([sm_strat.G._node[node]['theta'] for node in sm_strat.G.nodes()])
+    params = params.reshape(bins, bins, 10)[::-1, :, :]
+    feats = ['bedrooms', 'bathrooms', 'sqft living', 'sqft lot', 'floors',
+             'waterfront', 'condition', 'grade', 'yr built', 'intercept']
+    min_lat = df['lat'].min()
+    max_lat = df['lat'].max()
+    min_long = df['long'].min()
+    max_long = df['long'].max()
+    lat_labels = ["%.1f" % x for x in np.linspace(min_lat, max_lat, 6)]
+    long_labels = ["%.1f" % x for x in np.linspace(min_long, max_long, 6)]
+
+    fig, axes = plt.subplots(2, 5)
+    for i, feat in enumerate(feats):
+        ax = axes[i // 5, i % 5]
+        ax.imshow(params[:, :, i])
+        ax.axis('off')
+        ax.set_title(feat)
+    plt.tight_layout()
+    plt.subplots_adjust(wspace=.1, hspace=.1)
+    plt.savefig('./figs/house_price_coef.pdf')
