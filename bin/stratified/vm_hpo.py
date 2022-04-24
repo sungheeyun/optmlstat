@@ -34,7 +34,7 @@ class Fcn(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def prox(
+    def single_prox(
         self, t: float, nu: np.ndarray, warm_start: np.ndarray
     ) -> np.ndarray:
         pass
@@ -59,7 +59,7 @@ class SquareSum(Fcn):
     def num_vars(self) -> int:
         return self.center.size
 
-    def prox(
+    def single_prox(
         self, t: float, nu: np.ndarray, warm_start: np.ndarray
     ) -> np.ndarray:
         assert nu.ndim == 2, nu.shape
@@ -74,6 +74,12 @@ class SquareSum(Fcn):
         return np.linalg.norm(x_array_1d - self.center) / np.sqrt(
             self.center.size
         )
+
+
+def foo(
+    fcn_: Fcn, t_: float, nu_: np.ndarray, warm_start_: np.ndarray
+) -> np.ndarray:
+    return fcn_.single_prox(t_, nu_, warm_start_)
 
 
 class ObjFcn(Loss):
@@ -120,16 +126,21 @@ class ObjFcn(Loss):
         assert self.K == nu.shape[0], (self.K, nu.shape)
         assert nu.shape == warm_start.shape, (nu.shape, warm_start.shape)
 
-        prox_list: tp.List[np.ndarray] = list()
-        for idx, x in enumerate(nu):
-            fcn: Fcn = self.fcn_list[idx]
-            prox_list.append(fcn.prox(t, nu[idx], warm_start[idx]))
+        prox_list: tp.List[np.ndarray]
+        num_processes: int = pool._processes
+        if num_processes == 1:
+            prox_list = list()
+            for idx, x in enumerate(nu):
+                fcn: Fcn = self.fcn_list[idx]
+                prox_list.append(fcn.single_prox(t, nu[idx], warm_start[idx]))
+        elif num_processes > 1:
+            prox_list = pool.starmap(
+                foo, zip(self.fcn_list, [t] * nu.shape[0], nu, warm_start)
+            )
+        else:
+            assert False, num_processes
 
-        res: np.ndarray = np.zeros_like(nu)
-        for idx in range(nu.shape[0]):
-            res[idx, :, :] = prox_list[idx]
-
-        return res
+        return np.array(prox_list)
 
     def scores(self, data: tp.Any, graph: Graph) -> float:
         fcn_val_list: tp.List[float] = list()
@@ -157,8 +168,8 @@ class ObjFcn(Loss):
 def run() -> None:
     set_logging_basic_config(__file__)
 
-    num_vars: int = 10
-    num_fcns: int = 10
+    num_vars: int = 100
+    num_fcns: int = 64
 
     obj_fcn_list: tp.List[Fcn] = list()
 
@@ -177,17 +188,21 @@ def run() -> None:
     for idx, node in enumerate(graph.nodes):
         node_idx_map[node] = idx
 
-    # strat_models.set_edge_weight(graph, 1e-6)
+    strat_models.set_edge_weight(graph, 1e-6)
     # strat_models.set_edge_weight(graph, 1e-3)
     # strat_models.set_edge_weight(graph, 1e+0)
-    strat_models.set_edge_weight(graph, 1e2)
+    # strat_models.set_edge_weight(graph, 1e2)
 
     K, n = graph.number_of_nodes(), num_vars
     logger.info(f"The stratified model will have {K * n} variables.")
 
     # Fit models
     kwargs = dict(
-        rel_tol=1e-6, abs_tol=1e-6, maxiter=100, n_jobs=1, verbose=False
+        rel_tol=1e-5,
+        abs_tol=1e-5,
+        maxiter=100,
+        n_jobs=16,
+        verbose=True,
     )
 
     loss: ObjFcn = ObjFcn(obj_fcn_list, node_idx_map)
@@ -206,8 +221,6 @@ def run() -> None:
 
     sub_opt: np.ndarray = loss.sub_optimality(graph)
     logger.info(f"\tSub-optimality = {sub_opt.min()} - {sub_opt.max()}")
-
-    pass
 
 
 if __name__ == "__main__":
