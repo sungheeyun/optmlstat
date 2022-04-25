@@ -15,7 +15,7 @@ from networkx.classes.graph import Graph
 from freq_used.logging_utils import set_logging_basic_config
 import strat_models
 from strat_models import Loss
-from strat_models.regularizers import Regularizer
+from strat_models import Regularizer
 
 # import latexify
 
