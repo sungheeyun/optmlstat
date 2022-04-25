@@ -26,7 +26,9 @@ TIME_SERIES_DATA_TEXT: StringIO = StringIO(
 
 class TestTimeSeries(unittest.TestCase):
     def test_basic_time_series(self):
-        data_frame: DataFrame = read_csv(TIME_SERIES_DATA_TEXT, sep=";", index_col=0)
+        data_frame: DataFrame = read_csv(
+            TIME_SERIES_DATA_TEXT, sep=";", index_col=0
+        )
         data_frame.index = data_frame.index.map(Timestamp)
 
         time_series: TimeSeries = TimeSeries(data_frame)
@@ -35,7 +37,9 @@ class TestTimeSeries(unittest.TestCase):
         ax: Axes
 
         fig, ax = subplots()
-        time_series.time_series_data_frame.plot(ax=ax, marker="o", linestyle="-")
+        time_series.time_series_data_frame.plot(
+            ax=ax, marker="o", linestyle="-"
+        )
 
         for x_major_tick_label in ax.get_xmajorticklabels():
             x_major_tick_label.set_rotation(45)

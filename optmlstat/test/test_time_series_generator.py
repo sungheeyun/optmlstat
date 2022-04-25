@@ -5,12 +5,18 @@ from pandas import Timestamp
 from matplotlib.pyplot import subplots
 from matplotlib.figure import Figure
 
-from optmlstat.time_series.time_series_generator.time_series_generator import TimeSeriesGenerator
-from optmlstat.time_series.time_series_generator.random_time_series_generator import RandomTimeSeriesGenerator
+from optmlstat.time_series.time_series_generator.time_series_generator import (
+    TimeSeriesGenerator,
+)
+from optmlstat.time_series.time_series_generator.random_time_series_generator import (
+    RandomTimeSeriesGenerator,
+)
 from optmlstat.time_series.time_series_generator.random_interval_time_series_generator import (
     RandomIntervalTimeSeriesGenerator,
 )
-from optmlstat.time_series.plotters.time_series_plotter import TimeSeriesPlotter
+from optmlstat.time_series.plotters.time_series_plotter import (
+    TimeSeriesPlotter,
+)
 
 
 class TestTimeSeriesGenerator(unittest.TestCase):
@@ -28,10 +34,12 @@ class TestTimeSeriesGenerator(unittest.TestCase):
             TestTimeSeriesGenerator.UNIT_TIME,
         )
 
-        random_time_series_generator: RandomTimeSeriesGenerator = RandomTimeSeriesGenerator(
-            TestTimeSeriesGenerator.START_TIME,
-            TestTimeSeriesGenerator.NUM_TIME_POINTS,
-            TestTimeSeriesGenerator.UNIT_TIME,
+        random_time_series_generator: RandomTimeSeriesGenerator = (
+            RandomTimeSeriesGenerator(
+                TestTimeSeriesGenerator.START_TIME,
+                TestTimeSeriesGenerator.NUM_TIME_POINTS,
+                TestTimeSeriesGenerator.UNIT_TIME,
+            )
         )
 
         random_interval_time_series_generator: RandomIntervalTimeSeriesGenerator = RandomIntervalTimeSeriesGenerator(
@@ -51,9 +59,16 @@ class TestTimeSeriesGenerator(unittest.TestCase):
 
         figure, ax_array = subplots(3, 1)
 
-        time_series_plotter.plot(time_series_generator.generate_time_series(), ax=ax_array[0])
-        time_series_plotter.plot(random_time_series_generator.generate_time_series(), ax=ax_array[1])
-        time_series_plotter.plot(random_interval_time_series_generator.generate_time_series(), ax=ax_array[2])
+        time_series_plotter.plot(
+            time_series_generator.generate_time_series(), ax=ax_array[0]
+        )
+        time_series_plotter.plot(
+            random_time_series_generator.generate_time_series(), ax=ax_array[1]
+        )
+        time_series_plotter.plot(
+            random_interval_time_series_generator.generate_time_series(),
+            ax=ax_array[2],
+        )
 
         figure.show()
 

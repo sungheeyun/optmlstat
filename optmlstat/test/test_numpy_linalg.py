@@ -53,7 +53,9 @@ class TestNumpyLinAlg(unittest.TestCase):
         a_array_2d: ndarray = randn(dim_of_range, dim_of_domain)
         b_array_1d: ndarray = randn(dim_of_range)
 
-        x_array_1d, residuals_1d, rank, sv_array_1d = lstsq(a_array_2d, b_array_1d, rcond=None)
+        x_array_1d, residuals_1d, rank, sv_array_1d = lstsq(
+            a_array_2d, b_array_1d, rcond=None
+        )
 
         self.assertTrue(isinstance(x_array_1d, ndarray))
         self.assertTrue(isinstance(residuals_1d, ndarray))
@@ -68,7 +70,12 @@ class TestNumpyLinAlg(unittest.TestCase):
         self.assertTrue(allclose(sv_array_1d, svd(a_array_2d)[1]))
 
         self.assertEqual(a_array_2d.dot(x_array_1d).shape, b_array_1d.shape)
-        self.assertTrue(allclose(norm(a_array_2d.dot(x_array_1d) - b_array_1d) ** 2, residuals_1d[0]))
+        self.assertTrue(
+            allclose(
+                norm(a_array_2d.dot(x_array_1d) - b_array_1d) ** 2,
+                residuals_1d[0],
+            )
+        )
 
     def test_lstsq_2d(self) -> None:
         dim_of_domain: int = TestNumpyLinAlg.dim_of_domain
@@ -80,7 +87,9 @@ class TestNumpyLinAlg(unittest.TestCase):
         a_array_2d: ndarray = randn(dim_of_range, dim_of_domain)
         b_array_2d: ndarray = randn(dim_of_range, num_of_data)
 
-        x_array_2d, residuals_1d, rank, sv_array_1d = lstsq(a_array_2d, b_array_2d, rcond=None)
+        x_array_2d, residuals_1d, rank, sv_array_1d = lstsq(
+            a_array_2d, b_array_2d, rcond=None
+        )
 
         self.assertTrue(isinstance(x_array_2d, ndarray))
         self.assertTrue(isinstance(residuals_1d, ndarray))
@@ -95,7 +104,14 @@ class TestNumpyLinAlg(unittest.TestCase):
         self.assertTrue(allclose(sv_array_1d, svd(a_array_2d)[1]))
 
         self.assertEqual(a_array_2d.dot(x_array_2d).shape, b_array_2d.shape)
-        self.assertTrue(allclose(power(a_array_2d.dot(x_array_2d) - b_array_2d, 2.0).sum(axis=0), residuals_1d))
+        self.assertTrue(
+            allclose(
+                power(a_array_2d.dot(x_array_2d) - b_array_2d, 2.0).sum(
+                    axis=0
+                ),
+                residuals_1d,
+            )
+        )
 
 
 if __name__ == "__main__":

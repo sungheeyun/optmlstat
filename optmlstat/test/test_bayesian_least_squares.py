@@ -3,6 +3,7 @@ import unittest
 import logging
 import time
 
+import tqdm
 import freq_used.plotting as fp
 import numpy as np
 import numpy.random as nr
@@ -46,10 +47,10 @@ class TestBayesianLeastSquares(unittest.TestCase):
         self._test_bayesian_least_squares(BayesianLeastSquaresLowRankUpdate)
 
     def _test_bayesian_least_squares(self, bayesian_ls_cls: Type[U]) -> None:
-        input_dim: int = 300
+        input_dim: int = 500
 
         batch_size: int = 10
-        num_trainings: int = 23
+        num_trainings: int = 100
 
         logger.info(f"input dimension: {input_dim}")
         logger.info(f"batch size: {batch_size}")
@@ -62,7 +63,7 @@ class TestBayesianLeastSquares(unittest.TestCase):
         logger.info(f"confidence leveL: {confidence_level}")
 
         coef_1d: np.ndarray = nr.randn(input_dim)
-        # print(coef_1d)
+        logger.debug(f"coefficient for the linear model: {coef_1d}")
 
         logger.info("Assign the prior Gaussian.")
         prior: Gaussian = Gaussian(
@@ -82,14 +83,14 @@ class TestBayesianLeastSquares(unittest.TestCase):
         inf_time_list: List[float] = list()
 
         T0: float = time.time()
-        for idx in range(num_trainings):
-            # logger.info(f"randomly generate {batch_size} data points")
+        for idx in tqdm.tqdm(range(num_trainings)):
+            logger.debug(f"randomly generate {batch_size} data points")
             x_data_array_2d: np.ndarray = nr.randn(batch_size, input_dim)
 
-            # logger.info(
-            #    f"calculate predictive distribution for the {batch_size}"
-            #    " data points"
-            # )
+            logger.debug(
+                f"calculate predictive distribution for the {batch_size}"
+                " data points"
+            )
             inf_time: float = 0.0
             for x_array_1d in x_data_array_2d:
                 t0 = time.time()
@@ -106,7 +107,7 @@ class TestBayesianLeastSquares(unittest.TestCase):
             ) + nr.randn(batch_size) / np.sqrt(noise_precision)
             y_list.extend(list(y_data_array_1d))
 
-            logger.info(
+            logger.debug(
                 f"{idx + 1}th training with {batch_size} data points, i.e., "
                 "updating the prior"
             )
@@ -129,20 +130,31 @@ class TestBayesianLeastSquares(unittest.TestCase):
 
         x_array: np.ndarray = np.arange(len(y_list))
         y_array: np.ndarray = np.array(y_list)
+
+        # predictive distribution
         y_hat_mean_array: np.ndarray = np.array(y_hat_mean_list)
         y_hat_std_array: np.ndarray = np.array(y_hat_std_list)
-        lb_array: np.ndarray = y_hat_mean_array - conf_coef * y_hat_std_array
-        ub_array: np.ndarray = y_hat_mean_array + conf_coef * y_hat_std_array
+
+        # residuals
+        res_array: np.ndarray = y_array - y_hat_mean_array
+
+        # confidence_level prediction interval
+        conf_half_int: np.ndarray = conf_coef * y_hat_std_array
+        ub_array: np.ndarray = y_hat_mean_array + conf_half_int
+        lb_array: np.ndarray = y_hat_mean_array - conf_half_int
 
         within_interval_bool_array: np.ndarray = (y_array > lb_array) & (
             y_array < ub_array
         )
-        print(
+        logger.info(
             within_interval_bool_array.sum() / within_interval_bool_array.size
         )
 
         moving_average_window_size: int = min(
-            100, within_interval_bool_array.size / 2
+            100, int(within_interval_bool_array.size / 2)
+        )
+        logger.info(
+            f"moving_average_window_size: {moving_average_window_size}"
         )
         moving_average_filter: np.ndarray = (
             np.ones(moving_average_window_size) / moving_average_window_size
@@ -154,10 +166,10 @@ class TestBayesianLeastSquares(unittest.TestCase):
         from matplotlib.figure import Figure
         from matplotlib.axes import Axes
 
-        fig: Figure = fp.get_figure(2, 1, axis_width=6, axis_height=3)
+        fig: Figure = fp.get_figure(3, 1, axis_width=6, axis_height=3)
         ax_1: Axes
-        ax_2: Axes
-        ax_1, ax_2 = fig.get_axes()
+        ax_3: Axes
+        ax_1, ax_2, ax_3 = fig.get_axes()
 
         ax_1.plot(x_array, y_array, "o", label="observation")
         ax_1.plot(x_array, y_hat_mean_array, "x", label="MAP estimation")
@@ -181,18 +193,26 @@ class TestBayesianLeastSquares(unittest.TestCase):
         )
         ax_1.legend()
 
-        ax_2.plot(
-            x_array[x_array.size - moving_average_array.size:],
+        x_lim = ax_1.get_xlim()
+
+        ax_2.plot(x_array, res_array, label="residuals")
+        ax_2.plot(x_array, conf_half_int, "r-")
+        ax_2.plot(x_array, -conf_half_int, "r-")
+        ax_2.set_xlim(x_lim)
+
+        ax_3.plot(
+            x_array[x_array.size - moving_average_array.size :],
             moving_average_array,
+            label=f"prob estimation using past {moving_average_window_size} points",
         )
-        ax_2.plot(
+        ax_3.plot(
             [-x_array.size, x_array.size * 2],
             np.ones(2) * confidence_level,
             "r-",
             alpha=0.5,
         )
-        ax_2.set_xlim(ax_1.get_xlim())
-        ax_2.set_ylim((0, 1))
+        ax_3.set_xlim(x_lim)
+        ax_3.legend()
         fig.show()
 
         self.assertEqual(True, True)

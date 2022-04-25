@@ -199,10 +199,10 @@ def test_bayesian_least_squares(bayesian_ls_cls: Type[U]) -> None:
     ax_2.legend()
 
     ax_3.plot(
-        x_array[x_array.size - moving_average_array.size:],
+        x_array[x_array.size - moving_average_array.size :],
         moving_average_array,
         label=f"prob estimation using past {moving_average_window_size}"
-              " points",
+        " points",
     )
     ax_3.plot(
         [-x_array.size, x_array.size * 2],
@@ -236,7 +236,7 @@ def test_bayesian_least_squares(bayesian_ls_cls: Type[U]) -> None:
     axes_list: List[Axes] = fig.get_axes()
     fig_list.append(fig)
 
-    t_array: np.ndarray = np.linspace(-1.0, 1.0, num_points)
+    t_array: np.ndarray = np.linspace(-2.0, 2.0, num_points)
 
     for idx, prior in enumerate(prior_list):
         axis = axes_list[idx]
@@ -270,19 +270,27 @@ def test_bayesian_least_squares(bayesian_ls_cls: Type[U]) -> None:
         axis.set_ylim((-3.5, 3.5))
         axis.legend()
 
-    # for fig in fig_list:
-    #    fig.show()
-    fig_list[-1].show()
+    for fig in fig_list:
+        fig.show()
+    # fig_list[-1].show()
 
 
 if __name__ == "__main__":
     if "__file__" in dir():
         fl.set_logging_basic_config(__file__)
 
-    # nr.seed(760104)
+    nr.seed(760104)
 
-    # test_bayesian_least_squares(BayesianLeastSquaresBruteforce)
-    # test_bayesian_least_squares(BayesianLeastSquaresStandard)
+    try:
+        test_bayesian_least_squares(BayesianLeastSquaresBruteforce)
+    except AttributeError:
+        pass
+
+    try:
+        test_bayesian_least_squares(BayesianLeastSquaresStandard)
+    except AttributeError:
+        pass
+
     test_bayesian_least_squares(BayesianLeastSquaresLowRankUpdate)
 
     if "__file__" in dir():

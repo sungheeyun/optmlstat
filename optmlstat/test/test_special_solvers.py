@@ -4,7 +4,9 @@ from logging import Logger, getLogger
 from numpy import eye, zeros, ndarray, newaxis, ones, allclose, array
 from freq_used.logging_utils import set_logging_basic_config
 
-from optmlstat.opt.special_solvers import strictly_convex_quadratic_with_linear_equality_constraints
+from optmlstat.opt.special_solvers import (
+    strictly_convex_quadratic_with_linear_equality_constraints,
+)
 
 logger: Logger = getLogger()
 
@@ -16,16 +18,25 @@ class TestSpecialSolvers(unittest.TestCase):
     def setUpClass(cls) -> None:
         set_logging_basic_config(__file__)
 
-    def test_strictly_convex_quadratic_with_linear_equality_constraints(self) -> None:
+    def test_strictly_convex_quadratic_with_linear_equality_constraints(
+        self,
+    ) -> None:
         for num_primary_vars in [10, 100, 1000]:
-            self._test_strictly_convex_quadratic_with_linear_equality_constraints(num_primary_vars)
+            self._test_strictly_convex_quadratic_with_linear_equality_constraints(
+                num_primary_vars
+            )
 
-    def _test_strictly_convex_quadratic_with_linear_equality_constraints(self, num_primary_vars: int) -> None:
+    def _test_strictly_convex_quadratic_with_linear_equality_constraints(
+        self, num_primary_vars: int
+    ) -> None:
         p_array_2d: ndarray = eye(num_primary_vars)
         q_array_1d: ndarray = zeros(num_primary_vars)
         a_array_2d: ndarray = ones(num_primary_vars)[newaxis, :]
         b_array_1d: ndarray = ones(1)
-        opt_x_1d, opt_nu_1d = strictly_convex_quadratic_with_linear_equality_constraints(
+        (
+            opt_x_1d,
+            opt_nu_1d,
+        ) = strictly_convex_quadratic_with_linear_equality_constraints(
             p_array_2d, q_array_1d, a_array_2d, b_array_1d
         )
 
@@ -46,7 +57,10 @@ class TestSpecialSolvers(unittest.TestCase):
         a_array_2d: ndarray = array([2, 1], float)[newaxis, :]
         b_array_1d: ndarray = ones(1)
 
-        opt_x_1d, opt_nu_1d = strictly_convex_quadratic_with_linear_equality_constraints(
+        (
+            opt_x_1d,
+            opt_nu_1d,
+        ) = strictly_convex_quadratic_with_linear_equality_constraints(
             p_array_2d, q_array_1d, a_array_2d, b_array_1d
         )
 

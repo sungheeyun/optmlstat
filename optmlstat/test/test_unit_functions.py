@@ -26,7 +26,9 @@ class TestUnitFunctions(unittest.TestCase):
     def _draw_unit_function(ufcn: Callable) -> None:
 
         x_array_1d: ndarray = linspace(
-            TestUnitFunctions.x_min, TestUnitFunctions.x_max, TestUnitFunctions.num_plotting_points
+            TestUnitFunctions.x_min,
+            TestUnitFunctions.x_max,
+            TestUnitFunctions.num_plotting_points,
         )
 
         figure: Figure

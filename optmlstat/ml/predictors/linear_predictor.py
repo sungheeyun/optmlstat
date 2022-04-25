@@ -14,11 +14,19 @@ class LinearPredictor(FunctionBase):
         self.coef: ndarray = coef
         self.basis_function: FunctionBase = basis_function
 
-        self._is_affine: Optional[bool] = True if self.basis_function.is_affine else None
-        self._is_convex: Optional[bool] = True if self.basis_function.is_convex and (coef >= 0.0).all() else None
-        self._is_strictly_convex: Optional[bool] = True if self.basis_function.is_strictly_convex and (
-            coef > 0.0
-        ).all() else None
+        self._is_affine: Optional[bool] = (
+            True if self.basis_function.is_affine else None
+        )
+        self._is_convex: Optional[bool] = (
+            True
+            if self.basis_function.is_convex and (coef >= 0.0).all()
+            else None
+        )
+        self._is_strictly_convex: Optional[bool] = (
+            True
+            if self.basis_function.is_strictly_convex and (coef > 0.0).all()
+            else None
+        )
 
     @property
     def num_inputs(self) -> Optional[int]:
@@ -41,5 +49,10 @@ class LinearPredictor(FunctionBase):
         return self._is_convex
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
-        z_array_2d: ndarray = hstack((self.basis_function.get_y_values_2d(x_array_2d), ones((x_array_2d.shape[0], 1))))
+        z_array_2d: ndarray = hstack(
+            (
+                self.basis_function.get_y_values_2d(x_array_2d),
+                ones((x_array_2d.shape[0], 1)),
+            )
+        )
         return z_array_2d.dot(self.coef)

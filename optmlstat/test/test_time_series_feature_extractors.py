@@ -9,11 +9,15 @@ from matplotlib.figure import Figure
 
 from optmlstat.time_series.time_series import TimeSeries
 from optmlstat.time_series.time_series_collection import TimeSeriesCollection
-from optmlstat.time_series.time_interval_feature_extractor import TimeIntervalFeatureExtractor
+from optmlstat.time_series.time_interval_feature_extractor import (
+    TimeIntervalFeatureExtractor,
+)
 from optmlstat.time_series.time_series_generator.random_interval_time_series_generator import (
     RandomIntervalTimeSeriesGenerator,
 )
-from optmlstat.time_series.plotters.time_series_plotter import TimeSeriesPlotter
+from optmlstat.time_series.plotters.time_series_plotter import (
+    TimeSeriesPlotter,
+)
 
 
 class TestTimeSeriesFeatureExtractors(unittest.TestCase):
@@ -47,19 +51,25 @@ class TestTimeSeriesFeatureExtractors(unittest.TestCase):
 
     def test_basic_feature_extractor(self) -> None:
 
-        time_interval_feature_extractor: TimeIntervalFeatureExtractor = TimeIntervalFeatureExtractor(
-            TestTimeSeriesFeatureExtractors.INTERVAL_START_TIME,
-            TestTimeSeriesFeatureExtractors.INTERVAL_END_TIME,
-            lambda array_1d: array([array_1d.mean()]),
+        time_interval_feature_extractor: TimeIntervalFeatureExtractor = (
+            TimeIntervalFeatureExtractor(
+                TestTimeSeriesFeatureExtractors.INTERVAL_START_TIME,
+                TestTimeSeriesFeatureExtractors.INTERVAL_END_TIME,
+                lambda array_1d: array([array_1d.mean()]),
+            )
         )
 
         time_series_plotter: TimeSeriesPlotter = TimeSeriesPlotter()
 
         figure: Figure
         axes_array: ndarray
-        figure, axes_array = subplots(TestTimeSeriesFeatureExtractors.FEATURES.size, 1)
+        figure, axes_array = subplots(
+            TestTimeSeriesFeatureExtractors.FEATURES.size, 1
+        )
 
-        for idx, time_series in enumerate(TestTimeSeriesFeatureExtractors.time_series_collection.time_series_list):
+        for idx, time_series in enumerate(
+            TestTimeSeriesFeatureExtractors.time_series_collection.time_series_list
+        ):
             time_series_plotter.plot(time_series, ax=axes_array[idx])
 
         figure.show()
@@ -71,7 +81,9 @@ class TestTimeSeriesFeatureExtractors(unittest.TestCase):
         print(TestTimeSeriesFeatureExtractors.FEATURES)
         print(features)
 
-        self.assertLess(abs(features - TestTimeSeriesFeatureExtractors.FEATURES).max(), 0.1)
+        self.assertLess(
+            abs(features - TestTimeSeriesFeatureExtractors.FEATURES).max(), 0.1
+        )
 
 
 if __name__ == "__main__":

@@ -4,7 +4,9 @@ from logging import Logger, getLogger
 from numpy import ndarray, array, arange, allclose
 from freq_used.logging_utils import set_logging_basic_config
 
-from optmlstat.linalg.basic_operators.matrix_multiplication_operator import MatrixMultiplicationOperator
+from optmlstat.linalg.basic_operators.matrix_multiplication_operator import (
+    MatrixMultiplicationOperator,
+)
 
 logger: Logger = getLogger()
 
@@ -21,11 +23,21 @@ class TestMatrixMultiplicationOperator(unittest.TestCase):
 
         logger.info(array_2d)
 
-        matrix_multiplication_operator: MatrixMultiplicationOperator = MatrixMultiplicationOperator(array_2d)
+        matrix_multiplication_operator: MatrixMultiplicationOperator = (
+            MatrixMultiplicationOperator(array_2d)
+        )
 
-        logger.info(allclose(matrix_multiplication_operator.transform(array_1d), [10, 32]))
+        logger.info(
+            allclose(
+                matrix_multiplication_operator.transform(array_1d), [10, 32]
+            )
+        )
 
-        self.assertTrue(allclose(matrix_multiplication_operator.transform(array_1d), [10, 32]))
+        self.assertTrue(
+            allclose(
+                matrix_multiplication_operator.transform(array_1d), [10, 32]
+            )
+        )
 
 
 if __name__ == "__main__":

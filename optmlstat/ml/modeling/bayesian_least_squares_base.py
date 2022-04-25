@@ -69,7 +69,7 @@ class BayesianLeastSquaresBase(BayesianModelerBase):
         for idx in range(vec_size - 1, -1, -1):
             x_array_1d[idx] = (
                 y_array_1d[idx]
-                - np.dot(upper_tri[idx, idx + 1:], x_array_1d[idx + 1:])
+                - np.dot(upper_tri[idx, idx + 1 :], x_array_1d[idx + 1 :])
             ) / upper_tri[idx, idx]
 
         return x_array_1d

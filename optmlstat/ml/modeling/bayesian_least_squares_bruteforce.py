@@ -16,6 +16,10 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
     Bayesian Least Squares
     """
 
+    # TODO !!! implement the below method properly
+    def get_prior(self) -> Gaussian:
+        self.prior_list[-1]
+
     def __init__(
         self,
         prior: Gaussian,
@@ -107,7 +111,7 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
             )
         else:
             temp_array_1d: np.ndarray = scipy.linalg.solve(
-                posterior.precision, feature, rcond=None
+                posterior.precision, feature
             )
 
         variance: float = (

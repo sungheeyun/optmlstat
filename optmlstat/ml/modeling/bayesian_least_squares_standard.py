@@ -16,6 +16,10 @@ class BayesianLeastSquaresStandard(BayesianLeastSquaresBase):
     Bayesian Least Squares
     """
 
+    # TODO !!! implement below
+    def get_prior(self) -> Gaussian:
+        return None
+
     def __init__(
         self,
         prior: Gaussian,

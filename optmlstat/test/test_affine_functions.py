@@ -16,10 +16,14 @@ class TestAffineFunctions(unittest.TestCase):
 
         x_array_2d: ndarray = randn(num_data, num_inputs)
 
-        affine_function: AffineFunction = AffineFunction(slope_array, intercept_array)
+        affine_function: AffineFunction = AffineFunction(
+            slope_array, intercept_array
+        )
 
         y_array_2d: ndarray = affine_function.get_y_values_2d(x_array_2d)
-        true_y_array_2d: ndarray = x_array_2d + array([intercept_array]).repeat(x_array_2d.shape[0], axis=0)
+        true_y_array_2d: ndarray = x_array_2d + array(
+            [intercept_array]
+        ).repeat(x_array_2d.shape[0], axis=0)
 
         self.assertTrue(allclose(y_array_2d, true_y_array_2d))
 

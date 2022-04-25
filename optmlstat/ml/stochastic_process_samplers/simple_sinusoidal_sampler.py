@@ -4,8 +4,12 @@ from numpy import ndarray, pi, sin, sqrt
 from numpy.random import rand, randn
 
 from functions.function_base import FunctionBase
-from ml.stochastic_process_samplers.stochastic_process_sampler_base import StochasticProcessSamplerBase
-from ml.predictors.simple_sinusoidal_optimal_predictor import SimpleSinusoidalOptimalPredictor
+from ml.stochastic_process_samplers.stochastic_process_sampler_base import (
+    StochasticProcessSamplerBase,
+)
+from ml.predictors.simple_sinusoidal_optimal_predictor import (
+    SimpleSinusoidalOptimalPredictor,
+)
 
 
 class SimpleSinusoidalSampler(StochasticProcessSamplerBase):
@@ -30,7 +34,9 @@ class SimpleSinusoidalSampler(StochasticProcessSamplerBase):
 
     def random_sample(self, number_samples: int) -> Tuple[ndarray, ndarray]:
         x_array_2d = rand(number_samples, 1)
-        y_array_2d = sin((2.0 * pi) * x_array_2d) + sqrt(self.noise_variance) * randn(*x_array_2d.shape)
+        y_array_2d = sin((2.0 * pi) * x_array_2d) + sqrt(
+            self.noise_variance
+        ) * randn(*x_array_2d.shape)
 
         return x_array_2d, y_array_2d
 
