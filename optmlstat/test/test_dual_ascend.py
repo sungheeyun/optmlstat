@@ -45,6 +45,7 @@ def get_fcn_name(frame_info: FrameInfo) -> str:
 
 
 class TestDualAscend(unittest.TestCase):
+    FIXED_SEED: bool = False
     domain_dim: int = 20
     num_data_points: int = 5
     num_eq_cnst: int = 2
@@ -53,11 +54,12 @@ class TestDualAscend(unittest.TestCase):
 
     # opt_param: OptimizationParameter = OptimizationParameter(0.1077, 100)
     opt_param: OptimizationParameter = OptimizationParameter(
-        VanishingLearningRateStrategy(10e-3, 1.0, 200), 1000
+        VanishingLearningRateStrategy(10e-3, 1.0, 200), 500
     )
 
     @classmethod
     def setUpClass(cls) -> None:
+        assert os.environ.get("TEST_LOG_LEVEL", "INFO")
         set_logging_basic_config(
             __file__,
             level=eval(f"logging.{os.environ.get('TEST_LOG_LEVEL', 'INFO')}"),
@@ -68,7 +70,8 @@ class TestDualAscend(unittest.TestCase):
         plt.show()
 
     def test_dual_ascend_with_simple_example(self) -> None:
-        seed(760104)
+        if self.FIXED_SEED:
+            seed(760104)
         self._test_dual_ascend_with_quadratic_problem(
             TestDualAscend._get_simple_quad_problem(),
             num_data_points=TestDualAscend.num_data_points,
@@ -76,7 +79,8 @@ class TestDualAscend(unittest.TestCase):
         )
 
     def test_dual_ascend_with_quad_prob_with_random_eq_cnsts(self) -> None:
-        seed(760104)
+        if self.FIXED_SEED:
+            seed(760104)
         self._test_dual_ascend_with_quadratic_problem(
             TestDualAscend._get_quad_problem_with_random_eq_cnsts(
                 TestDualAscend.num_eq_cnst
