@@ -273,6 +273,8 @@ class Error:
         ax2.plot(self.abs_res_array_1d, "x")
         ax2.plot(self.max_idx, self.abs_res_array_1d[self.max_idx], "ro")
 
+        ax2.set_ylim((0.0, 2.0))
+
         ax.set_title("max res = %g" % self.max_error)
 
         ax.plot(
