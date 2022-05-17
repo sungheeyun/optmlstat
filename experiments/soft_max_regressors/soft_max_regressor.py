@@ -230,7 +230,7 @@ class MaxRegressor(LinRegressor):
 
 
 class Error:
-    P_LIST: tp.List[float] = [1.0, 2.0, 4.0, 8.0, 16.0, 32.0]
+    P_LIST: tp.List[float] = [1.0, 2.0, 4.0, 8.0, 16.0]
 
     def __init__(
         self, y_array_1d: np.ndarray, y_hat_array_1d: np.ndarray
@@ -248,6 +248,7 @@ class Error:
                 np.power(self.abs_res_array_1d, p).mean(), 1.0 / p
             )
 
+        self.max_idx = int(self.abs_res_array_1d.argmax())
         self.max_error = self.abs_res_array_1d.max()
 
     def report(self) -> None:
@@ -263,20 +264,38 @@ class Error:
         logger.info("    max error = %f", self.max_error)
 
     def plot_analysis(self, ax: Axes) -> None:
-        ax.plot(self.y_array_1d, "bo")
-        ax.plot(self.y_hat_array_1d, "ro")
-        ax.plot(self.abs_res_array_1d, "x")
+        ax.plot(self.y_array_1d, "bo", alpha=0.5)
+        ax.plot(
+            self.y_hat_array_1d, "o", mec="#FFA500", mfc="#FFA500", alpha=0.5
+        )
+
+        ax2: Axes = ax.twinx()
+        ax2.plot(self.abs_res_array_1d, "x")
+        ax2.plot(self.max_idx, self.abs_res_array_1d[self.max_idx], "ro")
+
+        ax.set_title("max res = %g" % self.max_error)
+
+        ax.plot(
+            self.max_idx * np.ones(2),
+            [self.y_array_1d[self.max_idx], self.y_hat_array_1d[self.max_idx]],
+            "r-",
+        )
+
+        # ylim = ax.get_ylim()
+        # ax.plot(self.max_idx * np.ones(2), ylim, "r-")
+        # ax.set_ylim(ylim)
 
     def plot_res_dist(self, ax: Axes) -> None:
         ax.hist(self.res_array_1d, bins=20)
 
 
 def run() -> None:
-    num_data: int = 100
+    num_data: int = 50
     num_features: int = 5
-    noise_variance: float = 4.0
+    noise_variance: float = 0.5
 
-    nr.seed(76010)
+    nr.seed(760104)
+    # nr.seed(760)
 
     x_array_2d: np.ndarray = nr.randn(num_data, num_features)
     w_array_1d: np.ndarray = nr.randn(num_features)
@@ -290,26 +309,29 @@ def run() -> None:
 
     lambd: float = 0.1
 
-    # regressor: Regressor = RidgeRegressor(intercept=False, lambd=lambd)
-    regressor: Regressor = PNormRegressor(p_=16, lambd=lambd)
-    # regressor: Regressor = MaxRegressor(lambd=lambd)
+    regressor_list: tp.List[Regressor] = list()
+    regressor_list.append(RidgeRegressor(intercept=False, lambd=lambd))
+    regressor_list.append(PNormRegressor(p_=16, lambd=lambd))
+    regressor_list.append(MaxRegressor(lambd=lambd))
 
-    regressor.train(x_array_2d, y_array_1d)
-    logger.info("opt_params: %s", regressor.param_array_1d)
-    y_hat_array_1d = regressor.predict(x_array_2d)
+    for regressor in regressor_list:
 
-    logger.info("%s with lambda = %g", regressor, lambd)
+        regressor.train(x_array_2d, y_array_1d)
+        logger.info("opt_params: %s", regressor.param_array_1d)
+        y_hat_array_1d = regressor.predict(x_array_2d)
 
-    err: Error = Error(y_array_1d, y_hat_array_1d)
-    err.report()
+        logger.info("%s with lambda = %g", regressor, lambd)
 
-    fig, (ax1, ax2) = plt.subplots(2, 1)
-    err.plot_analysis(ax1)
-    err.plot_res_dist(ax2)
+        err: Error = Error(y_array_1d, y_hat_array_1d)
+        err.report()
 
-    fig.suptitle("%s" % regressor)
+        fig, (ax1, ax2) = plt.subplots(2, 1)
+        err.plot_analysis(ax1)
+        err.plot_res_dist(ax2)
 
-    fig.show()
+        fig.suptitle("%s" % regressor)
+
+        fig.show()
     plt.show()
 
 
