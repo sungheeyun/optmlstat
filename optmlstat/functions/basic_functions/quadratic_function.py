@@ -29,7 +29,9 @@ class QuadraticFunction(FunctionBase):
         is_strictly_convex: bool = True
         is_convex: bool = True
         for idx3 in range(quad_array_3d.shape[2]):
-            symmetric_array: ndarray = quad_array_3d[:, :, idx3] + quad_array_3d[:, :, idx3].T
+            symmetric_array: ndarray = (
+                quad_array_3d[:, :, idx3] + quad_array_3d[:, :, idx3].T
+            )
             eigen_value_array: ndarray = eig(symmetric_array)[0]
             if (eigen_value_array <= 0.0).any():
                 is_strictly_convex = False
@@ -39,7 +41,12 @@ class QuadraticFunction(FunctionBase):
 
         return is_convex, is_strictly_convex
 
-    def __init__(self, quad_array_3d: Optional[ndarray], slope_array_2d: ndarray, intercept_array_1d: ndarray) -> None:
+    def __init__(
+        self,
+        quad_array_3d: Optional[ndarray],
+        slope_array_2d: ndarray,
+        intercept_array_1d: ndarray,
+    ) -> None:
         """
         If n is the number of inputs and m is that of outputs, quad_array_3d[:, :, i], slope_array_2d[:, i] and
         intercept_array_1d[i] represents :math:`P`, :math:`q`, and :math:`r` respectively in the following equation:
@@ -56,22 +63,38 @@ class QuadraticFunction(FunctionBase):
          m ndarray
         """
         # check dimensions
-        assert quad_array_3d is None or quad_array_3d.ndim == 3, quad_array_3d.ndim
+        assert (
+            quad_array_3d is None or quad_array_3d.ndim == 3
+        ), quad_array_3d.ndim
         assert slope_array_2d.ndim == 2, slope_array_2d.ndim
         assert intercept_array_1d.ndim == 1, intercept_array_1d.ndim
 
         # check number of inputs
-        assert quad_array_3d is None or quad_array_3d.shape[0] == slope_array_2d.shape[0]
-        assert quad_array_3d is None or quad_array_3d.shape[1] == slope_array_2d.shape[0]
+        assert (
+            quad_array_3d is None
+            or quad_array_3d.shape[0] == slope_array_2d.shape[0]
+        )
+        assert (
+            quad_array_3d is None
+            or quad_array_3d.shape[1] == slope_array_2d.shape[0]
+        )
 
         # check number of outputs
-        assert slope_array_2d.shape[1] == intercept_array_1d.size, (slope_array_2d.shape, intercept_array_1d.shape)
-        assert quad_array_3d is None or quad_array_3d.shape[2] == intercept_array_1d.size, (
+        assert slope_array_2d.shape[1] == intercept_array_1d.size, (
+            slope_array_2d.shape,
+            intercept_array_1d.shape,
+        )
+        assert (
+            quad_array_3d is None
+            or quad_array_3d.shape[2] == intercept_array_1d.size
+        ), (
             slope_array_2d.shape,
             intercept_array_1d.shape,
         )
 
-        self.quad_array_3d: ndarray = None if quad_array_3d is None else quad_array_3d.copy()
+        self.quad_array_3d: ndarray = (
+            None if quad_array_3d is None else quad_array_3d.copy()
+        )
         self.slope_array_2d: ndarray = slope_array_2d.copy()
         self.intercept_array_1d: ndarray = intercept_array_1d.copy()
 
@@ -81,8 +104,14 @@ class QuadraticFunction(FunctionBase):
         self._is_concave: bool
         self._is_strictly_concave: bool
 
-        self._is_convex, self._is_strictly_convex = QuadraticFunction.test_convexity(self.quad_array_3d)
-        self._is_concave, self._is_strictly_concave = QuadraticFunction.test_convexity(-self.quad_array_3d)
+        (
+            self._is_convex,
+            self._is_strictly_convex,
+        ) = QuadraticFunction.test_convexity(self.quad_array_3d)
+        (
+            self._is_concave,
+            self._is_strictly_concave,
+        ) = QuadraticFunction.test_convexity(-self.quad_array_3d)
 
     @property
     def num_inputs(self) -> Optional[int]:
@@ -125,7 +154,9 @@ class QuadraticFunction(FunctionBase):
         """
         assert self.is_strictly_convex
 
-        conjugate_quad_array_3d: ndarray = ndarray(shape=self.quad_array_3d.shape, dtype=float)
+        conjugate_quad_array_3d: ndarray = ndarray(
+            shape=self.quad_array_3d.shape, dtype=float
+        )
         conjugate_slope_array_1d_list: List[ndarray] = list()
         conjugate_intercept_list: List[float] = list()
 
@@ -137,15 +168,29 @@ class QuadraticFunction(FunctionBase):
             p_inv_q_array_1d: ndarray = solve(p_array_2d, q_array_1d)
             conjugate_slope_array_1d_list.append(-0.5 * p_inv_q_array_1d)
 
-            conjugate_intercept_list.append(0.25 * q_array_1d.dot(p_inv_q_array_1d))
+            conjugate_intercept_list.append(
+                0.25 * q_array_1d.dot(p_inv_q_array_1d)
+            )
 
-        conjugate_slope_array_2d: ndarray = vstack(conjugate_slope_array_1d_list).T
-        conjugate_intercept_array_1d: ndarray = array(conjugate_intercept_list, float) - self.intercept_array_1d
+        conjugate_slope_array_2d: ndarray = vstack(
+            conjugate_slope_array_1d_list
+        ).T
+        conjugate_intercept_array_1d: ndarray = (
+            array(conjugate_intercept_list, float) - self.intercept_array_1d
+        )
 
-        logger.debug(f"conjugate_slope_array_1d_list: {conjugate_slope_array_1d_list}")
-        logger.debug(f"conjugate_slope_array_2d.shape: {conjugate_slope_array_2d.shape}")
+        logger.debug(
+            f"conjugate_slope_array_1d_list: {conjugate_slope_array_1d_list}"
+        )
+        logger.debug(
+            f"conjugate_slope_array_2d.shape: {conjugate_slope_array_2d.shape}"
+        )
 
-        return QuadraticFunction(conjugate_quad_array_3d, conjugate_slope_array_2d, conjugate_intercept_array_1d)
+        return QuadraticFunction(
+            conjugate_quad_array_3d,
+            conjugate_slope_array_2d,
+            conjugate_intercept_array_1d,
+        )
 
     def conjugate_arg(self, z_array_2d: ndarray) -> ndarray:
         """
@@ -153,12 +198,14 @@ class QuadraticFunction(FunctionBase):
 
           :math:`z - 2 P x - q`
 
-        hence, the argsup is can be obtained when x makes the gradient zero (when P is positive definite), which is
+        hence, the argsup can be obtained when x makes the gradient zero (when P is positive definite), which is
 
           :math:`(1/2) P^{-1} (z-q)`
         """
         assert self.is_strictly_convex
-        assert self.num_inputs is None or z_array_2d.shape[1] == self.num_inputs
+        assert (
+            self.num_inputs is None or z_array_2d.shape[1] == self.num_inputs
+        )
 
         x_array_2d_list: List[ndarray] = list()
 
@@ -168,7 +215,9 @@ class QuadraticFunction(FunctionBase):
 
             assert z_array_2d.shape[1] == q_array_1d.size
 
-            x_array_2d: ndarray = solve(p_array_2d, (z_array_2d - q_array_1d).T).T / 2.0
+            x_array_2d: ndarray = (
+                solve(p_array_2d, (z_array_2d - q_array_1d).T).T / 2.0
+            )
 
             assert x_array_2d.shape == z_array_2d.shape
 
@@ -176,20 +225,29 @@ class QuadraticFunction(FunctionBase):
 
         x_array_3d: ndarray = stack(x_array_2d_list, axis=2)
 
-        assert x_array_3d.shape == (z_array_2d.shape[0], self.num_inputs, self.num_outputs)
+        assert x_array_3d.shape == (
+            z_array_2d.shape[0],
+            self.num_inputs,
+            self.num_outputs,
+        )
 
         return x_array_3d
 
-    # TODO (2) check x_array_2d and y_array_2 in all get_y_values_2d methods using decorators
+    # TODO (2) check x_array_2d and y_array_2 in all get_y_values_2d methods
+    #  using decorators
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         logger.debug(x_array_2d.shape)
         logger.debug(self.slope_array_2d.shape)
         logger.debug(self.intercept_array_1d.shape)
-        y_array_2d = x_array_2d.dot(self.slope_array_2d) + self.intercept_array_1d
+        y_array_2d = (
+            x_array_2d.dot(self.slope_array_2d) + self.intercept_array_1d
+        )
 
         if self.quad_array_3d is not None:
             for idx in range(self.quad_array_3d.shape[2]):
-                y_array_2d[:, idx] += (x_array_2d.dot(self.quad_array_3d[:, :, idx]) * x_array_2d).sum(axis=1)
+                y_array_2d[:, idx] += (
+                    x_array_2d.dot(self.quad_array_3d[:, :, idx]) * x_array_2d
+                ).sum(axis=1)
 
         return y_array_2d

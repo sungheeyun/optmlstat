@@ -91,12 +91,16 @@ class FunctionBase(OptMLStatClassBase):
     @abstractmethod
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         """
-        Returns y values for given x values. Each row of x_array_2d represents each x vector (n-dimensional vector)
-        and each row of y_array_2d represents the corresponding y value (m-dimensional vector).
-        Unlike generally accepted linear algebra standard, we use row-vector representation for each data point
-        to conform to Machine Learning convention where each row represents data and each column represent the feature.
+        Returns y values for given x values. Each row of x_array_2d represents
+        each x vector (n-dimensional vector) and each row of y_array_2d
+        represents the corresponding y value (m-dimensional vector).
+        Unlike generally accepted linear algebra standard,
+        we use row-vector representation for each data point
+        to conform to Machine Learning convention where each row represents data
+        and each column represent the feature.
 
-        More precisely, the function value for x_array_2d[i, :] is stored in y_array_2d[i, :].
+        More precisely, the function value for x_array_2d[i, :] is stored
+        in y_array_2d[i, :].
 
         Parameters
         ----------
