@@ -1,4 +1,4 @@
-black==20.8b1
+black==24.3.0
 cvxopt~=1.2.0
 cvxpy>=1.2.0
 flake8==3.8.4
