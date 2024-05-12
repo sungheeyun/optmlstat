@@ -1,4 +1,8 @@
-from typing import Any, Optional, Dict
+"""
+optimization problem evaluation results
+"""
+
+from typing import Any
 from dataclasses import dataclass
 import json
 
@@ -8,21 +12,34 @@ from optmlstat.formatting import convert_data_for_json
 
 
 @dataclass(frozen=True)
-class OptimizationProblemEvaluation:
+class OptProbEval:
     opt_prob: Any
     x_array_2d: ndarray
-    obj_fcn_array_2d: Optional[ndarray] = None
-    ineq_cnst_array_2d: Optional[ndarray] = None
-    eq_cnst_array_2d: Optional[ndarray] = None
+    obj_fcn_array_2d: ndarray | None = None
+    obj_fcn_jac_3d: ndarray | None = None
+    obj_fcn_hess_4d: ndarray | None = None
+    ineq_cnst_array_2d: ndarray | None = None
+    ineq_cnst_jac_3d: ndarray | None = None
+    ineq_cnst_hess_4d: ndarray | None = None
+    eq_cnst_array_2d: ndarray | None = None
+    eq_cnst_jac_3d: ndarray | None = None
+    eq_cnst_hess_4d: ndarray | None = None
 
-    def to_json_data(self) -> Dict[str, Any]:
+    def to_json_data(self) -> dict[str, Any]:
         return dict(
-            opt_prob=self.opt_prob,
+            pt_prob=self.opt_prob,
             x_array_2d=self.x_array_2d,
             obj_fcn_array_2d=self.obj_fcn_array_2d,
+            obj_fcn_jac_3d=self.obj_fcn_jac_3d,
+            obj_fcn_hess_4d=self.obj_fcn_hess_4d,
             ineq_cnst_array_2d=self.ineq_cnst_array_2d,
+            ineq_cnst_jac_3d=self.ineq_cnst_jac_3d,
+            ineq_cnst_hess_4d=self.ineq_cnst_hess_4d,
             eq_cnst_array_2d=self.ineq_cnst_array_2d,
+            eq_cnst_jac_3d=self.eq_cnst_jac_3d,
+            eq_cnst_hess_4d=self.eq_cnst_hess_4d,
         )
 
     def __repr__(self) -> str:
-        return json.dumps(self.to_json_data(), indent=2, default=convert_data_for_json)
+        # return json.dumps(self.to_json_data(), indent=2, default=convert_data_for_json)
+        return json.dumps(self.to_json_data(), default=convert_data_for_json)

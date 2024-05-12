@@ -3,10 +3,10 @@ from datetime import datetime
 
 from pandas import DataFrame
 
-from optmlstat.basic_modules.class_base import OptMLStatClassBase
+from optmlstat.basic_modules.class_base import OMSClassBase
 
 
-class TimeSeries(OptMLStatClassBase):
+class TimeSeries(OMSClassBase):
     """
     Time Series Data.
     """
@@ -33,7 +33,10 @@ class TimeSeries(OptMLStatClassBase):
         return time_series_name
 
     def __init__(
-        self, time_series_data_frame: DataFrame, start_time: Optional[datetime] = None, name: str = None
+        self,
+        time_series_data_frame: DataFrame,
+        start_time: Optional[datetime] = None,
+        name: str = None,
     ) -> None:
         """
         The constructor assumes that the time_series_data_fram is sorted by index (time) in increasing order.

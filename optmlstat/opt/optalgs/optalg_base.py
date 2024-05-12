@@ -1,22 +1,18 @@
 from abc import abstractmethod
 from typing import Any
 
-from optmlstat.basic_modules.class_base import OptMLStatClassBase
-from optmlstat.opt.opt_prob import OptimizationProblem
-from optmlstat.opt.opt_parameter import OptimizationParameter
+from optmlstat.basic_modules.class_base import OMSClassBase
+from optmlstat.opt.opt_prob import OptProb
+from optmlstat.opt.opt_parameter import OptParams
 
 
-class OptimizationAlgorithmBase(OptMLStatClassBase):
+class OptAlgBase(OMSClassBase):
     """
     Optimization Algorithm
     """
 
-    @property
-    def learning_rate(self) -> float:
-        return self._learning_rate
-
     @abstractmethod
-    def solve(self, opt_prob: OptimizationProblem, opt_param: OptimizationParameter, *args, **kwargs) -> Any:
+    def solve(self, opt_prob: OptProb, opt_param: OptParams, *args, **kwargs) -> Any:
         """
         Solve the optimization problem.
 

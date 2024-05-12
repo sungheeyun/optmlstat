@@ -1,22 +1,22 @@
-from typing import Optional, Any, Dict
+from typing import Any
 
 from numpy import ndarray
 
-from optmlstat.basic_modules.class_base import OptMLStatClassBase
+from optmlstat.basic_modules.class_base import OMSClassBase
 from optmlstat.functions.function_base import FunctionBase
-from optmlstat.opt.opt_prob_eval import OptimizationProblemEvaluation
+from optmlstat.opt.opt_prob_eval import OptProbEval
 
 
-class OptimizationProblem(OptMLStatClassBase):
+class OptProb(OMSClassBase):
     """
     A general mathematical optimization problem
     """
 
     def __init__(
         self,
-        obj_fcn: Optional[FunctionBase] = None,
-        eq_cnst: Optional[FunctionBase] = None,
-        ineq_cnst: Optional[FunctionBase] = None,
+        obj_fcn: FunctionBase | None = None,
+        eq_cnst: FunctionBase | None = None,
+        ineq_cnst: FunctionBase | None = None,
     ) -> None:
         """
         The optimization problem is
@@ -37,9 +37,9 @@ class OptimizationProblem(OptMLStatClassBase):
 
         assert not (obj_fcn is None and eq_cnst is None and ineq_cnst is None)
 
-        self.obj_fcn: Optional[FunctionBase] = obj_fcn
-        self.eq_cnst_fcn: Optional[FunctionBase] = eq_cnst
-        self.ineq_cnst_fcn: Optional[FunctionBase] = ineq_cnst
+        self.obj_fcn: FunctionBase | None = obj_fcn
+        self.eq_cnst_fcn: FunctionBase | None = eq_cnst
+        self.ineq_cnst_fcn: FunctionBase | None = ineq_cnst
 
         self._num_eq_cnst: int
         if self.eq_cnst_fcn is None:
@@ -55,7 +55,7 @@ class OptimizationProblem(OptMLStatClassBase):
             assert self.ineq_cnst_fcn.num_outputs is not None
             self._num_ineq_cnst = self.ineq_cnst_fcn.num_outputs
 
-        domain_dim: Optional[int] = None
+        domain_dim: int | None = None
         if self.obj_fcn is not None:
             if domain_dim is None:
                 domain_dim = self.obj_fcn.num_inputs
@@ -103,19 +103,43 @@ class OptimizationProblem(OptMLStatClassBase):
     def is_convex(self) -> bool:
         return self._is_convex
 
-    def to_json_data(self) -> Dict[str, Any]:
+    def to_json_data(self) -> dict[str, Any]:
         return dict(
             class_category="OptimizationProblem",
             obj_fcn=None if self.obj_fcn is None else self.obj_fcn.to_json_data(),
-            eq_cnst=None if self.eq_cnst_fcn is None else self.eq_cnst_fcn.to_json_data(),
-            ineq_cnst=None if self.ineq_cnst_fcn is None else self.ineq_cnst_fcn.to_json_data(),
+            eq_cnst=(
+                None if self.eq_cnst_fcn is None else self.eq_cnst_fcn.to_json_data()
+            ),
+            ineq_cnst=(
+                None
+                if self.ineq_cnst_fcn is None
+                else self.ineq_cnst_fcn.to_json_data()
+            ),
         )
 
-    def evaluate(self, x_array_2d: Optional[ndarray] = None) -> OptimizationProblemEvaluation:
-        return OptimizationProblemEvaluation(
+    def evaluate(self, x_array_2d: ndarray | None = None) -> OptProbEval:
+
+        obj_fcn_jac_3d: ndarray | None = (
+            None if self.obj_fcn is None else self.obj_fcn.jacobian(x_array_2d)
+        )
+
+        return OptProbEval(
             opt_prob=self,
-            x_array_2d=x_array_2d,
-            obj_fcn_array_2d=None if self.obj_fcn is None else self.obj_fcn.get_y_values_2d(x_array_2d),
-            eq_cnst_array_2d=None if self.eq_cnst_fcn is None else self.eq_cnst_fcn.get_y_values_2d(x_array_2d),
-            ineq_cnst_array_2d=None if self.ineq_cnst_fcn is None else self.ineq_cnst_fcn.get_y_values_2d(x_array_2d),
+            x_array_2d=x_array_2d.copy(),
+            obj_fcn_array_2d=(
+                None
+                if self.obj_fcn is None
+                else self.obj_fcn.get_y_values_2d(x_array_2d)
+            ),
+            obj_fcn_jac_3d=obj_fcn_jac_3d,
+            eq_cnst_array_2d=(
+                None
+                if self.eq_cnst_fcn is None
+                else self.eq_cnst_fcn.get_y_values_2d(x_array_2d)
+            ),
+            ineq_cnst_array_2d=(
+                None
+                if self.ineq_cnst_fcn is None
+                else self.ineq_cnst_fcn.get_y_values_2d(x_array_2d)
+            ),
         )

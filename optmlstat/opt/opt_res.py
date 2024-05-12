@@ -1,46 +1,59 @@
-from typing import Optional, Dict
 from logging import Logger, getLogger
 
-from optmlstat.basic_modules.class_base import OptMLStatClassBase
-from optmlstat.opt.opt_prob import OptimizationProblem
-from optmlstat.opt.opt_alg.optimization_algorithm_base import OptimizationAlgorithmBase
+import numpy as np
+
+from optmlstat.basic_modules.class_base import OMSClassBase
+from optmlstat.opt.opt_prob import OptProb
+from optmlstat.opt.optalgs.optalg_base import OptAlgBase
 from optmlstat.opt.iteration import Iteration
 from optmlstat.opt.opt_iterate import OptimizationIterate
-from optmlstat.opt.opt_prob_eval import OptimizationProblemEvaluation
+from optmlstat.opt.opt_prob_eval import OptProbEval
 
 logger: Logger = getLogger()
 
 
-class OptimizationResult(OptMLStatClassBase):
+class OptResults(OMSClassBase):
     """
     Stores optimization history and final results.
     """
 
-    def __init__(self, opt_prob: OptimizationProblem, opt_alg: OptimizationAlgorithmBase) -> None:
-        self._opt_prob: OptimizationProblem = opt_prob
-        self._opt_alg: OptimizationAlgorithmBase = opt_alg
-        self._iter_iterate_dict: Dict[Iteration, OptimizationIterate] = dict()
+    def __init__(self, opt_prob: OptProb, opt_alg: OptAlgBase) -> None:
+        self._opt_prob: OptProb = opt_prob
+        self._opt_alg: OptAlgBase = opt_alg
+        self._iter_iterate_dict: dict[Iteration, OptimizationIterate] = dict()
 
     def register_solution(
         self,
+        *,
         iteration: Iteration,
-        primal_prob_evaluation: OptimizationProblemEvaluation,
-        dual_prob_evaluation: Optional[OptimizationProblemEvaluation] = None,
+        primal_prob_evaluation: OptProbEval,
+        dual_prob_evaluation: OptProbEval | None = None,
+        terminated: np.ndarray | None = None,
     ) -> None:
         assert iteration not in self._iter_iterate_dict
 
-        self._iter_iterate_dict[iteration] = OptimizationIterate(primal_prob_evaluation, dual_prob_evaluation)
+        if terminated is None:
+            terminated = np.array([False] * primal_prob_evaluation.x_array_2d.shape[0])
+
+        self._iter_iterate_dict[iteration] = OptimizationIterate(
+            primal_prob_evaluation, terminated, dual_prob_evaluation
+        )
+
+        logger.info(f"iter: {iteration.outer_iteration}/{iteration.inner_iteration}")
+        logger.info(f"\tterminated: {terminated}")
+        logger.info(f"\tprimal: {primal_prob_evaluation}")
+        logger.info(f"\tdual: {dual_prob_evaluation}")
 
     @property
-    def opt_prob(self) -> OptimizationProblem:
+    def opt_prob(self) -> OptProb:
         return self._opt_prob
 
     @property
-    def opt_alg(self) -> OptimizationAlgorithmBase:
+    def opt_alg(self) -> OptAlgBase:
         return self._opt_alg
 
     @property
-    def iter_iterate_dict(self) -> Dict[Iteration, OptimizationIterate]:
+    def iter_iterate_dict(self) -> dict[Iteration, OptimizationIterate]:
         return self._iter_iterate_dict
 
     @property

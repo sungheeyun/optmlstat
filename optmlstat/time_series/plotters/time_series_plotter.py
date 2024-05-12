@@ -1,10 +1,10 @@
 from matplotlib.axes import Axes
 
-from optmlstat.basic_modules.class_base import OptMLStatClassBase
+from optmlstat.basic_modules.class_base import OMSClassBase
 from optmlstat.time_series.time_series import TimeSeries
 
 
-class TimeSeriesPlotter(OptMLStatClassBase):
+class TimeSeriesPlotter(OMSClassBase):
     """
     Plots TimeSeries.
     """

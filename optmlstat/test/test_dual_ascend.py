@@ -21,14 +21,14 @@ from optmlstat.functions.example_functions import (
     get_sum_function,
     get_sum_of_square_function,
 )
-from optmlstat.opt.opt_prob import OptimizationProblem
-from optmlstat.opt.opt_res import OptimizationResult
+from optmlstat.opt.opt_prob import OptProb
+from optmlstat.opt.opt_res import OptResults
 from optmlstat.opt.cvxopt.admm.dual_ascend import DualAscend
 from optmlstat.opt.opt_iterate import OptimizationIterate
 from optmlstat.opt.special_solvers import (
     strictly_convex_quadratic_with_linear_equality_constraints,
 )
-from optmlstat.opt.opt_parameter import OptimizationParameter
+from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.learning_rate.vanishing_learning_rate_strategy import (
     VanishingLearningRateStrategy,
 )
@@ -53,7 +53,7 @@ class TestDualAscend(unittest.TestCase):
     rel_tolerance_used_for_compare: float = 1e-6
 
     # opt_param: OptimizationParameter = OptimizationParameter(0.1077, 100)
-    opt_param: OptimizationParameter = OptimizationParameter(
+    opt_param: OptParams = OptParams(
         VanishingLearningRateStrategy(10e-3, 1.0, 200), 500
     )
 
@@ -91,7 +91,7 @@ class TestDualAscend(unittest.TestCase):
 
     def _test_dual_ascend_with_quadratic_problem(
         self,
-        opt_prob: OptimizationProblem,
+        opt_prob: OptProb,
         *,
         num_data_points: int = 1,
         frame_info: FrameInfo,
@@ -121,15 +121,11 @@ class TestDualAscend(unittest.TestCase):
 
         # solve by dual ascend
 
-        initial_x_point_2d: ndarray = randn(
-            num_data_points, opt_prob.domain_dim
-        )
-        initial_nu_point_2d: ndarray = randn(
-            num_data_points, opt_prob.num_eq_cnst
-        )
+        initial_x_point_2d: ndarray = randn(num_data_points, opt_prob.domain_dim)
+        initial_nu_point_2d: ndarray = randn(num_data_points, opt_prob.num_eq_cnst)
 
         dual_ascend: DualAscend = DualAscend()
-        opt_res: OptimizationResult = dual_ascend.solve(
+        opt_res: OptResults = dual_ascend.solve(
             opt_prob,
             TestDualAscend.opt_param,
             initial_x_array_2d=initial_x_point_2d,
@@ -201,20 +197,18 @@ class TestDualAscend(unittest.TestCase):
         )
 
     @classmethod
-    def _get_simple_quad_problem(cls) -> OptimizationProblem:
+    def _get_simple_quad_problem(cls) -> OptProb:
         obj_fcn: QuadraticFunction = get_sum_of_square_function(cls.domain_dim)
         eq_cnst_fcn: AffineFunction = get_sum_function(cls.domain_dim, -1.0)
-        return OptimizationProblem(obj_fcn, eq_cnst_fcn)
+        return OptProb(obj_fcn, eq_cnst_fcn)
 
     @classmethod
-    def _get_quad_problem_with_random_eq_cnsts(
-        cls, num_eq_cnsts: int
-    ) -> OptimizationProblem:
+    def _get_quad_problem_with_random_eq_cnsts(cls, num_eq_cnsts: int) -> OptProb:
         obj_fcn: QuadraticFunction = get_sum_of_square_function(cls.domain_dim)
         eq_cnst_fcn: AffineFunction = AffineFunction(
             randn(cls.domain_dim, num_eq_cnsts), randn(num_eq_cnsts)
         )
-        return OptimizationProblem(obj_fcn, eq_cnst_fcn)
+        return OptProb(obj_fcn, eq_cnst_fcn)
 
 
 if __name__ == "__main__":

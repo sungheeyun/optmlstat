@@ -3,17 +3,19 @@ from typing import List
 
 from numpy import ndarray, hstack
 
-from optmlstat.basic_modules.class_base import OptMLStatClassBase
+from optmlstat.basic_modules.class_base import OMSClassBase
 from optmlstat.time_series.time_series_collection import TimeSeriesCollection
 
 
-class FeatureExtractorBase(OptMLStatClassBase):
+class FeatureExtractorBase(OMSClassBase):
     """
     Base class for classes for time series feature extractions.
     """
 
     @abstractmethod
-    def get_features_from_time_series_collection(self, times_series_collection: TimeSeriesCollection) -> ndarray:
+    def get_features_from_time_series_collection(
+        self, times_series_collection: TimeSeriesCollection
+    ) -> ndarray:
         """
         Parameters
         ----------

@@ -1,10 +1,10 @@
 from typing import List
 
-from optmlstat.basic_modules.class_base import OptMLStatClassBase
+from optmlstat.basic_modules.class_base import OMSClassBase
 from optmlstat.time_series.time_series import TimeSeries
 
 
-class TimeSeriesCollection(OptMLStatClassBase):
+class TimeSeriesCollection(OMSClassBase):
     """
     Ordered collection of TimeSeries instances.
     """

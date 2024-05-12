@@ -1,23 +1,27 @@
+"""
+base class for all functions in optmlstat package
+"""
+
 from __future__ import annotations
 from abc import abstractmethod
-from typing import Optional, Tuple
 
-from numpy import ndarray, array
+import numpy as np
 
-from basic_modules.class_base import OptMLStatClassBase
+from optmlstat.basic_modules.class_base import OMSClassBase
 
 
-class FunctionBase(OptMLStatClassBase):
+class FunctionBase(OMSClassBase):
     """
     The base class for function classes.
 
-    A function represented by a subclass of this class is a function whose domain is n-dimensional (Euclidean)
-    vector space and the range is m-dimensional vector space in general where m and n are positive integers.
+    A function represented by a subclass of this class is a function whose domain is n-dimensional
+    (Euclidean) vector space
+     and the range is m-dimensional vector space in general where m and n are positive integers.
     """
 
     @property
     @abstractmethod
-    def num_inputs(self) -> Optional[int]:
+    def num_inputs(self) -> int:
         """
         The number of inputs, i.e., the dimension of the domain of the function.
         """
@@ -25,7 +29,7 @@ class FunctionBase(OptMLStatClassBase):
 
     @property
     @abstractmethod
-    def num_outputs(self) -> Optional[int]:
+    def num_outputs(self) -> int:
         """
         The number of outputs, i.e., the dimension of the range of the function.
         """
@@ -33,63 +37,60 @@ class FunctionBase(OptMLStatClassBase):
 
     @property
     @abstractmethod
-    def is_affine(self) -> Optional[bool]:
-        """
-        Returns True if the function is an affine function.
-        """
+    def is_affine(self) -> bool:
         pass
 
     @property
     @abstractmethod
-    def is_strictly_convex(self) -> Optional[bool]:
-        """
-        Returns True if the function is strictly convex.
-        """
+    def is_strictly_convex(self) -> bool:
         pass
 
     @property
     @abstractmethod
-    def is_convex(self) -> Optional[bool]:
-        """
-        Returns True if the function is convex.
-        """
+    def is_convex(self) -> bool:
         pass
 
     @property
     @abstractmethod
-    def is_strictly_concave(self) -> Optional[bool]:
-        """
-        Returns True if the function is strictly convex.
-        """
+    def is_strictly_concave(self) -> bool:
         pass
 
     @property
     @abstractmethod
-    def is_concave(self) -> Optional[bool]:
-        """
-        Returns True if the function is convex.
-        """
+    def is_concave(self) -> bool:
+        pass
+
+    @property
+    @abstractmethod
+    def is_differentiable(self) -> bool:
         pass
 
     # TODO (2) implemented the below method for all subclasses of FunctionBase
 
-    def get_shape(self) -> Tuple[Optional[int], Optional[int]]:
+    def get_shape(self) -> tuple[int, int]:
         return self.num_inputs, self.num_outputs
 
-    def check_x_array_dimension(self, x_array_2d: ndarray) -> None:
+    def check_x_array_dimension(self, x_array_2d: np.ndarray) -> None:
         if self.num_inputs is not None:
             assert x_array_2d.shape[1] == self.num_inputs
 
-    def check_y_array_dimension(self, y_array_2d: ndarray) -> None:
+    def check_y_array_dimension(self, y_array_2d: np.ndarray) -> None:
         if self.num_outputs is not None:
             assert y_array_2d.shape[1] == self.num_outputs
 
-    def get_y_values_2d_from_x_values_1d(self, x_array_1d: ndarray) -> ndarray:
-        x_array_2d: ndarray = array([x_array_1d]).T
+    def get_y_values_2d_from_x_values_1d(self, x_array_1d: np.ndarray) -> np.ndarray:
+        x_array_2d: np.ndarray = np.array([x_array_1d]).T
+        return self.get_y_values_2d(x_array_2d)
+
+    def eval(self, x_array_2d: np.ndarray) -> np.ndarray:
         return self.get_y_values_2d(x_array_2d)
 
     @abstractmethod
-    def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
+    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray | None:
+        pass
+
+    @abstractmethod
+    def get_y_values_2d(self, x_array_2d: np.ndarray) -> np.ndarray:
         """
         Returns y values for given x values. Each row of x_array_2d represents
         each x vector (n-dimensional vector) and each row of y_array_2d
@@ -105,12 +106,12 @@ class FunctionBase(OptMLStatClassBase):
         Parameters
         ----------
         x_array_2d:
-          N-by-n array representing x.
+          N-by-n np.array representing x.
 
         Returns
         -------
         y_array_2d:
-          N-by-m array representing y.
+          N-by-m np.array representing y.
         """
         pass
 
@@ -135,14 +136,14 @@ class FunctionBase(OptMLStatClassBase):
         pass
 
     @abstractmethod
-    def conjugate_arg(self, z_array_2d: ndarray) -> ndarray:
+    def conjugate_arg(self, z_array_2d: np.ndarray) -> np.ndarray:
         """
         Returns the x values which attain the conjugate function for :math:`z`, i.e.,
 
           :math:`argsup_x ( z^T x - f(x) )`
 
         Note that for each :math:`z`, the output is a n-dimensional vector (not a scalar as in the case of normal
-        function evaluation by get_y_values_2d, the return value of this function is 3-dimensional array.
+        function evaluation by get_y_values_2d, the return value of this function is 3-dimensional np.array.
         (Note here 'dimensional' is used for different meanings. You should understand it correctly in the context.)
 
         More precisely, the argsup value of z_array_2d[i, :] for the jth output (function) is stored in
@@ -151,11 +152,11 @@ class FunctionBase(OptMLStatClassBase):
         Parameters
         ----------
         z_array_2d:
-          N-by-n array representing :math:`z`.
+          N-by-n np.array representing :math:`z`.
 
         Returns
         -------
         x_array_3d:
-          N-by-m-by-n array representing argsup :math:`(z^T x - f(x))`.
+          N-by-m-by-n np.array representing argsup :math:`(z^T x - f(x))`.
         """
         pass

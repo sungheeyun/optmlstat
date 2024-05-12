@@ -12,7 +12,7 @@ from optmlstat.functions.basic_functions.quadratic_function import (
     QuadraticFunction,
 )
 from optmlstat.functions.basic_functions.affine_function import AffineFunction
-from optmlstat.opt.opt_prob import OptimizationProblem
+from optmlstat.opt.opt_prob import OptProb
 
 
 logger: Logger = getLogger()
@@ -33,9 +33,7 @@ class TestOptimizationProblem(unittest.TestCase):
             TestOptimizationProblem.num_inputs, -1.0
         )
 
-        optimization_problem: OptimizationProblem = OptimizationProblem(
-            obj_fcn, eq_cnst_fcn
-        )
+        optimization_problem: OptProb = OptProb(obj_fcn, eq_cnst_fcn)
 
         logger.info(
             f"optimization_problem.domain_dim: {optimization_problem.domain_dim}"
@@ -45,9 +43,7 @@ class TestOptimizationProblem(unittest.TestCase):
         )
 
         logger.info("optimization_problem:")
-        logger.info(
-            f"{json.dumps(optimization_problem.to_json_data(), indent=2)}"
-        )
+        logger.info(f"{json.dumps(optimization_problem.to_json_data(), indent=2)}")
 
         self.assertEqual(1, 1)
 

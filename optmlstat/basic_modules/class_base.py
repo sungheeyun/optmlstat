@@ -2,7 +2,7 @@ from typing import Union
 from abc import ABC
 
 
-class OptMLStatClassBase(ABC):
+class OMSClassBase(ABC):
     """
     The base class for all the classes in `optmlstat` package.
 

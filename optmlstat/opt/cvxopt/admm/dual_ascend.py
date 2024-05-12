@@ -6,20 +6,26 @@ from numpy import ndarray, newaxis
 from optmlstat.functions.function_base import FunctionBase
 from optmlstat.functions.basic_functions.affine_function import AffineFunction
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
-from optmlstat.opt.opt_alg.optimization_algorithm_base import OptimizationAlgorithmBase
-from optmlstat.opt.opt_prob import OptimizationProblem
-from optmlstat.opt.opt_res import OptimizationResult
-from optmlstat.opt.opt_prob_eval import OptimizationProblemEvaluation
-from optmlstat.opt.opt_decorators import solver, single_obj_solver, eq_cnst_solver, linear_eq_cnst_solver, convex_solver
+from optmlstat.opt.optalgs.optalg_base import OptAlgBase
+from optmlstat.opt.opt_prob import OptProb
+from optmlstat.opt.opt_res import OptResults
+from optmlstat.opt.opt_prob_eval import OptProbEval
+from optmlstat.opt.opt_alg_decorators import (
+    solver,
+    single_obj_solver,
+    eq_cnst_solver,
+    linear_eq_cnst_solver,
+    convex_solver,
+)
 from optmlstat.opt.iteration import Iteration
-from optmlstat.opt.opt_parameter import OptimizationParameter
+from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.learning_rate.learning_rate_strategy import LearningRateStrategy
 
 
 logger: Logger = getLogger()
 
 
-class DualAscend(OptimizationAlgorithmBase):
+class DualAscend(OptAlgBase):
     """
     Dual Ascend algorithm
     """
@@ -31,12 +37,12 @@ class DualAscend(OptimizationAlgorithmBase):
     @solver
     def solve(
         self,
-        opt_prob: OptimizationProblem,
-        opt_param: OptimizationParameter,
+        opt_prob: OptProb,
+        opt_param: OptParams,
         initial_x_array_2d: Optional[ndarray] = None,
         initial_lambda_array_2d: Optional[ndarray] = None,
         initial_nu_array_2d: Optional[ndarray] = None,
-    ) -> OptimizationResult:
+    ) -> OptResults:
         """
         This only deals with a single objective optimization problem with one linear equality constraint
         with no inequality constraint where the objective function should be convex and bounded below.
@@ -80,9 +86,12 @@ class DualAscend(OptimizationAlgorithmBase):
         conjugate: QuadraticFunction = obj_fcn.conjugate
         assert conjugate.is_convex
 
-        opt_res: OptimizationResult = OptimizationResult(opt_prob, self)
+        opt_res: OptResults = OptResults(opt_prob, self)
 
-        opt_res.register_solution(iteration=Iteration(0), primal_prob_evaluation=opt_prob.evaluate(initial_x_array_2d))
+        opt_res.register_solution(
+            iteration=Iteration(0),
+            primal_prob_evaluation=opt_prob.evaluate(initial_x_array_2d),
+        )
 
         y_array_2d: ndarray = initial_nu_array_2d.copy()
 
@@ -90,15 +99,23 @@ class DualAscend(OptimizationAlgorithmBase):
         for idx in range(opt_param.max_num_outer_iterations):
             iteration = Iteration(idx + 1)
 
-            nu_array_2d_for_x_update: ndarray = -y_array_2d.dot(eq_cnst_fcn.slope_array_2d.T)
+            nu_array_2d_for_x_update: ndarray = -y_array_2d.dot(
+                eq_cnst_fcn.slope_array_2d.T
+            )
 
             # x-minimization step
-            x_array_2d: ndarray = obj_fcn.conjugate_arg(nu_array_2d_for_x_update)[:, :, 0]
+            x_array_2d: ndarray = obj_fcn.conjugate_arg(nu_array_2d_for_x_update)[
+                :, :, 0
+            ]
 
             # dual variable update
-            y_array_2d += learning_rate_strategy.get_learning_rate(iteration) * eq_cnst_fcn.get_y_values_2d(x_array_2d)
+            y_array_2d += learning_rate_strategy.get_learning_rate(
+                iteration
+            ) * eq_cnst_fcn.get_y_values_2d(x_array_2d)
 
-            nu_array_2d_for_dual_function_eval: ndarray = -y_array_2d.dot(eq_cnst_fcn.slope_array_2d.T)
+            nu_array_2d_for_dual_function_eval: ndarray = -y_array_2d.dot(
+                eq_cnst_fcn.slope_array_2d.T
+            )
             dual_fcn_array_2d: ndarray = -conjugate.get_y_values_2d(
                 nu_array_2d_for_dual_function_eval
             ) + y_array_2d.dot(eq_cnst_fcn.intercept_array_1d[:, newaxis])
@@ -106,8 +123,10 @@ class DualAscend(OptimizationAlgorithmBase):
             opt_res.register_solution(
                 iteration=iteration,
                 primal_prob_evaluation=opt_prob.evaluate(x_array_2d),
-                dual_prob_evaluation=OptimizationProblemEvaluation(
-                    opt_prob=None, x_array_2d=y_array_2d, obj_fcn_array_2d=dual_fcn_array_2d
+                dual_prob_evaluation=OptProbEval(
+                    opt_prob=None,
+                    x_array_2d=y_array_2d,
+                    obj_fcn_array_2d=dual_fcn_array_2d,
                 ),
             )
 
