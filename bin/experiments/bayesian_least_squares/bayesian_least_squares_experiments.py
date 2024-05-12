@@ -50,14 +50,10 @@ def test_bayesian_least_squares(bayesian_ls_cls: Type[U]) -> None:
     logger.debug(f"coefficient for the linear model: {coef_1d}")
 
     logger.info("Assign the prior Gaussian.")
-    prior: Gaussian = Gaussian(
-        np.zeros(input_dim), precision=np.eye(input_dim)
-    )
+    prior: Gaussian = Gaussian(np.zeros(input_dim), precision=np.eye(input_dim))
 
     logger.info("Instantiate the modeling class.")
-    bayesian_least_squares: BayesianLeastSquaresBase = bayesian_ls_cls(
-        prior, noise_precision
-    )
+    bayesian_least_squares: BayesianLeastSquaresBase = bayesian_ls_cls(prior, noise_precision)
 
     y_list: List[float] = list()
     y_hat_mean_list: List[float] = list()
@@ -73,29 +69,23 @@ def test_bayesian_least_squares(bayesian_ls_cls: Type[U]) -> None:
         logger.debug(f"randomly generate {batch_size} data points")
         x_data_array_2d: np.ndarray = nr.randn(batch_size, input_dim)
 
-        logger.debug(
-            f"calculate predictive distribution for the {batch_size}"
-            " data points"
-        )
+        logger.debug(f"calculate predictive distribution for the {batch_size}" " data points")
         inf_time: float = 0.0
         for x_array_1d in x_data_array_2d:
             t0 = time.time()
-            pred_dist: Tuple[
-                float, float
-            ] = bayesian_least_squares.get_predictive_dist(x_array_1d)
+            pred_dist: Tuple[float, float] = bayesian_least_squares.get_predictive_dist(x_array_1d)
             inf_time += time.time() - t0
             y_hat_mean_list.append(pred_dist[0])
             y_hat_std_list.append(np.sqrt(pred_dist[1]))
         inf_time_list.append(inf_time)
 
-        y_data_array_1d: np.ndarray = np.dot(
-            x_data_array_2d, coef_1d
-        ) + nr.randn(batch_size) / np.sqrt(noise_precision)
+        y_data_array_1d: np.ndarray = np.dot(x_data_array_2d, coef_1d) + nr.randn(
+            batch_size
+        ) / np.sqrt(noise_precision)
         y_list.extend(list(y_data_array_1d))
 
         logger.debug(
-            f"{idx + 1}th training with {batch_size} data points, i.e., "
-            "updating the prior"
+            f"{idx + 1}th training with {batch_size} data points, i.e., " "updating the prior"
         )
         t0: float = time.time()
         bayesian_least_squares.train(x_data_array_2d, y_data_array_1d)
@@ -131,16 +121,10 @@ def test_bayesian_least_squares(bayesian_ls_cls: Type[U]) -> None:
     ub_array: np.ndarray = y_hat_mean_array + conf_half_int
     lb_array: np.ndarray = y_hat_mean_array - conf_half_int
 
-    within_interval_bool_array: np.ndarray = (y_array > lb_array) & (
-        y_array < ub_array
-    )
-    logger.info(
-        within_interval_bool_array.sum() / within_interval_bool_array.size
-    )
+    within_interval_bool_array: np.ndarray = (y_array > lb_array) & (y_array < ub_array)
+    logger.info(within_interval_bool_array.sum() / within_interval_bool_array.size)
 
-    moving_average_window_size: int = min(
-        100, int(within_interval_bool_array.size / 2)
-    )
+    moving_average_window_size: int = min(100, int(within_interval_bool_array.size / 2))
     logger.info(f"moving_average_window_size: {moving_average_window_size}")
     moving_average_filter: np.ndarray = (
         np.ones(moving_average_window_size) / moving_average_window_size
@@ -199,11 +183,11 @@ def test_bayesian_least_squares(bayesian_ls_cls: Type[U]) -> None:
     ax_2.legend()
 
     ax_3.plot(
-        x_array[x_array.size - moving_average_array.size :],
+        x_array[x_array.size - moving_average_array.size :],  # noqa: #203
         moving_average_array,
-        label=f"prob estimation using past {moving_average_window_size}"
-        " points",
+        label=f"prob estimation using past {moving_average_window_size}" " points",
     )
+
     ax_3.plot(
         [-x_array.size, x_array.size * 2],
         np.ones(2) * confidence_level,
@@ -251,9 +235,7 @@ def test_bayesian_least_squares(bayesian_ls_cls: Type[U]) -> None:
         )
 
         post_mean: np.ndarray = coef_a * t_array + coef_b
-        post_std: np.ndarray = (
-            coef_c2 * np.power(t_array, 2.0) + coef_c1 * t_array + coef_c0
-        )
+        post_std: np.ndarray = coef_c2 * np.power(t_array, 2.0) + coef_c1 * t_array + coef_c0
         post_lb: np.ndarray = post_mean - conf_coef * post_std
         post_ub: np.ndarray = post_mean + conf_coef * post_std
 

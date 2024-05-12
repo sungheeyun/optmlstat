@@ -1,9 +1,12 @@
+"""
+"""
 
 import numpy as np
 import strat_models
 
-bm = strat_models.BaseModel(loss=strat_models.logistic_loss(intercept=True),
-								reg=strat_models.sum_squares_reg(lambd=1))
+bm = strat_models.BaseModel(
+    loss=strat_models.logistic_loss(intercept=True), reg=strat_models.sum_squares_reg(lambd=1)
+)
 
 K = 100
 n = 10

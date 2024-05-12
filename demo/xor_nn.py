@@ -64,9 +64,7 @@ def draw_surface(
     return fig, ax
 
 
-def mesh_fcn(
-    fcn: tp.Callable[[np.ndarray], float], X: np.ndarray, Y: np.ndarray
-) -> np.ndarray:
+def mesh_fcn(fcn: tp.Callable[[np.ndarray], float], X: np.ndarray, Y: np.ndarray) -> np.ndarray:
     assert X.ndim == 2 and Y.ndim == 2, (X.shape, Y.shape)
     assert X.shape == Y.shape, (X.shape, Y.shape)
 
@@ -74,9 +72,7 @@ def mesh_fcn(
 
     for idx_1 in range(X.shape[0]):
         for idx_2 in range(X.shape[1]):
-            x_array_1d: np.ndarray = np.array(
-                [X[idx_1, idx_2], Y[idx_1, idx_2]], float
-            )
+            x_array_1d: np.ndarray = np.array([X[idx_1, idx_2], Y[idx_1, idx_2]], float)
             y_scalar: float = fcn(x_array_1d)
 
             Z[idx_1, idx_2] = y_scalar
@@ -88,18 +84,10 @@ def get_dataset(num_data_points: int) -> np.ndarray:
 
     num_data_per_pattern: int = int(num_data_points / 4)
 
-    xy_1: np.ndarray = np.array([[0, 0, 0.0]]).repeat(
-        num_data_per_pattern, axis=0
-    )
-    xy_2: np.ndarray = np.array([[0, 1, 1]]).repeat(
-        num_data_per_pattern, axis=0
-    )
-    xy_3: np.ndarray = np.array([[1, 0, 1]]).repeat(
-        num_data_per_pattern, axis=0
-    )
-    xy_4: np.ndarray = np.array([[1, 1, 0]]).repeat(
-        num_data_per_pattern, axis=0
-    )
+    xy_1: np.ndarray = np.array([[0, 0, 0.0]]).repeat(num_data_per_pattern, axis=0)
+    xy_2: np.ndarray = np.array([[0, 1, 1]]).repeat(num_data_per_pattern, axis=0)
+    xy_3: np.ndarray = np.array([[1, 0, 1]]).repeat(num_data_per_pattern, axis=0)
+    xy_4: np.ndarray = np.array([[1, 1, 0]]).repeat(num_data_per_pattern, axis=0)
 
     xy_array_2d: np.ndarray = np.vstack((xy_1, xy_2, xy_3, xy_4))
 
@@ -120,9 +108,7 @@ def calc_se(fcn, x_array_2d: np.ndarray, y_array_1d: np.ndarray) -> float:
     :param y_array_1d:
     :return:
     """
-    y_hat_array_1d: np.ndarray = np.array(
-        [fcn(x_array_1d) for x_array_1d in x_array_2d]
-    )
+    y_hat_array_1d: np.ndarray = np.array([fcn(x_array_1d) for x_array_1d in x_array_2d])
 
     res: float = np.power(y_hat_array_1d - y_array_1d, 2.0).mean()
 
@@ -147,16 +133,13 @@ def run():
     y_array_1d: np.ndarray
 
     x_array_2d, y_array_1d = get_dataset(100)
-    mse: float = calc_se(foo, x_array_2d, y_array_1d)
 
     def nn_w(var_w_array_1d: np.ndarray) -> float:
         w_array_2d_: np.ndarray = w_array_2d.copy()
         w_array_2d_[0, :] = var_w_array_1d
 
         def nn_(x_array_1d: np.ndarray) -> float:
-            return nn(
-                x_array_1d, w_array_2d_, c_array_1d, w_array_1d, c_scalar
-            )
+            return nn(x_array_1d, w_array_2d_, c_array_1d, w_array_1d, c_scalar)
 
         return calc_se(nn_, x_array_2d, y_array_1d)
 

@@ -9,7 +9,9 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
 from functions.unit_functions import sigmoid
-from functions.neural_network.simple_feedforward_neural_network import SimpleFeedforwardNeuralNetwork
+from functions.neural_network.simple_feedforward_neural_network import (
+    SimpleFeedforwardNeuralNetwork,
+)
 
 
 logger: Logger = getLogger()
@@ -33,11 +35,13 @@ if __name__ == "__main__":
         weight_array_list: List[ndarray] = [
             5.0 * randn(dim_list[i] + 1, dim_list[i + 1]) for i in range(len(dim_list) - 1)
         ]
-        simple_feed_forward_neural_network: SimpleFeedforwardNeuralNetwork = SimpleFeedforwardNeuralNetwork(
-            weight_array_list, sigmoid
+        simple_feed_forward_neural_network: SimpleFeedforwardNeuralNetwork = (
+            SimpleFeedforwardNeuralNetwork(weight_array_list, sigmoid)
         )
         logger.info(simple_feed_forward_neural_network.get_shape_tuple())
-        y_array_1d: ndarray = simple_feed_forward_neural_network.get_y_values_2d_from_x_values_1d(x_array_1d).ravel()
+        y_array_1d: ndarray = simple_feed_forward_neural_network.get_y_values_2d_from_x_values_1d(
+            x_array_1d
+        ).ravel()
         axes.plot(x_array_1d, y_array_1d)
 
     figure.show()

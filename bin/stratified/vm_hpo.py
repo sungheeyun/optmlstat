@@ -1,6 +1,7 @@
 """House price prediction.
 The data is from: https://www.kaggle.com/harlfoxem/housesalesprediction
 """
+
 import abc
 import logging
 from multiprocessing.pool import Pool
@@ -34,9 +35,7 @@ class Fcn(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def single_prox(
-        self, t: float, nu: np.ndarray, warm_start: np.ndarray
-    ) -> np.ndarray:
+    def single_prox(self, t: float, nu: np.ndarray, warm_start: np.ndarray) -> np.ndarray:
         pass
 
     @abc.abstractmethod
@@ -46,7 +45,7 @@ class Fcn(abc.ABC):
 
 class SquareSum(Fcn):
     """
-    f(x) = .5 * \| x - c \|_2^2
+    f(x) = .5 * || x - c ||_2^2
     """
 
     def __init__(self, center_array_1d: np.ndarray) -> None:
@@ -59,9 +58,7 @@ class SquareSum(Fcn):
     def num_vars(self) -> int:
         return self.center.size
 
-    def single_prox(
-        self, t: float, nu: np.ndarray, warm_start: np.ndarray
-    ) -> np.ndarray:
+    def single_prox(self, t: float, nu: np.ndarray, warm_start: np.ndarray) -> np.ndarray:
         assert nu.ndim == 2, nu.shape
         assert nu.shape[1] == 1, nu.shape
         assert self.center.size == nu.shape[0], (self.center.shape, nu.shape)
@@ -71,21 +68,15 @@ class SquareSum(Fcn):
         return (t * center + nu) / (t + 1.0)
 
     def sub_optimality(self, x_array_1d: np.ndarray) -> float:
-        return np.linalg.norm(x_array_1d - self.center) / np.sqrt(
-            self.center.size
-        )
+        return np.linalg.norm(x_array_1d - self.center) / np.sqrt(self.center.size)
 
 
-def foo(
-    fcn_: Fcn, t_: float, nu_: np.ndarray, warm_start_: np.ndarray
-) -> np.ndarray:
+def foo(fcn_: Fcn, t_: float, nu_: np.ndarray, warm_start_: np.ndarray) -> np.ndarray:
     return fcn_.single_prox(t_, nu_, warm_start_)
 
 
 class ObjFcn(Loss):
-    def __init__(
-        self, fcn_list: tp.List[Fcn], node_idx_map: tp.Dict[tp.Any, int]
-    ) -> None:
+    def __init__(self, fcn_list: tp.List[Fcn], node_idx_map: tp.Dict[tp.Any, int]) -> None:
         assert fcn_list, fcn_list
         assert set(node_idx_map.values()) == set(range(len(fcn_list))), (
             sorted(node_idx_map.values()),
@@ -108,9 +99,7 @@ class ObjFcn(Loss):
         :param G:
         :return: cache
         """
-        cache: tp.Dict[str, tp.Any] = dict(
-            shape=self.shape, theta_shape=self.theta_shape
-        )
+        cache: tp.Dict[str, tp.Any] = dict(shape=self.shape, theta_shape=self.theta_shape)
 
         return cache
 
@@ -134,9 +123,7 @@ class ObjFcn(Loss):
                 fcn: Fcn = self.fcn_list[idx]
                 prox_list.append(fcn.single_prox(t, nu[idx], warm_start[idx]))
         elif num_processes > 1:
-            prox_list = pool.starmap(
-                foo, zip(self.fcn_list, [t] * nu.shape[0], nu, warm_start)
-            )
+            prox_list = pool.starmap(foo, zip(self.fcn_list, [t] * nu.shape[0], nu, warm_start))
         else:
             assert False, num_processes
 
@@ -145,9 +132,7 @@ class ObjFcn(Loss):
     def scores(self, data: tp.Any, graph: Graph) -> float:
         fcn_val_list: tp.List[float] = list()
         for node in graph.nodes:
-            x_array_1d: np.ndarray = graph._node[node]["theta_tilde"].reshape(
-                -1
-            )
+            x_array_1d: np.ndarray = graph._node[node]["theta_tilde"].reshape(-1)
             fcn: Fcn = self.fcn_list[self.node_idx_map[node]]
             fcn_val_list.append(fcn.eval(x_array_1d))
 
@@ -156,9 +141,7 @@ class ObjFcn(Loss):
     def sub_optimality(self, graph: Graph) -> np.ndarray:
         sub_opt_list: tp.List[float] = list()
         for node in graph.nodes:
-            x_array_1d: np.ndarray = graph._node[node]["theta_tilde"].reshape(
-                -1
-            )
+            x_array_1d: np.ndarray = graph._node[node]["theta_tilde"].reshape(-1)
             fcn: Fcn = self.fcn_list[self.node_idx_map[node]]
             sub_opt_list.append(fcn.sub_optimality(x_array_1d))
 

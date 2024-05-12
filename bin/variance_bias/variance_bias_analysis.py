@@ -9,7 +9,9 @@ from freq_used.logging_utils import set_logging_basic_config
 from freq_used.plotting import get_figure
 
 from functions.function_base import FunctionBase
-from ml.stochastic_process_samplers.stochastic_process_sampler_base import StochasticProcessSamplerBase
+from ml.stochastic_process_samplers.stochastic_process_sampler_base import (
+    StochasticProcessSamplerBase,
+)
 from ml.stochastic_process_samplers.simple_sinusoidal_sampler import SimpleSinusoidalSampler
 from ml.modeling.linear_modeler import LinearModeler
 from ml.modeling.modeler_base import ModelerBase
@@ -34,17 +36,25 @@ def variance_bias_analysis(
     noise_list: List[float] = list()
     test_error_list: List[float] = list()
     for idx in range(num_trainings):
-        x_train_array_2d, y_train_array_2d = stochastic_process_sampler.random_sample(training_dataset_size)
+        x_train_array_2d, y_train_array_2d = stochastic_process_sampler.random_sample(
+            training_dataset_size
+        )
         modeler.train(x_train_array_2d, y_train_array_2d)
         predictor: FunctionBase = modeler.get_predictor()
 
         y_array_2d_prediction = predictor.get_y_values_2d(x_array_2d_for_meas)
         y_array_3d_prediction[:, :, idx] = y_array_2d_prediction
 
-        noise_list.append(mean_sum_squares(optimal_predictor.get_y_values_2d(x_train_array_2d) - y_train_array_2d))
+        noise_list.append(
+            mean_sum_squares(optimal_predictor.get_y_values_2d(x_train_array_2d) - y_train_array_2d)
+        )
 
-        x_test_array_2d, y_test_array_2d = stochastic_process_sampler.random_sample(test_dataset_size)
-        test_error_list.append(mean_sum_squares(y_test_array_2d - predictor.get_y_values_2d(x_test_array_2d)))
+        x_test_array_2d, y_test_array_2d = stochastic_process_sampler.random_sample(
+            test_dataset_size
+        )
+        test_error_list.append(
+            mean_sum_squares(y_test_array_2d - predictor.get_y_values_2d(x_test_array_2d))
+        )
 
     y_array_2d_sample_mean: ndarray = y_array_3d_prediction.mean(axis=2)
 
@@ -110,7 +120,8 @@ if __name__ == "__main__":
     # basis functions
 
     gaussian_basis_function: GaussianBasisFunction = GaussianBasisFunction(
-        [power(gaussian_basis_width, 2.0)] * basis_function_center_array.size, array([basis_function_center_array]).T
+        [power(gaussian_basis_width, 2.0)] * basis_function_center_array.size,
+        array([basis_function_center_array]).T,
     )
 
     res_list: List[tuple] = list()
@@ -123,7 +134,11 @@ if __name__ == "__main__":
             draw = True
         else:
             draw = False
-        res_list.append(variance_bias_analysis(simple_sinusoidal_sampler, linear_modeler, x_array_2d_for_measure, draw))
+        res_list.append(
+            variance_bias_analysis(
+                simple_sinusoidal_sampler, linear_modeler, x_array_2d_for_measure, draw
+            )
+        )
 
     data_array: ndarray = array(res_list)
 
