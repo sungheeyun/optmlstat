@@ -19,7 +19,7 @@ class FeatureExtractorBase(OMSClassBase):
         """
         Parameters
         ----------
-        times_series_collection: optmlstat.time_series.time_series_collecction.TimeSeriesCollection
+        times_series_collection: optmlstat.time_series.time_series_collection.TimeSeriesCollection
          time series collection from which features are extracted.
 
         Returns
@@ -35,8 +35,9 @@ class FeatureExtractorBase(OMSClassBase):
         """
         Parameters
         ----------
-        time_series_collection_list: list of optmlstat.time_series.time_series_collecction.TimeSeriesCollection
-         list of time series collection from which list of features are extracted.
+        time_series_collection_list: list of
+        optmlstat.time_series.time_series_collecction.TimeSeriesCollection
+        list of time series collection from which list of features are extracted.
 
         Returns
         -------

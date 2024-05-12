@@ -1,5 +1,5 @@
-from typing import Set, Optional
 from datetime import datetime
+from typing import Set, Optional
 
 from pandas import DataFrame
 
@@ -39,7 +39,8 @@ class TimeSeries(OMSClassBase):
         name: str = None,
     ) -> None:
         """
-        The constructor assumes that the time_series_data_fram is sorted by index (time) in increasing order.
+        The constructor assumes that the time_series_data_fram is sorted
+        by index (time) in increasing order.
 
         Parameters
         ----------

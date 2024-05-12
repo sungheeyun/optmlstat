@@ -44,8 +44,10 @@ class DualAscend(OptAlgBase):
         initial_nu_array_2d: Optional[ndarray] = None,
     ) -> OptResults:
         """
-        This only deals with a single objective optimization problem with one linear equality constraint
-        with no inequality constraint where the objective function should be convex and bounded below.
+        This only deals with a single objective optimization problem
+        with one linear equality constraint
+        with no inequality constraint where the objective function
+        should be convex and bounded below.
         The objective function should properly implement its methods, conjugate and conjugate_arg
         since this function depends on the correct behavior of those functions.
 
@@ -54,7 +56,8 @@ class DualAscend(OptAlgBase):
         the client should consider a parallelization procedure wrapping this method,
         which does not depend on the details of this method.
 
-        This will, however, deal with multiple x trajectories which start from different initial points.
+        This will, however, deal with multiple x trajectories which start
+        from different initial points.
         Thus you can test how the optimization process proceeds from different initial points
         simultaneously.
 
@@ -67,9 +70,11 @@ class DualAscend(OptAlgBase):
         initial_x_array_2d:
          N-by-n array representing initial points for x.
         initial_lambda_array_2d:
-         N-by-m array representing initial points for Lagrange multipliers for inequality constraints.
+         N-by-m array representing initial points for Lagrange multipliers
+         for inequality constraints.
         initial_nu_array_2d:
-         N-by-p array representing initial points for Lagrange multipliers for equality constraints.
+         N-by-p array representing initial points for Lagrange multipliers
+         for equality constraints.
 
         Returns
         -------
@@ -99,14 +104,10 @@ class DualAscend(OptAlgBase):
         for idx in range(opt_param.max_num_outer_iterations):
             iteration = Iteration(idx + 1)
 
-            nu_array_2d_for_x_update: ndarray = -y_array_2d.dot(
-                eq_cnst_fcn.slope_array_2d.T
-            )
+            nu_array_2d_for_x_update: ndarray = -y_array_2d.dot(eq_cnst_fcn.slope_array_2d.T)
 
             # x-minimization step
-            x_array_2d: ndarray = obj_fcn.conjugate_arg(nu_array_2d_for_x_update)[
-                :, :, 0
-            ]
+            x_array_2d: ndarray = obj_fcn.conjugate_arg(nu_array_2d_for_x_update)[:, :, 0]
 
             # dual variable update
             y_array_2d += learning_rate_strategy.get_learning_rate(

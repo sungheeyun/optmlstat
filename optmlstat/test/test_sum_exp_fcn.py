@@ -4,13 +4,11 @@ test sum_exp functions
 
 import unittest
 
+import numpy as np
 from freq_used.plotting import get_figure
-from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-import numpy as np
 
-from optmlstat.functions.function_base import FunctionBase
 from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
 from optmlstat.plotting.plotter import plot_fcn_contour
 

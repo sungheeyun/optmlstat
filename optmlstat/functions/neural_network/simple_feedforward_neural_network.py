@@ -37,6 +37,9 @@ class SimpleFeedforwardNeuralNetwork(CompositeFunction):
         for idx, weight_array in enumerate(weight_array_list):
             if idx > 0:
                 weight_affine_function_list.append(ComponentWiseFunction(activation_function))
-            weight_affine_function_list.append(AffineFunction(weight_array[:-1, :], weight_array[-1, :]))
+
+            weight_affine_function_list.append(
+                AffineFunction(weight_array[:-1, :], weight_array[-1, :])
+            )
 
         super(SimpleFeedforwardNeuralNetwork, self).__init__(weight_affine_function_list)

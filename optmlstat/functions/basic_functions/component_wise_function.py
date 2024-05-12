@@ -27,7 +27,9 @@ class ComponentWiseFunction(FunctionBase):
         else:
             assert False, unit_fcn_or_list.__class__
 
-        self._num_inputs: Optional[int] = None if self.unit_fcn_list is None else len(self.unit_fcn_list)
+        self._num_inputs: Optional[int] = (
+            None if self.unit_fcn_list is None else len(self.unit_fcn_list)
+        )
 
     @property
     def num_inputs(self) -> Optional[int]:
@@ -51,7 +53,12 @@ class ComponentWiseFunction(FunctionBase):
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         if self.vectorize_fcn_list is not None:
-            return vstack([self.vectorize_fcn_list[idx](x_array_1d) for idx, x_array_1d in enumerate(x_array_2d.T)]).T
+            return vstack(
+                [
+                    self.vectorize_fcn_list[idx](x_array_1d)
+                    for idx, x_array_1d in enumerate(x_array_2d.T)
+                ]
+            ).T
         elif self.vectorize_fcn is not None:
             return self.vectorize_fcn(x_array_2d)
 

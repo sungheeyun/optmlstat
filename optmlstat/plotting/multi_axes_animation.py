@@ -51,9 +51,7 @@ class MultiAxesAnimation(animation.TimedAnimation):
             dict(
                 line1=Line2D([], [], color="black", linewidth=1, alpha=0.5),
                 line1a=Line2D([], [], color="red", linewidth=1, alpha=0.8),
-                line1e=Line2D(
-                    [], [], color="red", marker="o", markeredgecolor="r", markersize=4
-                ),
+                line1e=Line2D([], [], color="red", marker="o", markeredgecolor="r", markersize=4),
             )
             for _ in self.axis_list
         ]
@@ -82,10 +80,7 @@ class MultiAxesAnimation(animation.TimedAnimation):
 
         self._drawn_artists: List[Line2D] = reduce(
             list.__add__,
-            [
-                list(name_line2d_dict.values())
-                for name_line2d_dict in self.name_line2d_dict_list
-            ],
+            [list(name_line2d_dict.values()) for name_line2d_dict in self.name_line2d_dict_list],
         )
 
         _kwargs: Dict[str, Any] = dict(interval=100.0, blit=True)
@@ -99,21 +94,13 @@ class MultiAxesAnimation(animation.TimedAnimation):
             self.time_array_1d > self.time_array_1d[current_idx] - self.head_time_period
         ) & (self.time_array_1d <= self.time_array_1d[current_idx])
 
-        # print(self.time_array_1d)
-        # print(self.head_time_period)
-        # print(head_slice)
-
-        import time
-
         for axis_idx, name_line2d_dict in enumerate(self.name_line2d_dict_list):
             x_array_1d: ndarray = self.x_array_2d[:, axis_idx]
             y_array_1d: ndarray = self.y_array_2d[:, axis_idx]
             name_line2d_dict["line1"].set_data(
                 x_array_1d[: current_idx + 1], y_array_1d[: current_idx + 1]
             )
-            name_line2d_dict["line1a"].set_data(
-                x_array_1d[head_slice], y_array_1d[head_slice]
-            )
+            name_line2d_dict["line1a"].set_data(x_array_1d[head_slice], y_array_1d[head_slice])
             name_line2d_dict["line1e"].set_data(x_array_1d[head], y_array_1d[head])
 
     def new_frame_seq(self):

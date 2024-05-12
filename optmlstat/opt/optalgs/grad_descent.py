@@ -7,28 +7,20 @@ from logging import Logger, getLogger
 import numpy as np
 
 from optmlstat.functions.function_base import FunctionBase
-from optmlstat.functions.basic_functions.affine_function import AffineFunction
-from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
-from optmlstat.opt.optalgs.optalg_base import OptAlgBase
-from optmlstat.opt.opt_prob import OptProb
-from optmlstat.opt.opt_res import OptResults
-from optmlstat.opt.opt_prob_eval import OptProbEval
-from optmlstat.opt.optalgs.line_search_base import LineSearchBase
-from optmlstat.opt.optalgs.back_tracking_ls import BackTrackingLineSearch
 from optmlstat.opt.constants import LineSearchMethod
+from optmlstat.opt.iteration import Iteration
 from optmlstat.opt.opt_alg_decorators import (
     solver,
     single_obj_solver,
-    eq_cnst_solver,
-    linear_eq_cnst_solver,
-    convex_solver,
     unconstrained_opt_solver,
     differentiable_obj_required_solver,
 )
-from optmlstat.opt.iteration import Iteration
 from optmlstat.opt.opt_parameter import OptParams
-from optmlstat.opt.learning_rate.learning_rate_strategy import LearningRateStrategy
-
+from optmlstat.opt.opt_prob import OptProb
+from optmlstat.opt.opt_res import OptResults
+from optmlstat.opt.optalgs.back_tracking_ls import BackTrackingLineSearch
+from optmlstat.opt.optalgs.line_search_base import LineSearchBase
+from optmlstat.opt.optalgs.optalg_base import OptAlgBase
 
 logger: Logger = getLogger()
 
@@ -71,10 +63,6 @@ class GradDescent(OptAlgBase):
             line_search = BackTrackingLineSearch(alpha, beta)
         else:
             assert False, self.line_search_method
-
-        abs_tol: float = opt_param.abs_tolerance_on_optimality
-        rel_tol: float = opt_param.rel_tolerance_on_optimality
-        grad_tol: float = opt_param.tolerance_on_grad
 
         assert initial_x_array_2d is not None
         obj_fcn: FunctionBase = opt_prob.obj_fcn

@@ -37,7 +37,7 @@ class OptimizationIterate:
         if self.dual_prob_evaluation is not None:
             primal_opt_prob: OptProb = self.primal_prob_evaluation.opt_prob
             return self.dual_prob_evaluation.x_array_2d[
-                :, primal_opt_prob.num_ineq_cnst :
+                :, primal_opt_prob.num_ineq_cnst :  # noqa: E203
             ]
         else:
             return None

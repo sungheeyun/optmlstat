@@ -115,7 +115,8 @@ class FunctionBase(OMSClassBase):
         """
         pass
 
-    # TODO (2) define decorator to check whether a function is convex for conjugate and conjugate_arg
+    # TODO (2) define decorator
+    #  to check whether a function is convex for conjugate and conjugate_arg
 
     @property
     @abstractmethod
@@ -142,12 +143,15 @@ class FunctionBase(OMSClassBase):
 
           :math:`argsup_x ( z^T x - f(x) )`
 
-        Note that for each :math:`z`, the output is a n-dimensional vector (not a scalar as in the case of normal
-        function evaluation by get_y_values_2d, the return value of this function is 3-dimensional np.array.
-        (Note here 'dimensional' is used for different meanings. You should understand it correctly in the context.)
+        Note that for each :math:`z`, the output is a n-dimensional vector
+        (not a scalar as in the case of normal
+        function evaluation by get_y_values_2d, the return value of this function
+        is 3-dimensional np.array.
+        (Note here 'dimensional' is used for different meanings.
+        You should understand it correctly in the context.)
 
-        More precisely, the argsup value of z_array_2d[i, :] for the jth output (function) is stored in
-        x_array_3d[i, :, j].
+        More precisely, the arg_sup value of z_array_2d[i, :]
+        for the jth output (function) is stored in x_array_3d[i, :, j].
 
         Parameters
         ----------

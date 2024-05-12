@@ -19,7 +19,8 @@ def plot_1d_data(
 ) -> None:
     """
     Plot data for 1-dimensional X and multi-dimensional Y.
-    It plots each y for each Axis, hence the number of outputs should be no less than the number of Axes.
+    It plots each y for each Axis, hence the number of outputs
+    should be no less than the number of Axes.
 
     :param axes_list:
      List of Axes

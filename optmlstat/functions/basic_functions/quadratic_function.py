@@ -17,10 +17,12 @@ class QuadraticFunction(FunctionBase):
 
       :math:`f_i(x) = x^T P x + q^T x + r`
 
-    where x is n-dimensional real column-vector, P is an real n-by-n matrix, q is an real n-dimensional
+    where x is n-dimensional real column-vector,
+     P is an real n-by-n matrix, q is an real n-dimensional
     column vector, and r is a real scalar. i goes from 1 to m.
 
-    Note that when data are actually interchanged, e.g., though method, QuadraticFunction.get_y_array_2d,
+    Note that when data are actually interchanged,
+     e.g., though method, QuadraticFunction.get_y_array_2d,
     x is represented by row vectors (not column vectors).
     """
 
@@ -29,9 +31,7 @@ class QuadraticFunction(FunctionBase):
         is_strictly_convex: bool = True
         is_convex: bool = True
         for idx3 in range(quad_array_3d.shape[2]):
-            symmetric_array: ndarray = (
-                quad_array_3d[:, :, idx3] + quad_array_3d[:, :, idx3].T
-            )
+            symmetric_array: ndarray = quad_array_3d[:, :, idx3] + quad_array_3d[:, :, idx3].T
             eigen_value_array: ndarray = eig(symmetric_array)[0]
             if (eigen_value_array <= 0.0).any():
                 is_strictly_convex = False
@@ -70,28 +70,20 @@ class QuadraticFunction(FunctionBase):
         assert intercept_array_1d.ndim == 1, intercept_array_1d.ndim
 
         # check number of inputs
-        assert (
-            quad_array_3d is None or quad_array_3d.shape[0] == slope_array_2d.shape[0]
-        )
-        assert (
-            quad_array_3d is None or quad_array_3d.shape[1] == slope_array_2d.shape[0]
-        )
+        assert quad_array_3d is None or quad_array_3d.shape[0] == slope_array_2d.shape[0]
+        assert quad_array_3d is None or quad_array_3d.shape[1] == slope_array_2d.shape[0]
 
         # check number of outputs
         assert slope_array_2d.shape[1] == intercept_array_1d.size, (
             slope_array_2d.shape,
             intercept_array_1d.shape,
         )
-        assert (
-            quad_array_3d is None or quad_array_3d.shape[2] == intercept_array_1d.size
-        ), (
+        assert quad_array_3d is None or quad_array_3d.shape[2] == intercept_array_1d.size, (
             slope_array_2d.shape,
             intercept_array_1d.shape,
         )
 
-        self.quad_array_3d: ndarray = (
-            None if quad_array_3d is None else quad_array_3d.copy()
-        )
+        self.quad_array_3d: ndarray = None if quad_array_3d is None else quad_array_3d.copy()
         self.slope_array_2d: ndarray = slope_array_2d.copy()
         self.intercept_array_1d: ndarray = intercept_array_1d.copy()
 
@@ -155,9 +147,7 @@ class QuadraticFunction(FunctionBase):
         """
         assert self.is_strictly_convex
 
-        conjugate_quad_array_3d: ndarray = ndarray(
-            shape=self.quad_array_3d.shape, dtype=float
-        )
+        conjugate_quad_array_3d: ndarray = ndarray(shape=self.quad_array_3d.shape, dtype=float)
         conjugate_slope_array_1d_list: list[ndarray] = list()
         conjugate_intercept_list: list[float] = list()
 
@@ -177,9 +167,7 @@ class QuadraticFunction(FunctionBase):
         )
 
         logger.debug(f"conjugate_slope_array_1d_list: {conjugate_slope_array_1d_list}")
-        logger.debug(
-            f"conjugate_slope_array_2d.shape: {conjugate_slope_array_2d.shape}"
-        )
+        logger.debug(f"conjugate_slope_array_2d.shape: {conjugate_slope_array_2d.shape}")
 
         return QuadraticFunction(
             conjugate_quad_array_3d,
@@ -193,7 +181,8 @@ class QuadraticFunction(FunctionBase):
 
           :math:`z - 2 P x - q`
 
-        hence, the argsup can be obtained when x makes the gradient zero (when P is positive definite), which is
+        hence, the argsup can be obtained when x makes the gradient zero
+         (when P is positive definite), which is
 
           :math:`(1/2) P^{-1} (z-q)`
         """
@@ -247,9 +236,7 @@ class QuadraticFunction(FunctionBase):
         """
 
         jac: np.ndarray = (
-            self.slope_array_2d[:, :, None]
-            .transpose([2, 1, 0])
-            .repeat(x_array_2d.shape[0], axis=0)
+            self.slope_array_2d[:, :, None].transpose([2, 1, 0]).repeat(x_array_2d.shape[0], axis=0)
         )
 
         if self.quad_array_3d is not None:

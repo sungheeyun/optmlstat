@@ -1,27 +1,26 @@
-from typing import List
 import unittest
 from datetime import datetime
+from typing import List
 
+from matplotlib.figure import Figure
+from matplotlib.pyplot import subplots
 from numpy import array, ndarray
 from pandas import Timestamp
-from matplotlib.pyplot import subplots
-from matplotlib.figure import Figure
 
-from optmlstat.time_series.time_series import TimeSeries
-from optmlstat.time_series.time_series_collection import TimeSeriesCollection
+from optmlstat.time_series.plotters.time_series_plotter import (
+    TimeSeriesPlotter,
+)
 from optmlstat.time_series.time_interval_feature_extractor import (
     TimeIntervalFeatureExtractor,
 )
+from optmlstat.time_series.time_series import TimeSeries
+from optmlstat.time_series.time_series_collection import TimeSeriesCollection
 from optmlstat.time_series.time_series_generator.random_interval_time_series_generator import (
     RandomIntervalTimeSeriesGenerator,
-)
-from optmlstat.time_series.plotters.time_series_plotter import (
-    TimeSeriesPlotter,
 )
 
 
 class TestTimeSeriesFeatureExtractors(unittest.TestCase):
-
     START_TIME: datetime = Timestamp("2020-01-01 06:00:00")
     NUM_TIME_POINTS: int = 100
     TIME_UNIT: str = "min"
@@ -63,9 +62,7 @@ class TestTimeSeriesFeatureExtractors(unittest.TestCase):
 
         figure: Figure
         axes_array: ndarray
-        figure, axes_array = subplots(
-            TestTimeSeriesFeatureExtractors.FEATURES.size, 1
-        )
+        figure, axes_array = subplots(TestTimeSeriesFeatureExtractors.FEATURES.size, 1)
 
         for idx, time_series in enumerate(
             TestTimeSeriesFeatureExtractors.time_series_collection.time_series_list
@@ -74,16 +71,16 @@ class TestTimeSeriesFeatureExtractors(unittest.TestCase):
 
         figure.show()
 
-        features: ndarray = time_interval_feature_extractor.get_features_from_time_series_collection(
-            TestTimeSeriesFeatureExtractors.time_series_collection
+        features: ndarray = (
+            time_interval_feature_extractor.get_features_from_time_series_collection(
+                TestTimeSeriesFeatureExtractors.time_series_collection
+            )
         )
 
         print(TestTimeSeriesFeatureExtractors.FEATURES)
         print(features)
 
-        self.assertLess(
-            abs(features - TestTimeSeriesFeatureExtractors.FEATURES).max(), 0.1
-        )
+        self.assertLess(abs(features - TestTimeSeriesFeatureExtractors.FEATURES).max(), 0.1)
 
 
 if __name__ == "__main__":

@@ -25,7 +25,8 @@ class GaussianBasisFunction(FunctionBase):
         covariance_list:
           List of covariance matrices
         inverse:
-          If inverse is True, covariance_list is interpreted as a list of the inverses of the covariance matrices.
+          If inverse is True, covariance_list is interpreted
+          as a list of the inverses of the covariance matrices.
         """
         if isinstance(covariance_list, int):
             covariance_list = float(covariance_list)
@@ -45,7 +46,10 @@ class GaussianBasisFunction(FunctionBase):
         assert covariance_list[0].ndim == 2, covariance_list[0].ndim
         assert covariance_list[0].shape[0] == covariance_list[0].shape[1], covariance_list[0].shape
         for covariance in covariance_list:
-            assert covariance_list[0].shape == covariance.shape, (covariance_list[0].shape, covariance.shape)
+            assert covariance_list[0].shape == covariance.shape, (
+                covariance_list[0].shape,
+                covariance.shape,
+            )
 
         self.covariance_list: List[ndarray] = covariance_list
 
@@ -85,6 +89,8 @@ class GaussianBasisFunction(FunctionBase):
 
         for idx, inverse_covariance in enumerate(self.inverse_covariance_list):
             x_array_2d_ = x_array_2d - self.mean_array_2d[idx, :]
-            y_array_1d_list.append(exp(-0.5 * (x_array_2d_.dot(inverse_covariance) * x_array_2d_).sum(axis=1)))
+            y_array_1d_list.append(
+                exp(-0.5 * (x_array_2d_.dot(inverse_covariance) * x_array_2d_).sum(axis=1))
+            )
 
         return vstack(y_array_1d_list).T

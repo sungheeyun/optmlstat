@@ -20,7 +20,8 @@ class VanishingLearningRateStrategy(LearningRateStrategy):
 
          eta = a / (outer_iteration + b)^k
 
-        where k is the exponent. The other two constants a and b are determined by initial_value and half_life,
+        where k is the exponent. The other two constants a and b are determined
+        by initial_value and half_life,
         i.e.,
 
         a / (1 + b)^k = initial_value
@@ -56,8 +57,12 @@ class VanishingLearningRateStrategy(LearningRateStrategy):
         tmp_val: float = power(2.0, 1.0 / exponent)
 
         self.constant_b: float = float(self.half_life - tmp_val) / (tmp_val - 1.0)
-        self.constant_a: float = float(self.constant_learning_rate) * power(1.0 + self.constant_b, self.exponent)
+        self.constant_a: float = float(self.constant_learning_rate) * power(
+            1.0 + self.constant_b, self.exponent
+        )
 
     def get_learning_rate(self, iteration: Iteration) -> float:
         assert iteration.outer_iteration > 0
-        return self.constant_a / power(float(iteration.outer_iteration) + self.constant_b, self.exponent)
+        return self.constant_a / power(
+            float(iteration.outer_iteration) + self.constant_b, self.exponent
+        )

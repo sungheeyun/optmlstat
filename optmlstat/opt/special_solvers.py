@@ -13,7 +13,8 @@ def strictly_convex_quadratic_with_linear_equality_constraints(
     minimize x^T P X + q^T x
     subject to A x = b
 
-    where P is positive definite. This problem always has a unique solution IF the constraint is feasible.
+    where P is positive definite. This problem always has a unique solution
+    IF the constraint is feasible.
     One way to solve this analytically is to use KKT condition:
 
     A x = b
@@ -52,7 +53,10 @@ def strictly_convex_quadratic_with_linear_equality_constraints(
     total_num_vars: int = num_primal_vars + num_dual_vars
 
     kkt_a_array_2d: ndarray = block(
-        [[p_array_2d + p_array_2d.T, a_array_2d.T], [a_array_2d, zeros((num_dual_vars, num_dual_vars))]]
+        [
+            [p_array_2d + p_array_2d.T, a_array_2d.T],
+            [a_array_2d, zeros((num_dual_vars, num_dual_vars))],
+        ]
     )
     kkt_b_array_1d: ndarray = block([-q_array_1d, b_array_1d])
 
