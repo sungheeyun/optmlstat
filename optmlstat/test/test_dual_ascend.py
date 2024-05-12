@@ -53,9 +53,7 @@ class TestDualAscend(unittest.TestCase):
     rel_tolerance_used_for_compare: float = 1e-6
 
     # opt_param: OptimizationParameter = OptimizationParameter(0.1077, 100)
-    opt_param: OptParams = OptParams(
-        VanishingLearningRateStrategy(10e-3, 1.0, 200), 500
-    )
+    opt_param: OptParams = OptParams(VanishingLearningRateStrategy(10e-3, 1.0, 200), 500)
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -82,9 +80,7 @@ class TestDualAscend(unittest.TestCase):
         if self.FIXED_SEED:
             seed(760104)
         self._test_dual_ascend_with_quadratic_problem(
-            TestDualAscend._get_quad_problem_with_random_eq_cnsts(
-                TestDualAscend.num_eq_cnst
-            ),
+            TestDualAscend._get_quad_problem_with_random_eq_cnsts(TestDualAscend.num_eq_cnst),
             num_data_points=TestDualAscend.num_data_points,
             frame_info=stack()[0],
         )
@@ -140,20 +136,14 @@ class TestDualAscend(unittest.TestCase):
         logger.info(f"true_opt_y: {opt_nu_array_1d}")
 
         logger.debug(f"x diff: {final_iterate.x_array_2d - opt_x_array_1d}")
-        logger.info(
-            f"max x diff: {abs(final_iterate.x_array_2d - opt_x_array_1d).max()}"
-        )
+        logger.info(f"max x diff: {abs(final_iterate.x_array_2d - opt_x_array_1d).max()}")
         logger.debug(f"nu diff: {final_iterate.nu_array_2d - opt_nu_array_1d}")
-        logger.info(
-            f"max nu diff: {abs(final_iterate.nu_array_2d - opt_nu_array_1d).max()}"
-        )
+        logger.info(f"max nu diff: {abs(final_iterate.nu_array_2d - opt_nu_array_1d).max()}")
 
         axis1: Axes
         axis2: Axes
 
-        optimization_result_plotter: OptimizationResultPlotter = (
-            OptimizationResultPlotter(opt_res)
-        )
+        optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
 
         figure: Figure = get_figure(
             2,
@@ -165,16 +155,13 @@ class TestDualAscend(unittest.TestCase):
             vertical_padding=0.5,
         )
         axis1, axis2 = figure.get_axes()
-        optimization_result_plotter.plot_primal_and_dual_objs(
-            axis1, "-", gap_axis=axis2
-        )
+        optimization_result_plotter.plot_primal_and_dual_objs(axis1, "-", gap_axis=axis2)
         figure.suptitle(get_fcn_name(frame_info), fontsize=10)
 
         optimization_result_plotter.animate_primal_sol()
 
-        logger.info(
-            f"MAX_ERR_1: {abs(final_iterate.x_array_2d - opt_x_array_1d).max()}"
-        )
+        logger.info(f"MAX_ERR_1: {abs(final_iterate.x_array_2d - opt_x_array_1d).max()}")
+        assert final_iterate.x_array_2d is not None
         self.assertTrue(
             allclose(
                 final_iterate.x_array_2d,
@@ -184,9 +171,8 @@ class TestDualAscend(unittest.TestCase):
             )
         )
 
-        logger.info(
-            f"MAX_ERR_2: {abs(final_iterate.nu_array_2d - opt_nu_array_1d).max()}"
-        )
+        logger.info(f"MAX_ERR_2: {abs(final_iterate.nu_array_2d - opt_nu_array_1d).max()}")
+        assert final_iterate.nu_array_2d is not None
         self.assertTrue(
             allclose(
                 final_iterate.nu_array_2d,

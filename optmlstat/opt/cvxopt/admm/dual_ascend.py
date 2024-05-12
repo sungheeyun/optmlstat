@@ -82,13 +82,17 @@ class DualAscend(OptAlgBase):
          OptimizationResult instance.
         """
 
-        obj_fcn: FunctionBase = opt_prob.obj_fcn
-        eq_cnst_fcn: AffineFunction = opt_prob.eq_cnst_fcn
+        obj_fcn: FunctionBase | None = opt_prob.obj_fcn
+        eq_cnst_fcn: FunctionBase | None = opt_prob.eq_cnst_fcn
+
+        assert obj_fcn is not None
+        assert isinstance(eq_cnst_fcn, AffineFunction), eq_cnst_fcn.__class__
 
         assert initial_x_array_2d is not None
         assert initial_nu_array_2d is not None
 
-        conjugate: QuadraticFunction = obj_fcn.conjugate
+        conjugate: FunctionBase = obj_fcn.conjugate
+        assert isinstance(conjugate, QuadraticFunction), conjugate.__class__
         assert conjugate.is_convex
 
         opt_res: OptResults = OptResults(opt_prob, self)

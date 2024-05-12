@@ -93,7 +93,7 @@ def main(problem: str) -> None:
         P: np.ndarray = get_random_pos_def_array(num_vars)
         q: np.ndarray = nr.randn(num_vars)
         obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], np.zeros(1))
-        opt_params: OptParams = OptParams(
+        opt_params = OptParams(
             0.1,
             30,
             back_tracking_line_search_alpha=0.2,

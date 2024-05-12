@@ -86,7 +86,7 @@ class FunctionBase(OMSClassBase):
         return self.get_y_values_2d(x_array_2d)
 
     @abstractmethod
-    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray | None:
+    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
         pass
 
     @abstractmethod

@@ -65,7 +65,8 @@ class GradDescent(OptAlgBase):
             assert False, self.line_search_method
 
         assert initial_x_array_2d is not None
-        obj_fcn: FunctionBase = opt_prob.obj_fcn
+        obj_fcn: FunctionBase | None = opt_prob.obj_fcn
+        assert obj_fcn is not None
         opt_res: OptResults = OptResults(opt_prob, self)
 
         jac: np.ndarray = obj_fcn.jacobian(initial_x_array_2d)
@@ -86,8 +87,8 @@ class GradDescent(OptAlgBase):
 
             x_array_2d += t_array_1d[:, None] * search_dir
 
-            jac: np.ndarray = obj_fcn.jacobian(x_array_2d)
-            terminated: np.ndarray = self.satisfy_stopping_criteria(jac, opt_param)
+            jac = obj_fcn.jacobian(x_array_2d)
+            terminated = self.satisfy_stopping_criteria(jac, opt_param)
             opt_res.register_solution(
                 iteration=iteration,
                 primal_prob_evaluation=opt_prob.evaluate(x_array_2d),

@@ -54,10 +54,8 @@ class OptimizationResultPlotter:
     def _get_sorted_iteration_and_iterate(
         self,
     ) -> tuple[list[Iteration], list[OptimizationIterate]]:
-        iteration_list: list[Iteration]
-        opt_iterate_list: list[OptimizationIterate]
         iteration_list, opt_iterate_list = zip(*sorted(self.opt_res.iter_iterate_dict.items()))
-        return iteration_list, opt_iterate_list
+        return list(iteration_list), list(opt_iterate_list)
 
     def plot_primal_and_dual_objs(
         self, axis: Axes, *args, **kwargs
@@ -77,7 +75,7 @@ class OptimizationResultPlotter:
 
         primal_obj_fcn_array_2d: np.ndarray = np.vstack(
             [
-                opt_iterate.primal_prob_evaluation.obj_fcn_array_2d[:, 0]
+                opt_iterate.primal_prob_evaluation.obj_fcn_array_2d[:, 0]  # type:ignore
                 for opt_iterate in opt_iterate_list
             ]
         )
@@ -96,13 +94,15 @@ class OptimizationResultPlotter:
 
             for x_idx, num_iterations in enumerate(num_iterations_list):
                 if iter_idx < num_iterations:
+                    assert opt_iterate.primal_prob_evaluation.obj_fcn_array_2d is not None
+
                     plot_outer_iter[x_idx].append(iteration.outer_iteration)
                     plot_obj_fcn[x_idx].append(
                         opt_iterate.primal_prob_evaluation.obj_fcn_array_2d[x_idx, 0]
                     )
 
         dual_obj_fcn_dim_list: list[int] = [
-            opt_iterate.dual_prob_evaluation.obj_fcn_array_2d.shape[0]
+            opt_iterate.dual_prob_evaluation.obj_fcn_array_2d.shape[0]  # type:ignore
             for opt_iterate in opt_iterate_list
             if opt_iterate.dual_prob_evaluation is not None
         ]
@@ -283,6 +283,7 @@ class OptimizationResultPlotter:
         )
 
         if contour:
+            assert self.opt_res.opt_prob.obj_fcn is not None
             plot_fcn_contour(
                 axis,
                 self.opt_res.opt_prob.obj_fcn,

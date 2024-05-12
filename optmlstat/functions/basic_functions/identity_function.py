@@ -7,7 +7,7 @@ from optmlstat.functions.function_base import FunctionBase
 
 
 class IdentityFunction(FunctionBase):
-    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray | None:
+    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
     def __init__(self):

@@ -21,7 +21,7 @@ class OptimizationIterate:
     dual_prob_evaluation: OptProbEval | None = None
 
     @property
-    def x_array_2d(self) -> ndarray | None:
+    def x_array_2d(self) -> ndarray:
         return self.primal_prob_evaluation.x_array_2d
 
     @property

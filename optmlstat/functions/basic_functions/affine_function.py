@@ -1,6 +1,7 @@
 from logging import Logger, getLogger
 from typing import Optional
 
+import numpy as np
 from numpy import ndarray
 
 from optmlstat.functions.function_base import FunctionBase
@@ -12,6 +13,9 @@ class AffineFunction(FunctionBase):
     """
     Affine function.
     """
+
+    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
 
     def __init__(self, slope_array_2d: ndarray, intercept_array_1d: ndarray) -> None:
         assert slope_array_2d.ndim == 2, slope_array_2d.ndim
