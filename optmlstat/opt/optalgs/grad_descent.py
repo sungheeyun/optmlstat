@@ -41,7 +41,10 @@ class GradDescent(OptAlgBase):
         self,
         opt_prob: OptProb,
         opt_param: OptParams,
-        initial_x_array_2d: np.ndarray | None = None,
+        verbose: bool,
+        /,
+        *,
+        initial_x_array_2d: np.ndarray,
         initial_lambda_array_2d: np.ndarray | None = None,
         initial_nu_array_2d: np.ndarray | None = None,
     ) -> OptResults:
@@ -73,8 +76,9 @@ class GradDescent(OptAlgBase):
         terminated: np.ndarray = self.satisfy_stopping_criteria(jac, opt_param)
 
         opt_res.register_solution(
-            iteration=Iteration(0),
-            primal_prob_evaluation=opt_prob.evaluate(initial_x_array_2d),
+            Iteration(0),
+            opt_prob.evaluate(initial_x_array_2d),
+            verbose,
             terminated=terminated,
         )
 
@@ -90,8 +94,9 @@ class GradDescent(OptAlgBase):
             jac = obj_fcn.jacobian(x_array_2d)
             terminated = self.satisfy_stopping_criteria(jac, opt_param)
             opt_res.register_solution(
-                iteration=iteration,
-                primal_prob_evaluation=opt_prob.evaluate(x_array_2d),
+                iteration,
+                opt_prob.evaluate(x_array_2d),
+                verbose,
                 terminated=terminated,
             )
 

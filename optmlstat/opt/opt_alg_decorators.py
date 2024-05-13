@@ -5,7 +5,7 @@ mostly for checking requirements for each solver
 
 from functools import wraps
 from logging import Logger, getLogger
-from typing import Callable, Optional
+from typing import Callable
 
 import numpy as np
 from numpy.random import randn
@@ -35,10 +35,13 @@ def solver(func: Callable) -> Callable:
         self: OptAlgBase,
         opt_prob: OptProb,
         opt_param: OptParams,
-        initial_x_array_2d: Optional[np.ndarray] = None,
-        initial_lambda_array_2d: Optional[np.ndarray] = None,
-        initial_nu_array_2d: Optional[np.ndarray] = None,
-        **kwargs
+        verbose: bool,
+        /,
+        *,
+        initial_x_array_2d: np.ndarray,
+        initial_lambda_array_2d: np.ndarray | None = None,
+        initial_nu_array_2d: np.ndarray | None = None,
+        **kwargs,
     ) -> OptResults:
         logger.debug(self.__class__)
         logger.debug(opt_prob.__class__)
@@ -75,10 +78,11 @@ def solver(func: Callable) -> Callable:
             self,
             opt_prob,
             opt_param,
-            initial_x_array_2d,
-            initial_lambda_array_2d,
-            initial_nu_array_2d,
-            **kwargs
+            verbose,
+            initial_x_array_2d=initial_x_array_2d,
+            initial_lambda_array_2d=initial_lambda_array_2d,
+            initial_nu_array_2d=initial_nu_array_2d,
+            **kwargs,
         )
 
     return solver_wrapper
@@ -91,10 +95,12 @@ def convex_solver(func: Callable) -> Callable:
     """
 
     @wraps(func)
-    def convex_solver_wrapper(self: OptAlgBase, opt_prob: OptProb, *args, **kwargs) -> OptResults:
+    def convex_solver_wrapper(
+        self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs
+    ) -> OptResults:
         assert opt_prob.is_convex
 
-        return func(self, opt_prob, *args, **kwargs)
+        return func(self, opt_prob, verbose, *args, **kwargs)
 
     return convex_solver_wrapper
 
@@ -107,10 +113,10 @@ def single_obj_solver(func: Callable) -> Callable:
 
     @wraps(func)
     def single_obj_solver_wrapper(
-        self: OptAlgBase, opt_prob: OptProb, *args, **kwargs
+        self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs
     ) -> OptResults:
         assert opt_prob.obj_fcn is None or opt_prob.obj_fcn.num_outputs == 1
-        return func(self, opt_prob, *args, **kwargs)
+        return func(self, opt_prob, verbose, *args, **kwargs)
 
     return single_obj_solver_wrapper
 
@@ -122,12 +128,14 @@ def eq_cnst_solver(func: Callable) -> Callable:
     """
 
     @wraps(func)
-    def eq_cnst_solver_wrapper(self: OptAlgBase, opt_prob: OptProb, *args, **kwargs) -> OptResults:
+    def eq_cnst_solver_wrapper(
+        self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs
+    ) -> OptResults:
         assert opt_prob.obj_fcn is not None
         assert opt_prob.ineq_cnst_fcn is None
         assert opt_prob.eq_cnst_fcn is not None
 
-        return func(self, opt_prob, *args, **kwargs)
+        return func(self, opt_prob, verbose, *args, **kwargs)
 
     return eq_cnst_solver_wrapper
 
@@ -140,10 +148,10 @@ def linear_eq_cnst_solver(func: Callable) -> Callable:
 
     @wraps(func)
     def linear_eq_cnst_solver_wrapper(
-        self: OptAlgBase, opt_prob: OptProb, *args, **kwargs
+        self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs
     ) -> OptResults:
         assert opt_prob.eq_cnst_fcn is not None and opt_prob.eq_cnst_fcn.is_affine
-        return func(self, opt_prob, *args, **kwargs)
+        return func(self, opt_prob, verbose, *args, **kwargs)
 
     return linear_eq_cnst_solver_wrapper
 
@@ -156,13 +164,13 @@ def unconstrained_opt_solver(func: Callable) -> Callable:
 
     @wraps(func)
     def unconstrained_opt_solver_wrapper(
-        self: OptAlgBase, opt_prob: OptProb, *args, **kwargs
+        self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs
     ) -> OptResults:
         assert opt_prob.num_eq_cnst == 0 and opt_prob.num_ineq_cnst == 0, (
             opt_prob.num_eq_cnst,
             opt_prob.num_ineq_cnst,
         )
-        return func(self, opt_prob, *args, **kwargs)
+        return func(self, opt_prob, verbose, *args, **kwargs)
 
     return unconstrained_opt_solver_wrapper
 
@@ -170,10 +178,10 @@ def unconstrained_opt_solver(func: Callable) -> Callable:
 def differentiable_obj_required_solver(func: Callable) -> Callable:
     @wraps(func)
     def differentiable_obj_required_solver_wrapper(
-        self: OptAlgBase, opt_prob: OptProb, *args, **kwargs
+        self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs
     ) -> OptResults:
         assert opt_prob.obj_fcn is not None
         assert opt_prob.obj_fcn.is_differentiable
-        return func(self, opt_prob, *args, **kwargs)
+        return func(self, opt_prob, verbose, *args, **kwargs)
 
     return differentiable_obj_required_solver_wrapper

@@ -24,12 +24,13 @@ class OptResults(OMSClassBase):
 
     def register_solution(
         self,
-        *,
         iteration: Iteration,
         primal_prob_evaluation: OptProbEval,
+        verbose: bool,
+        /,
+        *,
         dual_prob_evaluation: OptProbEval | None = None,
         terminated: np.ndarray | None = None,
-        verbose: bool = False,
     ) -> None:
         assert iteration not in self._iter_iterate_dict
 

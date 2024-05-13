@@ -106,10 +106,7 @@ class DualAscend(OptAlgBase):
 
         opt_res: OptResults = OptResults(opt_prob, self)
 
-        opt_res.register_solution(
-            iteration=Iteration(0),
-            primal_prob_evaluation=opt_prob.evaluate(initial_x_array_2d),
-        )
+        opt_res.register_solution(Iteration(0), opt_prob.evaluate(initial_x_array_2d), verbose)
 
         y_array_2d: ndarray = initial_nu_array_2d.copy()
 
@@ -135,12 +132,11 @@ class DualAscend(OptAlgBase):
             ) + y_array_2d.dot(eq_cnst_fcn.intercept_array_1d[:, newaxis])
 
             opt_res.register_solution(
-                iteration=iteration,
-                primal_prob_evaluation=opt_prob.evaluate(x_array_2d),
+                iteration,
+                opt_prob.evaluate(x_array_2d),
+                verbose,
                 dual_prob_evaluation=OptProbEval(
-                    opt_prob=None,
-                    x_array_2d=y_array_2d,
-                    obj_fcn_array_2d=dual_fcn_array_2d,
+                    opt_prob=None, x_array_2d=y_array_2d, obj_fcn_array_2d=dual_fcn_array_2d
                 ),
             )
 

@@ -33,6 +33,8 @@ logger: Logger = getLogger()
 def solve_and_draw(
     opt_prob: OptProb,
     opt_params: OptParams,
+    verbose: bool,
+    trajectory: bool,
     initial_x_2d: np.ndarray,
     /,
     *,
@@ -40,11 +42,11 @@ def solve_and_draw(
     contour_xlim: tuple[float, float],
     contour_ylim: tuple[float, float],
     true_opt_val: float | None = None,
-    verbose: bool = True,
-    x_trajectory: bool = True,
 ) -> None:
     grad_descent: GradDescent = GradDescent(LineSearchMethod.BackTrackingLineSearch)
-    opt_res: OptResults = grad_descent.solve(opt_prob, opt_params, initial_x_2d)
+    opt_res: OptResults = grad_descent.solve(
+        opt_prob, opt_params, verbose, initial_x_array_2d=initial_x_2d
+    )
 
     figure: Figure = get_figure(
         1,
@@ -62,7 +64,7 @@ def solve_and_draw(
         ax, linestyle="-", marker="o", markersize=1.0, true_opt_val=true_opt_val
     )
 
-    if x_trajectory:
+    if trajectory:
         optimization_result_plotter.animate_primal_sol(
             contour=contour, contour_xlim=contour_xlim, contour_ylim=contour_ylim, interval=0.0
         )
@@ -70,7 +72,15 @@ def solve_and_draw(
 
 @click.command()
 @click.argument("problem", type=str)
-def main(problem: str) -> None:
+@click.option("-m", "--mute", is_flag=True, default=False, help="mute optimization processes")
+@click.option(
+    "-t",
+    "--trajectory",
+    is_flag=True,
+    default=False,
+    help="show animation of optimization variable trajectory",
+)
+def main(problem: str, mute: bool, trajectory: bool) -> None:
     set_logging_basic_config(
         __file__, level=eval(f"logging.{os.environ.get('TEST_LOG_LEVEL', 'INFO')}")
     )
@@ -135,6 +145,8 @@ def main(problem: str) -> None:
     solve_and_draw(
         opt_prob,
         opt_params,
+        not mute,
+        trajectory,
         initial_x_2d,
         contour=(num_vars == 2),
         contour_xlim=data_lim,
