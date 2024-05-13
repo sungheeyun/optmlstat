@@ -1,39 +1,41 @@
-import unittest
-from logging import Logger, getLogger
+"""
+
+"""
+
 import logging
 import os
+import unittest
 from inspect import FrameInfo, stack
+from logging import Logger, getLogger
 
-from numpy import ndarray, abs, allclose
-from numpy.random import randn, seed
 import matplotlib as mpl
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
-from matplotlib import pyplot as plt
 from freq_used.logging_utils import set_logging_basic_config
 from freq_used.plotting import get_figure
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from numpy import ndarray, abs, allclose
+from numpy.random import randn, seed
 
+from optmlstat.functions.basic_functions.affine_function import AffineFunction
 from optmlstat.functions.basic_functions.quadratic_function import (
     QuadraticFunction,
 )
-from optmlstat.functions.basic_functions.affine_function import AffineFunction
 from optmlstat.functions.example_functions import (
     get_sum_function,
     get_sum_of_square_function,
 )
-from optmlstat.opt.opt_prob import OptProb
-from optmlstat.opt.opt_res import OptResults
 from optmlstat.opt.cvxopt.admm.dual_ascend import DualAscend
-from optmlstat.opt.opt_iterate import OptimizationIterate
-from optmlstat.opt.special_solvers import (
-    strictly_convex_quadratic_with_linear_equality_constraints,
-)
-from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.learning_rate.vanishing_learning_rate_strategy import (
     VanishingLearningRateStrategy,
 )
+from optmlstat.opt.opt_iterate import OptimizationIterate
+from optmlstat.opt.opt_parameter import OptParams
+from optmlstat.opt.opt_prob import OptProb
+from optmlstat.opt.opt_res import OptResults
+from optmlstat.opt.special_solvers import (
+    strictly_convex_quadratic_with_linear_equality_constraints,
+)
 from optmlstat.plotting.opt_res_plotter import OptimizationResultPlotter
-
 
 mpl.use("TkAgg")
 logging
@@ -65,7 +67,8 @@ class TestDualAscend(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        plt.show()
+        # plt.show()
+        pass
 
     def test_dual_ascend_with_simple_example(self) -> None:
         if self.FIXED_SEED:
@@ -86,11 +89,11 @@ class TestDualAscend(unittest.TestCase):
         )
 
     def _test_dual_ascend_with_quadratic_problem(
-        self,
-        opt_prob: OptProb,
-        *,
-        num_data_points: int = 1,
-        frame_info: FrameInfo,
+            self,
+            opt_prob: OptProb,
+            *,
+            num_data_points: int = 1,
+            frame_info: FrameInfo,
     ) -> None:
 
         assert isinstance(opt_prob.obj_fcn, QuadraticFunction)
@@ -127,6 +130,7 @@ class TestDualAscend(unittest.TestCase):
         opt_res: OptResults = dual_ascend.solve(
             opt_prob,
             TestDualAscend.opt_param,
+            False,
             initial_x_array_2d=initial_x_point_2d,
             initial_nu_array_2d=initial_nu_point_2d,
         )
@@ -161,7 +165,7 @@ class TestDualAscend(unittest.TestCase):
         optimization_result_plotter.plot_primal_and_dual_objs(axis1, "-", gap_axis=axis2)
         figure.suptitle(get_fcn_name(frame_info), fontsize=10)
 
-        optimization_result_plotter.animate_primal_sol()
+        # optimization_result_plotter.animate_primal_sol()
 
         logger.info(f"MAX_ERR_1: {abs(final_iterate.x_array_2d - opt_x_array_1d).max()}")
         assert final_iterate.x_array_2d is not None

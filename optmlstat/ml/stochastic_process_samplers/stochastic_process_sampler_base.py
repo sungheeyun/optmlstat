@@ -3,7 +3,7 @@ from typing import Tuple
 
 from numpy import ndarray
 
-from functions.function_base import FunctionBase
+from optmlstat.functions.function_base import FunctionBase
 
 
 class StochasticProcessSamplerBase(ABC):

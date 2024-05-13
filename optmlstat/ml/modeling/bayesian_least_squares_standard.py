@@ -4,11 +4,11 @@ import numpy as np
 import numpy.linalg as la
 import scipy
 
-from stats.dists.gaussian import Gaussian
-from ml.features.feature_transformer_base import FeatureTransformerBase
-from ml.features.identity_feature_transformer import IdentityFeatureTransformer
-from ml.modeling.modeling_result import ModelingResult
-from ml.modeling.bayesian_least_squares_base import BayesianLeastSquaresBase
+from optmlstat.stats.dists.gaussian import Gaussian
+from optmlstat.ml.features.feature_transformer_base import FeatureTransformerBase
+from optmlstat.ml.features.identity_feature_transformer import IdentityFeatureTransformer
+from optmlstat.ml.modeling.modeling_result import ModelingResult
+from optmlstat.ml.modeling.bayesian_least_squares_base import BayesianLeastSquaresBase
 
 
 class BayesianLeastSquaresStandard(BayesianLeastSquaresBase):
@@ -18,13 +18,13 @@ class BayesianLeastSquaresStandard(BayesianLeastSquaresBase):
 
     # TODO !!! implement below
     def get_prior(self) -> Gaussian:
-        return None
+        raise NotImplementedError()
 
     def __init__(
         self,
         prior: Gaussian,
         noise_precision: float,
-        feature_trans: FeatureTransformerBase = None,
+        feature_trans: FeatureTransformerBase | None = None,
     ) -> None:
         if feature_trans is None:
             feature_trans = IdentityFeatureTransformer()
@@ -42,9 +42,8 @@ class BayesianLeastSquaresStandard(BayesianLeastSquaresBase):
             self.P = self.initial_prior.precision / self.noise_precision
             self.m = np.dot(self.P, self.initial_prior.mean)
         else:
-            self.P = (
-                la.inv(self.initial_prior.covariance) / self.noise_precision
-            )
+            assert self.initial_prior.covariance is not None
+            self.P = la.inv(self.initial_prior.covariance) / self.noise_precision
             self.m = (
                 scipy.linalg.solve(
                     self.initial_prior.covariance,
@@ -56,20 +55,18 @@ class BayesianLeastSquaresStandard(BayesianLeastSquaresBase):
 
         self.lower_tri: np.ndarray = la.cholesky(self.P)
 
-    def train(
+    def train(  # type:ignore
         self, x_array_2d: np.ndarray, y_array_1d: np.ndarray, **kwargs
     ) -> ModelingResult:
-        feature_array: np.ndarray = (
-            self.feature_trans.get_transformed_features(x_array_2d)
+        feature_array: np.ndarray = self.feature_trans.get_transformed_features(
+            x_array_2d
         )  # Phi(x)
 
         self.m += np.dot(feature_array.T, y_array_1d)
         self.P += np.dot(feature_array.T, feature_array)
         self.lower_tri = la.cholesky(self.P)
 
-    def get_predictive_dist(
-        self, x_array_1d: np.ndarray
-    ) -> Tuple[float, float]:
+    def get_predictive_dist(self, x_array_1d: np.ndarray) -> Tuple[float, float]:
         """
         Returns the predictive distribution for a data point.
 
@@ -78,19 +75,13 @@ class BayesianLeastSquaresStandard(BayesianLeastSquaresBase):
         prob_dist:
           The predictive distribution.
         """
-        feature: np.ndarray = self.feature_trans.get_transformed_features(
-            x_array_1d
-        )
+        feature: np.ndarray = self.feature_trans.get_transformed_features(x_array_1d)
 
-        tmp_array: np.ndarray = (
-            self.solve_linear_sys_using_lower_tri_from_chol_fac(
-                self.lower_tri, feature
-            )
+        tmp_array: np.ndarray = self.solve_linear_sys_using_lower_tri_from_chol_fac(
+            self.lower_tri, feature
         )
 
         mean: float = np.dot(self.m, tmp_array)
-        variance: float = (
-            np.dot(feature, tmp_array) + 1.0
-        ) / self.noise_precision
+        variance: float = (np.dot(feature, tmp_array) + 1.0) / self.noise_precision
 
         return mean, variance

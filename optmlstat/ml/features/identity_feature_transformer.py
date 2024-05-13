@@ -1,6 +1,6 @@
 import numpy as np
 
-from ml.features.feature_transformer_base import FeatureTransformerBase
+from optmlstat.ml.features.feature_transformer_base import FeatureTransformerBase
 
 
 class IdentityFeatureTransformer(FeatureTransformerBase):

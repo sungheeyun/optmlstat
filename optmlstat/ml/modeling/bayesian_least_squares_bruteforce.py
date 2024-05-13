@@ -4,11 +4,11 @@ import numpy as np
 import numpy.linalg as la
 import scipy
 
-from stats.dists.gaussian import Gaussian
-from ml.features.feature_transformer_base import FeatureTransformerBase
-from ml.features.identity_feature_transformer import IdentityFeatureTransformer
-from ml.modeling.modeling_result import ModelingResult
-from ml.modeling.bayesian_least_squares_base import BayesianLeastSquaresBase
+from optmlstat.stats.dists.gaussian import Gaussian
+from optmlstat.ml.features.feature_transformer_base import FeatureTransformerBase
+from optmlstat.ml.features.identity_feature_transformer import IdentityFeatureTransformer
+from optmlstat.ml.modeling.modeling_result import ModelingResult
+from optmlstat.ml.modeling.bayesian_least_squares_base import BayesianLeastSquaresBase
 
 
 class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
@@ -18,13 +18,13 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
 
     # TODO !!! implement the below method properly
     def get_prior(self) -> Gaussian:
-        self.prior_list[-1]
+        return self.prior_list[-1]
 
     def __init__(
         self,
         prior: Gaussian,
         noise_precision: float,
-        feature_trans: FeatureTransformerBase = None,
+        feature_trans: FeatureTransformerBase | None = None,
         use_factorization: bool = False,
     ) -> None:
         if feature_trans is None:
@@ -43,6 +43,7 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
 
         self.push_to_prior_list(self.initial_prior)
         if self.use_factorization:
+            assert self.initial_prior.precision is not None
             lower_tri: np.ndarray = la.cholesky(self.initial_prior.precision)
             self.push_to_lower_tri_list(lower_tri)
 
@@ -52,7 +53,9 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
     def push_to_lower_tri_list(self, lower_tri: np.ndarray) -> None:
         self.lower_tri_list.append(lower_tri)
 
-    def train(self, x_array_2d: np.ndarray, y_array_1d: np.ndarray, **kwargs) -> ModelingResult:
+    def train(  # type:ignore
+        self, x_array_2d: np.ndarray, y_array_1d: np.ndarray, **kwargs
+    ) -> ModelingResult:
         prior: Gaussian = self.prior_list[-1]
 
         feature_array: np.ndarray = self.feature_trans.get_transformed_features(
@@ -62,6 +65,7 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
             feature_array.T, feature_array
         )  # update
 
+        assert prior.precision is not None
         rhs: np.ndarray = self.noise_precision * np.dot(y_array_1d, feature_array) + np.dot(
             prior.mean, prior.precision
         )

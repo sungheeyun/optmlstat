@@ -10,15 +10,11 @@ import numpy.random as nr
 import scipy.stats as ss
 import freq_used.logging_utils as fl
 
-from stats.dists.gaussian import Gaussian
-from ml.modeling.bayesian_least_squares_base import BayesianLeastSquaresBase
-from ml.modeling.bayesian_least_squares_bruteforce import (
-    BayesianLeastSquaresBruteforce,
-)
-from ml.modeling.bayesian_least_squares_standard import (
-    BayesianLeastSquaresStandard,
-)
-from ml.modeling.bayesian_least_squares_low_rank_udpate import (
+from optmlstat.stats.dists.gaussian import Gaussian
+from optmlstat.ml.modeling.bayesian_least_squares_base import BayesianLeastSquaresBase
+from optmlstat.ml.modeling.bayesian_least_squares_bruteforce import BayesianLeastSquaresBruteforce
+from optmlstat.ml.modeling.bayesian_least_squares_standard import BayesianLeastSquaresStandard
+from optmlstat.ml.modeling.bayesian_least_squares_low_rank_udpate import (
     BayesianLeastSquaresLowRankUpdate,
 )
 
@@ -69,7 +65,9 @@ class TestBayesianLeastSquares(unittest.TestCase):
         prior: Gaussian = Gaussian(np.zeros(input_dim), precision=np.eye(input_dim))
 
         logger.info("Instantiate the modeling class.")
-        bayesian_least_squares: BayesianLeastSquaresBase = bayesian_ls_cls(prior, noise_precision)
+        bayesian_least_squares: BayesianLeastSquaresBase = bayesian_ls_cls(
+            prior, noise_precision
+        )  # type:ignore
 
         y_list: List[float] = list()
         y_hat_mean_list: List[float] = list()

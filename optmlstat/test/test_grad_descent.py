@@ -11,7 +11,6 @@ import numpy as np
 import numpy.random as nr
 from freq_used.logging_utils import set_logging_basic_config
 from freq_used.plotting import get_figure
-from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
@@ -50,7 +49,8 @@ class TestGradDescent(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        plt.show()
+        # plt.show()
+        pass
 
     def test_grad_descent(self) -> None:
         nr.seed(self.RANDOM_SEED)
@@ -65,7 +65,9 @@ class TestGradDescent(unittest.TestCase):
         opt_prob: OptProb = OptProb(obj_fcn)
 
         grad_descent: GradDescent = GradDescent(LineSearchMethod.BackTrackingLineSearch)
-        opt_res: OptResults = grad_descent.solve(opt_prob, self.opt_param, initial_x_2d)
+        opt_res: OptResults = grad_descent.solve(
+            opt_prob, self.opt_param, True, initial_x_array_2d=initial_x_2d
+        )
 
         final_iterate: OptimizationIterate = opt_res.final_iterate
         logger.info(final_iterate.x_array_2d)
@@ -81,13 +83,9 @@ class TestGradDescent(unittest.TestCase):
         )
         axis1, axis2 = figure.get_axes()
 
-        optimization_result_plotter: OptimizationResultPlotter = (
-            OptimizationResultPlotter(opt_res)
-        )
-        optimization_result_plotter.plot_primal_and_dual_objs(
-            axis1, "-", gap_axis=axis2
-        )
-        optimization_result_plotter.animate_primal_sol(interval=1000.0)
+        optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
+        optimization_result_plotter.plot_primal_and_dual_objs(axis1, "-", gap_axis=axis2)
+        # optimization_result_plotter.animate_primal_sol(interval=1000.0)
 
 
 if __name__ == "__main__":

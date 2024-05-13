@@ -15,7 +15,8 @@ OUTPUT_DIR: str = os.path.join(os.curdir, "output")
 class TestMultiAxesAnimation(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
-        plt.show()
+        pass
+        # plt.show()
 
     def test_multi_axes_animation(self) -> None:
         fig: Figure = plt.figure()

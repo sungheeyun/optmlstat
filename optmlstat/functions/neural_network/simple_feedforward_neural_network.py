@@ -2,10 +2,10 @@ from typing import List, Callable
 
 from numpy import ndarray
 
-from functions.basic_functions.composite_function import CompositeFunction
-from functions.basic_functions.component_wise_function import ComponentWiseFunction
-from functions.basic_functions.affine_function import AffineFunction
-from functions.function_base import FunctionBase
+from optmlstat.functions.basic_functions.composite_function import CompositeFunction
+from optmlstat.functions.basic_functions.component_wise_function import ComponentWiseFunction
+from optmlstat.functions.basic_functions.affine_function import AffineFunction
+from optmlstat.functions.function_base import FunctionBase
 
 
 class SimpleFeedforwardNeuralNetwork(CompositeFunction):

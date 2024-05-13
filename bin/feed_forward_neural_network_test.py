@@ -8,8 +8,8 @@ from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
-from functions.unit_functions import sigmoid
-from functions.neural_network.simple_feedforward_neural_network import (
+from optmlstat.functions.unit_functions import sigmoid
+from optmlstat.functions.neural_network.simple_feedforward_neural_network import (
     SimpleFeedforwardNeuralNetwork,
 )
 

@@ -1,3 +1,7 @@
+"""
+experiments for Bayesian LS
+"""
+
 from typing import List, Tuple, TypeVar, Type
 import logging
 import time
@@ -13,15 +17,11 @@ import freq_used.logging_utils as fl
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
-from stats.dists.gaussian import Gaussian
-from ml.modeling.bayesian_least_squares_base import BayesianLeastSquaresBase
-from ml.modeling.bayesian_least_squares_bruteforce import (
-    BayesianLeastSquaresBruteforce,
-)
-from ml.modeling.bayesian_least_squares_standard import (
-    BayesianLeastSquaresStandard,
-)
-from ml.modeling.bayesian_least_squares_low_rank_udpate import (
+from optmlstat.stats.dists.gaussian import Gaussian
+from optmlstat.ml.modeling.bayesian_least_squares_base import BayesianLeastSquaresBase
+from optmlstat.ml.modeling.bayesian_least_squares_bruteforce import BayesianLeastSquaresBruteforce
+from optmlstat.ml.modeling.bayesian_least_squares_standard import BayesianLeastSquaresStandard
+from optmlstat.ml.modeling.bayesian_least_squares_low_rank_udpate import (
     BayesianLeastSquaresLowRankUpdate,
 )
 
@@ -53,7 +53,9 @@ def test_bayesian_least_squares(bayesian_ls_cls: Type[U]) -> None:
     prior: Gaussian = Gaussian(np.zeros(input_dim), precision=np.eye(input_dim))
 
     logger.info("Instantiate the modeling class.")
-    bayesian_least_squares: BayesianLeastSquaresBase = bayesian_ls_cls(prior, noise_precision)
+    bayesian_least_squares: BayesianLeastSquaresBase = bayesian_ls_cls(
+        prior, noise_precision
+    )  # type:ignore
 
     y_list: List[float] = list()
     y_hat_mean_list: List[float] = list()
@@ -227,11 +229,12 @@ def test_bayesian_least_squares(bayesian_ls_cls: Type[U]) -> None:
         coef_a: float = np.dot(prior.mean, line_a)
         coef_b: float = np.dot(prior.mean, line_b)
 
+        assert prior.covariance is not None
         coef_c2: float = np.dot(np.dot(prior.covariance, line_a), line_a)
         coef_c1: float = 2.0 * np.dot(np.dot(prior.covariance, line_a), line_b)
         coef_c0: float = (
             np.dot(np.dot(prior.covariance, line_b), line_b)
-            + 1.0 / bayesian_least_squares.noise_precision
+            + 1.0 / bayesian_least_squares.noise_precision  # type:ignore
         )
 
         post_mean: np.ndarray = coef_a * t_array + coef_b

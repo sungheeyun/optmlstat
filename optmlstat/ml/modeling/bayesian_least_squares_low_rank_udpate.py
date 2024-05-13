@@ -4,11 +4,11 @@ import numpy as np
 import numpy.linalg as la
 import scipy
 
-from stats.dists.gaussian import Gaussian
-from ml.features.feature_transformer_base import FeatureTransformerBase
-from ml.features.identity_feature_transformer import IdentityFeatureTransformer
-from ml.modeling.modeling_result import ModelingResult
-from ml.modeling.bayesian_least_squares_base import BayesianLeastSquaresBase
+from optmlstat.stats.dists.gaussian import Gaussian
+from optmlstat.ml.features.feature_transformer_base import FeatureTransformerBase
+from optmlstat.ml.features.identity_feature_transformer import IdentityFeatureTransformer
+from optmlstat.ml.modeling.modeling_result import ModelingResult
+from optmlstat.ml.modeling.bayesian_least_squares_base import BayesianLeastSquaresBase
 
 
 class BayesianLeastSquaresLowRankUpdate(BayesianLeastSquaresBase):
@@ -20,7 +20,7 @@ class BayesianLeastSquaresLowRankUpdate(BayesianLeastSquaresBase):
         self,
         prior: Gaussian,
         noise_precision: float,
-        feature_trans: FeatureTransformerBase = None,
+        feature_trans: FeatureTransformerBase | None = None,
     ) -> None:
         if feature_trans is None:
             feature_trans = IdentityFeatureTransformer()
@@ -36,12 +36,9 @@ class BayesianLeastSquaresLowRankUpdate(BayesianLeastSquaresBase):
 
         if self.initial_prior.precision is not None:
             self.m = (
-                np.dot(self.initial_prior.precision, self.initial_prior.mean)
-                / self.noise_precision
+                np.dot(self.initial_prior.precision, self.initial_prior.mean) / self.noise_precision
             )
-            self.Q = self.noise_precision * la.inv(
-                self.initial_prior.precision
-            )
+            self.Q = self.noise_precision * la.inv(self.initial_prior.precision)
         else:
             self.m = (
                 scipy.linalg.solve(
@@ -51,16 +48,17 @@ class BayesianLeastSquaresLowRankUpdate(BayesianLeastSquaresBase):
                 )
                 / self.noise_precision
             )
+            assert self.initial_prior.covariance is not None
             self.Q = self.initial_prior.covariance * self.noise_precision
 
     def get_prior(self) -> Gaussian:
         return Gaussian(np.dot(self.Q, self.m), self.Q / self.noise_precision)
 
-    def train(
+    def train(  # type:ignore
         self, x_array_2d: np.ndarray, y_array_1d: np.ndarray, **kwargs
     ) -> ModelingResult:
-        feature_array: np.ndarray = (
-            self.feature_trans.get_transformed_features(x_array_2d)
+        feature_array: np.ndarray = self.feature_trans.get_transformed_features(
+            x_array_2d
         )  # Phi(x)
 
         self.m += np.dot(feature_array.T, y_array_1d)
@@ -68,16 +66,13 @@ class BayesianLeastSquaresLowRankUpdate(BayesianLeastSquaresBase):
         self.Q -= np.dot(
             tmp_array_1d,
             scipy.linalg.solve(
-                np.dot(feature_array, tmp_array_1d)
-                + np.eye(x_array_2d.shape[0]),
+                np.dot(feature_array, tmp_array_1d) + np.eye(x_array_2d.shape[0]),
                 tmp_array_1d.T,
                 assume_a="pos",
             ),
         )
 
-    def get_predictive_dist(
-        self, x_array_1d: np.ndarray
-    ) -> Tuple[float, float]:
+    def get_predictive_dist(self, x_array_1d: np.ndarray) -> Tuple[float, float]:
         """
         Returns the predictive distribution for a data point.
 
@@ -86,15 +81,11 @@ class BayesianLeastSquaresLowRankUpdate(BayesianLeastSquaresBase):
         prob_dist:
           The predictive distribution.
         """
-        feature: np.ndarray = self.feature_trans.get_transformed_features(
-            x_array_1d
-        )
+        feature: np.ndarray = self.feature_trans.get_transformed_features(x_array_1d)
 
         tmp_array_1d: np.ndarray = np.dot(self.Q, feature)
 
         mean: float = np.dot(self.m, tmp_array_1d)
-        variance: float = (
-            np.dot(feature, tmp_array_1d) + 1.0
-        ) / self.noise_precision
+        variance: float = (np.dot(feature, tmp_array_1d) + 1.0) / self.noise_precision
 
         return mean, variance

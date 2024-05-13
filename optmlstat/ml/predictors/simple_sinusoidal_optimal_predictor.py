@@ -1,8 +1,10 @@
-from typing import Optional
+"""
+"""
 
+import numpy as np
 from numpy import ndarray, sin, pi
 
-from functions.function_base import FunctionBase
+from optmlstat.functions.function_base import FunctionBase
 
 
 class SimpleSinusoidalOptimalPredictor(FunctionBase):
@@ -11,19 +13,41 @@ class SimpleSinusoidalOptimalPredictor(FunctionBase):
     """
 
     @property
-    def num_inputs(self) -> Optional[int]:
-        return None
+    def is_strictly_concave(self) -> bool:
+        raise NotImplementedError()
 
     @property
-    def num_outputs(self) -> Optional[int]:
-        return None
+    def is_concave(self) -> bool:
+        raise NotImplementedError()
 
     @property
-    def is_affine(self) -> Optional[bool]:
+    def is_differentiable(self) -> bool:
+        raise NotImplementedError()
+
+    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def conjugate(self) -> FunctionBase:
+        raise NotImplementedError()
+
+    def conjugate_arg(self, z_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def num_inputs(self) -> int:
+        raise NotImplementedError()
+
+    @property
+    def num_outputs(self) -> int:
+        raise NotImplementedError()
+
+    @property
+    def is_affine(self) -> bool:
         return False
 
     @property
-    def is_strictly_convex(self) -> Optional[bool]:
+    def is_strictly_convex(self) -> bool:
         return False
 
     @property

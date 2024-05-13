@@ -4,11 +4,11 @@ from copy import copy
 from numpy import ndarray, hstack, ones, sqrt, eye, vstack, zeros
 from numpy.linalg import lstsq
 
-from functions.basic_functions.identity_function import IdentityFunction
-from functions.function_base import FunctionBase
-from ml.modeling.modeler_base import ModelerBase
-from ml.modeling.modeling_result import ModelingResult
-from ml.predictors.linear_predictor import LinearPredictor
+# from optmlstat.functions.basic_functions.identity_function import IdentityFunction
+from optmlstat.functions.function_base import FunctionBase
+from optmlstat.ml.modeling.modeler_base import ModelerBase
+from optmlstat.ml.modeling.modeling_result import ModelingResult
+from optmlstat.ml.predictors.linear_predictor import LinearPredictor
 
 
 class LinearModeler(ModelerBase):
@@ -28,7 +28,8 @@ class LinearModeler(ModelerBase):
         """
         self.basis_function: FunctionBase
         if basis_function is None:
-            self.basis_function = IdentityFunction()
+            assert False
+            # self.basis_function = IdentityFunction()
         else:
             self.basis_function = basis_function
 

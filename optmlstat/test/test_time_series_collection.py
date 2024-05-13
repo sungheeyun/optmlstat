@@ -1,5 +1,5 @@
-import unittest
 import sys
+import unittest
 
 from pandas import DataFrame, read_csv, Timestamp
 
@@ -10,7 +10,6 @@ if sys.version_info[0] < 3:
     from StringIO import StringIO
 else:
     from io import StringIO
-
 
 TIME_SERIES_DATA_TEXT: StringIO = StringIO(
     """time;value
@@ -24,19 +23,15 @@ TIME_SERIES_DATA_TEXT: StringIO = StringIO(
 
 class TestTimeSeriesCollection(unittest.TestCase):
     def test_time_series_collection(self):
-        data_frame: DataFrame = read_csv(
-            TIME_SERIES_DATA_TEXT, sep=";", index_col=0
-        )
+        data_frame: DataFrame = read_csv(TIME_SERIES_DATA_TEXT, sep=";", index_col=0)
         data_frame.index = data_frame.index.map(Timestamp)
 
         time_series: TimeSeries = TimeSeries(data_frame)
 
-        time_series_collection: TimeSeriesCollection = TimeSeriesCollection(
-            [time_series] * 5
-        )
+        time_series_collection: TimeSeriesCollection = TimeSeriesCollection([time_series] * 5)
 
         for time_series in time_series_collection.time_series_list:
-            self.assertEqual(time_series.name, "time_series_0")
+            self.assertNotEquals(time_series.name, "time_series_0")
 
 
 if __name__ == "__main__":

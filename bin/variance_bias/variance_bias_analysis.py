@@ -8,16 +8,18 @@ from matplotlib.axes import Axes
 from freq_used.logging_utils import set_logging_basic_config
 from freq_used.plotting import get_figure
 
-from functions.function_base import FunctionBase
-from ml.stochastic_process_samplers.stochastic_process_sampler_base import (
+from optmlstat.functions.function_base import FunctionBase
+from optmlstat.ml.stochastic_process_samplers.stochastic_process_sampler_base import (
     StochasticProcessSamplerBase,
 )
-from ml.stochastic_process_samplers.simple_sinusoidal_sampler import SimpleSinusoidalSampler
-from ml.modeling.linear_modeler import LinearModeler
-from ml.modeling.modeler_base import ModelerBase
-from functions.basis_functions.gaussian_basis_function import GaussianBasisFunction
-from plotting.plotter import plot_1d_data
-from ml.measure import mean_sum_squares
+from optmlstat.ml.stochastic_process_samplers.simple_sinusoidal_sampler import (
+    SimpleSinusoidalSampler,
+)
+from optmlstat.ml.modeling.linear_modeler import LinearModeler
+from optmlstat.ml.modeling.modeler_base import ModelerBase
+from optmlstat.functions.basis_functions.gaussian_basis_function import GaussianBasisFunction
+from optmlstat.plotting.plotter import plot_1d_data
+from optmlstat.ml.measure import mean_sum_squares
 
 
 logger: Logger = getLogger()

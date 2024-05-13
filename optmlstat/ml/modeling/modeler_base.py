@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 from numpy import ndarray
 
-from functions.function_base import FunctionBase
-from ml.modeling.modeling_result import ModelingResult
+from optmlstat.functions.function_base import FunctionBase
+from optmlstat.ml.modeling.modeling_result import ModelingResult
 
 
 class ModelerBase(ABC):
@@ -13,9 +13,7 @@ class ModelerBase(ABC):
     """
 
     @abstractmethod
-    def train(
-        self, x_array_2d: ndarray, y_array_2d: ndarray, **kwargs
-    ) -> ModelingResult:
+    def train(self, x_array_2d: ndarray, y_array_2d: ndarray, **kwargs) -> ModelingResult:
         """
         Trains the model. This can be called multiple times.
 

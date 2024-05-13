@@ -3,9 +3,9 @@ import abc
 
 import numpy as np
 
-from stats.dists.gaussian import Gaussian
-from functions.function_base import FunctionBase
-from ml.modeling.bayesian_modeler_base import BayesianModelerBase
+from optmlstat.stats.dists.gaussian import Gaussian
+from optmlstat.functions.function_base import FunctionBase
+from optmlstat.ml.modeling.bayesian_modeler_base import BayesianModelerBase
 
 
 class BayesianLeastSquaresBase(BayesianModelerBase):
