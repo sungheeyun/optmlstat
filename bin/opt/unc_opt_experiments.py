@@ -13,6 +13,7 @@ from freq_used.logging_utils import set_logging_basic_config
 from freq_used.plotting import get_figure
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 from numpy import linalg as la
 
 from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
@@ -62,14 +63,21 @@ def solve_and_draw(
 
     figure: Figure = get_figure(
         1,
-        2,
-        axis_width=5.0,
+        3,
+        axis_width=[4.0, 4.0, 5.0],
         axis_height=5.0,
         top_margin=0.5,
         bottom_margin=0.5,
         vertical_padding=0.5,
     )
-    ax, gap_ax = figure.get_axes()
+
+    figure.suptitle(str(opt_res.opt_prob.obj_fcn))
+
+    ax: Axes
+    gap_ax: Axes
+    trajectory_ax: Axes
+
+    ax, gap_ax, trajectory_ax = figure.get_axes()
 
     optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
     optimization_result_plotter.plot_primal_and_dual_objs(
@@ -83,6 +91,7 @@ def solve_and_draw(
 
     if trajectory:
         optimization_result_plotter.animate_primal_sol(
+            trajectory_ax,
             contour=contour,
             contour_xlim=contour_xlim,
             contour_ylim=contour_ylim,
@@ -111,7 +120,7 @@ def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
     set_logging_basic_config(
         __file__, level=eval(f"logging.{os.environ.get('TEST_LOG_LEVEL', 'INFO')}")
     )
-    num_data_points: int = 10
+    num_data_points: int = 20
     data_lim: tuple[float, float] = -3.0, 3.0
     obj_fcn: FunctionBase
     num_vars: int = 2
@@ -132,8 +141,8 @@ def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
     if problem == "cvxopt_book":
         obj_fcn = get_cvxopt_book_for_grad_method()
     elif problem == "lse":
-        num_vars = 1000
-        num_terms: int = 3000
+        num_vars = 100
+        num_terms: int = 300
         obj_fcn = LogSumExp([1e-1 * nr.randn(num_terms, num_vars)], 1e-1 * nr.randn(1, num_terms))
         data_lim = -3.0, 4.0
     elif problem == "quad":
@@ -144,10 +153,10 @@ def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
         obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], r * np.ones(1))
         opt_params = OptParams(
             0.1,
-            50,
+            100,
             back_tracking_line_search_alpha=0.2,
             back_tracking_line_search_beta=0.9,
-            tolerance_on_grad=10.0,
+            tolerance_on_grad=1e0,
         )
         true_opt_val = -np.dot(la.lstsq(P, q)[0], q) / 4.0 + r
     elif problem == "conditioned-quad":

@@ -1,6 +1,7 @@
 from logging import Logger, getLogger
 
 import numpy as np
+from numpy import linalg
 
 from optmlstat.basic_modules.class_base import OMSClassBase
 from optmlstat.opt.opt_prob import OptProb
@@ -41,7 +42,11 @@ class OptResults(OMSClassBase):
             primal_prob_evaluation, terminated, dual_prob_evaluation
         )
 
-        logger.info(f"iter: {iteration.outer_iteration}/{iteration.inner_iteration}")
+        logger.info(
+            f"iter: {iteration.outer_iteration}/{iteration.inner_iteration}"
+            f" - best: {self.best_obj_values.min()}"
+            f" - avg. jac: {self.last_obj_jac_norm_avg.min()}"
+        )
         if verbose:
             logger.info(f"\tterminated: {terminated}")
             logger.info(f"\tprimal: {primal_prob_evaluation}")
@@ -125,3 +130,19 @@ class OptResults(OMSClassBase):
                 for iterate in self.iteration_iterate_list[1]
             ]
         ).min(axis=0)
+
+    @property
+    def last_obj_jac_norm_avg(self) -> np.ndarray:
+        assert self.iteration_iterate_list[1][-1].primal_prob_evaluation.obj_fcn_jac_3d is not None
+        assert (
+            self.iteration_iterate_list[1][-1].primal_prob_evaluation.obj_fcn_jac_3d.ndim == 3
+        ), self.iteration_iterate_list[1][-1].primal_prob_evaluation.obj_fcn_jac_3d.shape
+
+        return np.array(
+            [
+                np.array([linalg.norm(jac_1d) for jac_1d in jac_2d]).mean()
+                for jac_2d in self.iteration_iterate_list[1][
+                    -1
+                ].primal_prob_evaluation.obj_fcn_jac_3d
+            ]
+        ).mean()

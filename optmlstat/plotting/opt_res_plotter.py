@@ -8,7 +8,6 @@ from logging import Logger, getLogger
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
-from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 from pandas import DataFrame
 
@@ -37,7 +36,7 @@ class OptimizationResultPlotter:
     major_ytick_label_font_size: float = 10.0
 
     def plot_primal_and_dual_objs(
-        self, axis: Axes, gap_axis: Axes | None, true_opt_val: float | None, /, *args, **kwargs
+        self, ax: Axes, gap_axis: Axes | None, true_opt_val: float | None, /, *args, **kwargs
     ) -> tuple[
         list[Line2D],
         list[Line2D] | None,
@@ -50,7 +49,7 @@ class OptimizationResultPlotter:
         primal_subopt: list[Line2D] | None = None
         dual_subopt: list[Line2D] | None = None
 
-        iter_plot_fcn = axis.plot
+        iter_plot_fcn = ax.plot
         # iter_plot_fcn = axis.semilogy
         # gap_axis: Axes | None = kwargs.pop("gap_axis", None)
         # true_opt_val: float | None = kwargs.pop("true_opt_val", None)
@@ -129,9 +128,7 @@ class OptimizationResultPlotter:
                 gap_axis.semilogy(outer_iter, np.array(obj_fcn) - true_opt_val, *args, **kwargs)
 
         if true_opt_val is not None:
-            primal_objs.extend(
-                axis.plot(axis.get_xlim(), np.ones(2) * true_opt_val, "r-", linewidth=2)
-            )
+            primal_objs.extend(ax.plot(ax.get_xlim(), np.ones(2) * true_opt_val, "r-", linewidth=2))
 
         if dual_obj_fcn_array_2d is not None:
             dual_objs = iter_plot_fcn(
@@ -164,17 +161,17 @@ class OptimizationResultPlotter:
                 gap_axis.semilogy(outer_iteration_list, gap_array_2d[:, 1:], *args, **kwargs)
             )
 
-        for ax in [axis, gap_axis]:
-            if ax is None:
+        for _ax in [ax, gap_axis]:
+            if _ax is None:
                 continue
-            ax.legend(fontsize=self.legend_font_size)
-            ax.set_xlabel("outer iteration", fontsize=self.xlabel_font_size)
-            ax.tick_params(
+            _ax.legend(fontsize=self.legend_font_size)
+            _ax.set_xlabel("outer iteration", fontsize=self.xlabel_font_size)
+            _ax.tick_params(
                 axis="x",
                 which="major",
                 labelsize=self.major_xtick_label_font_size,
             )
-            ax.tick_params(
+            _ax.tick_params(
                 axis="y",
                 which="major",
                 labelsize=self.major_ytick_label_font_size,
@@ -190,13 +187,21 @@ class OptimizationResultPlotter:
 
     # TODO (4) add arguments for selection of variables to draw
     def animate_primal_sol(
-        self, head_ratio: float = 0.1, max_num_iterations_to_draw: int = 1000000, **kwargs
+        self,
+        ax: Axes,
+        /,
+        *,
+        head_ratio: float = 0.1,
+        max_num_iterations_to_draw: int = 1000000,
+        **kwargs,
     ) -> MultiAxesAnimation:
         """
         Create animation for primal solution trajectories.
 
         Parameters
         ----------
+        ax:
+         Axes
         head_ratio:
          the ratio of the head part when drawing the trajectory
         max_num_iterations_to_draw:
@@ -232,21 +237,9 @@ class OptimizationResultPlotter:
             [opt_iterate.x_array_2d[:, idx2] for opt_iterate in selected_opt_iterate_list]
         )
 
-        # logger.info(time_array_1d.shape)
-        # logger.info(x_array_2d.shape)
-        # logger.info(y_array_2d.shape)
-
-        figure: Figure
-        axis: Axes
-
-        from freq_used.plotting import get_figure
-
-        figure = get_figure(1, 1, axis_width=5.0, axis_height=5.0)
-        axis = figure.get_axes()[0]
-
         multi_axes_animation: MultiAxesAnimation = MultiAxesAnimation(
-            figure,
-            [axis] * x_array_2d.shape[1],
+            ax.get_figure(),  # type:ignore
+            [ax] * x_array_2d.shape[1],
             time_array_1d,
             x_array_2d,
             y_array_2d,
@@ -257,15 +250,15 @@ class OptimizationResultPlotter:
         if contour:
             assert self.opt_res.opt_prob.obj_fcn is not None
             plot_fcn_contour(
-                axis,
+                ax,
                 self.opt_res.opt_prob.obj_fcn,
                 levels=30,
                 xlim=contour_xlim,
                 ylim=contour_ylim,
             )
-            axis.set_xlim(contour_xlim)
-            axis.set_ylim(contour_ylim)
-            axis.axis("equal")
+            ax.set_xlim(contour_xlim)
+            ax.set_ylim(contour_ylim)
+            ax.axis("equal")
 
         plt.show()
 

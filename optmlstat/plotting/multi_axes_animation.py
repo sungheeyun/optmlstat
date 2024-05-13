@@ -47,8 +47,8 @@ class MultiAxesAnimation(animation.TimedAnimation):
 
         self.name_line2d_dict_list: List[Dict[str, Line2D]] = [
             dict(
-                line1=Line2D([], [], color="black", linewidth=1, alpha=0.5),
-                line1a=Line2D([], [], color="red", linewidth=1, alpha=0.8),
+                line1=Line2D([], [], color="black", linewidth=1, alpha=0.2),
+                line1a=Line2D([], [], color="red", linewidth=1, alpha=0.5),
                 line1e=Line2D([], [], color="red", marker="o", markeredgecolor="r", markersize=4),
             )
             for _ in axis_list
