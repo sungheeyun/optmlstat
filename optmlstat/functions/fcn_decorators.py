@@ -12,7 +12,7 @@ import numpy as np
 def fcn_evaluator(func: Callable) -> Callable:
     @wraps(func)
     def fcn_evaluator_wrapper(self: Any, x_array_2d: np.ndarray) -> np.ndarray:
-        assert x_array_2d.shape[1] == self.num_inputs, (
+        assert self.num_inputs is None or x_array_2d.shape[1] == self.num_inputs, (
             x_array_2d.shape,
             self.num_inputs,
         )
