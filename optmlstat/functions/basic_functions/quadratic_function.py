@@ -11,6 +11,11 @@ from numpy import ndarray, vstack, array, stack
 from numpy.linalg import eig, inv, solve
 
 from optmlstat.functions.function_base import FunctionBase
+from optmlstat.functions.fcn_decorators import (
+    fcn_evaluator,
+    differentiable_fcn_evaluator,
+    twice_differentiable_fcn_evaluator,
+)
 
 logger: Logger = getLogger()
 
@@ -29,9 +34,6 @@ class QuadraticFunction(FunctionBase):
      e.g., though method, QuadraticFunction.get_y_array_2d,
     x is represented by row vectors (not column vectors).
     """
-
-    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
-        raise NotImplementedError()
 
     @staticmethod
     def test_convexity(quad_array_3d: ndarray) -> tuple[bool, bool]:
@@ -148,6 +150,10 @@ class QuadraticFunction(FunctionBase):
         return True
 
     @property
+    def is_twice_differentiable(self) -> bool:
+        return True
+
+    @property
     def conjugate(self) -> QuadraticFunction:
         """
         If the (quadratic) function is not convex, this value can be infinity. (not always though)
@@ -231,7 +237,7 @@ class QuadraticFunction(FunctionBase):
     # TODO (2) check x_array_2d and y_array_2 in all get_y_values_2d methods
     #  using decorators
 
-    def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
+    def _get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         logger.debug(x_array_2d.shape)
         logger.debug(self.slope_array_2d.shape)
         logger.debug(self.intercept_array_1d.shape)
@@ -245,10 +251,7 @@ class QuadraticFunction(FunctionBase):
 
         return y_array_2d
 
-    def jacobian(self, x_array_2d: ndarray) -> ndarray:
-        """
-        output array index - [data, functions, x]
-        """
+    def _jacobian(self, x_array_2d: ndarray) -> ndarray:
 
         jac: np.ndarray = (
             self.slope_array_2d[:, :, None].transpose([2, 1, 0]).repeat(x_array_2d.shape[0], axis=0)
@@ -263,3 +266,10 @@ class QuadraticFunction(FunctionBase):
             ).transpose([1, 0, 2])
 
         return jac
+
+    def _hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        num_data: int = x_array_2d.shape[0]
+        if self.quad_array_3d is None:
+            return np.zeros((num_data, self.num_outputs, self.num_inputs, self.num_inputs))
+
+        return self.quad_array_3d.transpose([2, 0, 1])[np.newaxis].repeat(num_data, axis=0)

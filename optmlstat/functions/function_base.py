@@ -8,6 +8,11 @@ from abc import abstractmethod
 import numpy as np
 
 from optmlstat.basic_modules.class_base import OMSClassBase
+from optmlstat.functions.fcn_decorators import (
+    fcn_evaluator,
+    differentiable_fcn_evaluator,
+    twice_differentiable_fcn_evaluator,
+)
 
 
 class FunctionBase(OMSClassBase):
@@ -65,6 +70,11 @@ class FunctionBase(OMSClassBase):
     def is_differentiable(self) -> bool:
         pass
 
+    @property
+    @abstractmethod
+    def is_twice_differentiable(self) -> bool:
+        pass
+
     # TODO (2) implemented the below method for all subclasses of FunctionBase
 
     def get_shape(self) -> tuple[int, int]:
@@ -85,15 +95,32 @@ class FunctionBase(OMSClassBase):
     def eval(self, x_array_2d: np.ndarray) -> np.ndarray:
         return self.get_y_values_2d(x_array_2d)
 
-    @abstractmethod
+    @differentiable_fcn_evaluator
+    @fcn_evaluator
     def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        """
+        output array index - [data, functions, x]
+        """
+        return self._jacobian(x_array_2d)
         pass
 
     @abstractmethod
+    def _jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        pass
+
+    @twice_differentiable_fcn_evaluator
+    @fcn_evaluator
     def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
-        pass
+        """
+        output array index - [data, functions, x, x]
+        """
+        return self._hessian(x_array_2d)
 
     @abstractmethod
+    def _hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        pass
+
+    @fcn_evaluator
     def get_y_values_2d(self, x_array_2d: np.ndarray) -> np.ndarray:
         """
         Returns y values for given x values. Each row of x_array_2d represents
@@ -115,6 +142,10 @@ class FunctionBase(OMSClassBase):
         -------
         y_array_2d: N-by-m np.array representing y.
         """
+        return self._get_y_values_2d(x_array_2d)
+
+    @abstractmethod
+    def _get_y_values_2d(self, x_array_2d: np.ndarray) -> np.ndarray:
         pass
 
     # TODO (2) define decorator

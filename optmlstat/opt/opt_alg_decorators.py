@@ -185,3 +185,15 @@ def differentiable_obj_required_solver(func: Callable) -> Callable:
         return func(self, opt_prob, verbose, *args, **kwargs)
 
     return differentiable_obj_required_solver_wrapper
+
+
+def twice_differentiable_obj_required_solver(func: Callable) -> Callable:
+    @wraps(func)
+    def twice_differentiable_obj_required_solver_wrapper(
+        self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs
+    ) -> OptResults:
+        assert opt_prob.obj_fcn is not None
+        assert opt_prob.obj_fcn.is_twice_differentiable
+        return func(self, opt_prob, verbose, *args, **kwargs)
+
+    return twice_differentiable_obj_required_solver_wrapper

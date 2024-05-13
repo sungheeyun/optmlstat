@@ -71,6 +71,7 @@ class OptResults(OMSClassBase):
 
         logger.info("optimization result analysis")
         logger.info(f"\topt. prob.: {str(self.opt_prob)}")
+        logger.info(f"\tobj fcn: {str(self.opt_prob.obj_fcn)}")
         logger.info(f"\tpopulation size: {str(self.population_size)}")
 
         logger.info(f"\t# iters: {num_iterations_list}")
