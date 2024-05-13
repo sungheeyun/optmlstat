@@ -17,6 +17,9 @@ class AffineFunction(FunctionBase):
     Affine function.
     """
 
+    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
     def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 

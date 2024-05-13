@@ -30,6 +30,9 @@ class QuadraticFunction(FunctionBase):
     x is represented by row vectors (not column vectors).
     """
 
+    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
     @staticmethod
     def test_convexity(quad_array_3d: ndarray) -> tuple[bool, bool]:
         is_strictly_convex: bool = True

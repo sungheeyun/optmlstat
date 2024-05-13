@@ -16,6 +16,9 @@ class GaussianBasisFunction(FunctionBase):
     since it can be dealt with coefficients.
     """
 
+    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
     @property
     def is_strictly_concave(self) -> bool:
         return False

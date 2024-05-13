@@ -90,6 +90,10 @@ class FunctionBase(OMSClassBase):
         pass
 
     @abstractmethod
+    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        pass
+
+    @abstractmethod
     def get_y_values_2d(self, x_array_2d: np.ndarray) -> np.ndarray:
         """
         Returns y values for given x values. Each row of x_array_2d represents

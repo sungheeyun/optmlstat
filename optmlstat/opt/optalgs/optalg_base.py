@@ -28,6 +28,5 @@ class OptAlgBase(OMSClassBase):
         initial_x_array_2d: np.ndarray,
         initial_lambda_array_2d: np.ndarray | None = None,
         initial_nu_array_2d: np.ndarray | None = None,
-        **kwargs,
     ) -> Any:
         pass

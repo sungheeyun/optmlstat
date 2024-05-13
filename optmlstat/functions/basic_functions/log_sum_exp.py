@@ -11,6 +11,9 @@ from optmlstat.functions.function_base import FunctionBase
 
 class LogSumExp(FunctionBase):
 
+    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
     def __init__(self, A_3d: np.ndarray | list, b_2d: np.ndarray | list) -> None:
         """
         :param A_3d:

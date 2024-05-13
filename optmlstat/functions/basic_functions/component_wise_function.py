@@ -17,6 +17,9 @@ class ComponentWiseFunction(FunctionBase):
     f(x) = [f1(x1) f2(x2) ... fn(xn)]^T
     """
 
+    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
     @property
     def is_strictly_concave(self) -> bool:
         raise NotImplementedError()

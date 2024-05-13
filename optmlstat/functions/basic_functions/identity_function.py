@@ -10,6 +10,9 @@ from optmlstat.functions.function_base import FunctionBase
 
 class IdentityFunction(FunctionBase):
 
+    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
     def __init__(self, num_vars: int) -> None:
         self.num_vars: int = num_vars
 

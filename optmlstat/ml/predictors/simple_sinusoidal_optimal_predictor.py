@@ -12,6 +12,9 @@ class SimpleSinusoidalOptimalPredictor(FunctionBase):
     An optimal predictor for SimpleSinusoidalSampler in least-square-mean sense.
     """
 
+    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
     @property
     def is_strictly_concave(self) -> bool:
         raise NotImplementedError()
