@@ -4,6 +4,7 @@ component-wise function
 
 from typing import Callable, Iterable
 
+import numpy as np
 from numpy import ndarray, vectorize, vstack
 
 from optmlstat.functions.function_base import FunctionBase
@@ -15,6 +16,28 @@ class ComponentWiseFunction(FunctionBase):
 
     f(x) = [f1(x1) f2(x2) ... fn(xn)]^T
     """
+
+    @property
+    def is_strictly_concave(self) -> bool:
+        raise NotImplementedError()
+
+    @property
+    def is_concave(self) -> bool:
+        raise NotImplementedError()
+
+    @property
+    def is_differentiable(self) -> bool:
+        raise NotImplementedError()
+
+    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def conjugate(self) -> FunctionBase:
+        raise NotImplementedError()
+
+    def conjugate_arg(self, z_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
 
     def __init__(self, unit_fcn_or_list: Callable | Iterable) -> None:
         self.unit_fcn: Callable | None = None
@@ -37,23 +60,23 @@ class ComponentWiseFunction(FunctionBase):
 
     @property
     def num_inputs(self) -> int:
-        return self._num_inputs
+        return self._num_inputs  # type:ignore
 
     @property
     def num_outputs(self) -> int:
-        return self._num_inputs
+        return self._num_inputs  # type:ignore
 
     @property
     def is_affine(self) -> bool:
-        return None
+        raise NotImplementedError()
 
     @property
     def is_strictly_convex(self) -> bool:
-        return None
+        raise NotImplementedError()
 
     @property
     def is_convex(self) -> bool:
-        return None
+        raise NotImplementedError()
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         if self.vectorize_fcn_list is not None:

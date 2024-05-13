@@ -1,3 +1,7 @@
+"""
+test numpy.linalg
+"""
+
 import unittest
 from logging import Logger, getLogger
 
@@ -53,13 +57,11 @@ class TestNumpyLinAlg(unittest.TestCase):
         a_array_2d: ndarray = randn(dim_of_range, dim_of_domain)
         b_array_1d: ndarray = randn(dim_of_range)
 
-        x_array_1d, residuals_1d, rank, sv_array_1d = lstsq(
-            a_array_2d, b_array_1d, rcond=None
-        )
+        x_array_1d, residuals_1d, rank, sv_array_1d = lstsq(a_array_2d, b_array_1d, rcond=None)
 
         self.assertTrue(isinstance(x_array_1d, ndarray))
         self.assertTrue(isinstance(residuals_1d, ndarray))
-        self.assertTrue(isinstance(rank, int32))
+        self.assertTrue(isinstance(rank, int32))  # type:ignore
         self.assertTrue(isinstance(sv_array_1d, ndarray))
 
         self.assertEqual(x_array_1d.shape, (dim_of_domain,))
@@ -87,13 +89,11 @@ class TestNumpyLinAlg(unittest.TestCase):
         a_array_2d: ndarray = randn(dim_of_range, dim_of_domain)
         b_array_2d: ndarray = randn(dim_of_range, num_of_data)
 
-        x_array_2d, residuals_1d, rank, sv_array_1d = lstsq(
-            a_array_2d, b_array_2d, rcond=None
-        )
+        x_array_2d, residuals_1d, rank, sv_array_1d = lstsq(a_array_2d, b_array_2d, rcond=None)
 
         self.assertTrue(isinstance(x_array_2d, ndarray))
         self.assertTrue(isinstance(residuals_1d, ndarray))
-        self.assertTrue(isinstance(rank, int32))
+        self.assertTrue(isinstance(rank, int32))  # type:ignore
         self.assertTrue(isinstance(sv_array_1d, ndarray))
 
         self.assertEqual(x_array_2d.shape, (dim_of_domain, num_of_data))
@@ -106,9 +106,7 @@ class TestNumpyLinAlg(unittest.TestCase):
         self.assertEqual(a_array_2d.dot(x_array_2d).shape, b_array_2d.shape)
         self.assertTrue(
             allclose(
-                power(a_array_2d.dot(x_array_2d) - b_array_2d, 2.0).sum(
-                    axis=0
-                ),
+                power(a_array_2d.dot(x_array_2d) - b_array_2d, 2.0).sum(axis=0),
                 residuals_1d,
             )
         )

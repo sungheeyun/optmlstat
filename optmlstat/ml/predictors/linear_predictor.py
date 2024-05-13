@@ -1,8 +1,11 @@
-from typing import Optional
+"""
+linear predictor
+"""
 
+import numpy as np
 from numpy import ndarray, hstack, ones
 
-from functions.function_base import FunctionBase
+from optmlstat.functions.function_base import FunctionBase
 
 
 class LinearPredictor(FunctionBase):
@@ -10,32 +13,52 @@ class LinearPredictor(FunctionBase):
     Linear predictor with basis functions.
     """
 
+    @property
+    def is_strictly_concave(self) -> bool:
+        raise NotImplementedError()
+
+    @property
+    def is_concave(self) -> bool:
+        raise NotImplementedError()
+
+    @property
+    def is_differentiable(self) -> bool:
+        raise NotImplementedError()
+
+    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def conjugate(self) -> FunctionBase:
+        raise NotImplementedError()
+
+    def conjugate_arg(self, z_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
     def __init__(self, coef: ndarray, basis_function: FunctionBase) -> None:
         self.coef: ndarray = coef
         self.basis_function: FunctionBase = basis_function
 
-        self._is_affine: Optional[bool] = True if self.basis_function.is_affine else None
-        self._is_convex: Optional[bool] = (
-            True if self.basis_function.is_convex and (coef >= 0.0).all() else None
-        )
-        self._is_strictly_convex: Optional[bool] = (
-            True if self.basis_function.is_strictly_convex and (coef > 0.0).all() else None
+        self._is_affine: bool = self.basis_function.is_affine
+        self._is_convex: bool = self.basis_function.is_convex and bool((coef >= 0.0).all())
+        self._is_strictly_convex: bool = self.basis_function.is_strictly_convex and bool(
+            (coef > 0.0).all()
         )
 
     @property
-    def num_inputs(self) -> Optional[int]:
+    def num_inputs(self) -> int:
         return self.basis_function.num_inputs
 
     @property
-    def num_outputs(self) -> Optional[int]:
+    def num_outputs(self) -> int:
         return 1
 
     @property
-    def is_affine(self) -> Optional[bool]:
+    def is_affine(self) -> bool:
         return self._is_affine
 
     @property
-    def is_strictly_convex(self) -> Optional[bool]:
+    def is_strictly_convex(self) -> bool:
         return self._is_strictly_convex
 
     @property

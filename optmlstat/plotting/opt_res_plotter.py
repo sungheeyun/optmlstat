@@ -62,7 +62,6 @@ class OptimizationResultPlotter:
     ) -> tuple[list[Line2D], list[Line2D] | None, list[Line2D] | None]:
         gap_axis: Axes | None = kwargs.pop("gap_axis", None)
         true_opt_val: float | None = kwargs.pop("true_opt_val", None)
-        verbose: bool = kwargs.pop("verbose", True)
 
         iteration_list: list[Iteration]
         opt_iterate_list: list[OptimizationIterate]

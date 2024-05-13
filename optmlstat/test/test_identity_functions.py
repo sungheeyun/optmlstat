@@ -13,7 +13,7 @@ class TestIdentityFunction(unittest.TestCase):
         num_inputs: int = 100
         num_data: int = 1000
 
-        identity_function: IdentityFunction = IdentityFunction()
+        identity_function: IdentityFunction = IdentityFunction(num_inputs)
 
         x_array_2d: ndarray = randn(num_data, num_inputs)
         y_array_2d: ndarray = identity_function.get_y_values_2d(x_array_2d)
@@ -21,10 +21,11 @@ class TestIdentityFunction(unittest.TestCase):
         self.assertTrue(allclose(y_array_2d, x_array_2d))
 
     def test_num_dimensions(self):
-        identity_function: IdentityFunction = IdentityFunction()
+        num_vars: int = 10
+        identity_function: IdentityFunction = IdentityFunction(num_vars)
 
-        self.assertIsNone(identity_function.num_inputs)
-        self.assertIsNone(identity_function.num_outputs)
+        self.assertEqual(identity_function.num_inputs, num_vars)
+        self.assertEqual(identity_function.num_outputs, num_vars)
 
 
 if __name__ == "__main__":

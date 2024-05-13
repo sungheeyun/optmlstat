@@ -36,7 +36,7 @@ class TimeSeries(OMSClassBase):
         self,
         time_series_data_frame: DataFrame,
         start_time: Optional[datetime] = None,
-        name: str = None,
+        name: str | None = None,
     ) -> None:
         """
         The constructor assumes that the time_series_data_fram is sorted

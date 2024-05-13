@@ -34,11 +34,9 @@ class LinearModeler(ModelerBase):
 
         self.reg_coef: float = reg_coef
 
-        self.coef: ndarray = None
+        self.coef: ndarray | None = None
 
-    def train(
-        self, x_array_2d: ndarray, y_array_2d: ndarray, **kwargs
-    ) -> ModelingResult:
+    def train(self, x_array_2d: ndarray, y_array_2d: ndarray, **kwargs) -> ModelingResult:
         z_array_2d: ndarray = hstack(
             (
                 self.basis_function.get_y_values_2d(x_array_2d),
@@ -46,16 +44,12 @@ class LinearModeler(ModelerBase):
             )
         )
 
-        a_array_2d: ndarray = vstack(
-            (z_array_2d, sqrt(self.reg_coef) * eye(z_array_2d.shape[1]))
-        )
+        a_array_2d: ndarray = vstack((z_array_2d, sqrt(self.reg_coef) * eye(z_array_2d.shape[1])))
         b_array_2d: ndarray = vstack(
             (y_array_2d, zeros((z_array_2d.shape[1], y_array_2d.shape[1])))
         )
 
-        self.coef, residuals, rank, s = lstsq(
-            a_array_2d, b_array_2d, rcond=None
-        )
+        self.coef, residuals, rank, s = lstsq(a_array_2d, b_array_2d, rcond=None)
 
         return ModelingResult()
 

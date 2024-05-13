@@ -18,6 +18,7 @@ from numpy import linalg as la
 from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
 from optmlstat.functions.function_base import FunctionBase
+from optmlstat.functions.example_functions import get_cvxopt_book_for_grad_method
 from optmlstat.linalg.utils import get_random_pos_def_array
 from optmlstat.opt.constants import LineSearchMethod
 from optmlstat.opt.opt_parameter import OptParams
@@ -58,7 +59,7 @@ def solve_and_draw(
 
     optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
     optimization_result_plotter.plot_primal_and_dual_objs(
-        ax, linestyle="-", marker="o", markersize=1.0, true_opt_val=true_opt_val, verbose=verbose
+        ax, linestyle="-", marker="o", markersize=1.0, true_opt_val=true_opt_val
     )
 
     if x_trajectory:
@@ -92,7 +93,7 @@ def main(problem: str) -> None:
 
     true_opt_val: float | None = None
     if problem == "cvxopt_book":
-        obj_fcn = LogSumExp([[[1.0, 3.0], [1.0, -3.0], [-1.0, 0.0]]], -0.1 * np.ones((1, 3)))
+        obj_fcn = get_cvxopt_book_for_grad_method()
     elif problem == "lse":
         num_vars = 100
         num_terms: int = 10

@@ -52,43 +52,33 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
     def push_to_lower_tri_list(self, lower_tri: np.ndarray) -> None:
         self.lower_tri_list.append(lower_tri)
 
-    def train(
-        self, x_array_2d: np.ndarray, y_array_1d: np.ndarray, **kwargs
-    ) -> ModelingResult:
+    def train(self, x_array_2d: np.ndarray, y_array_1d: np.ndarray, **kwargs) -> ModelingResult:
         prior: Gaussian = self.prior_list[-1]
 
-        feature_array: np.ndarray = (
-            self.feature_trans.get_transformed_features(x_array_2d)
+        feature_array: np.ndarray = self.feature_trans.get_transformed_features(
+            x_array_2d
         )  # Phi(x)
-        precision: np.ndarray = (
-            prior.precision
-            + self.noise_precision * np.dot(feature_array.T, feature_array)
+        precision: np.ndarray = prior.precision + self.noise_precision * np.dot(
+            feature_array.T, feature_array
         )  # update
 
-        rhs: np.ndarray = self.noise_precision * np.dot(
-            y_array_1d, feature_array
-        ) + np.dot(prior.mean, prior.precision)
+        rhs: np.ndarray = self.noise_precision * np.dot(y_array_1d, feature_array) + np.dot(
+            prior.mean, prior.precision
+        )
 
         lower_tri: np.ndarray = la.cholesky(precision)
+        mean: np.ndarray
         if self.use_factorization:
-            mean: np.ndarray = (
-                self.solve_linear_sys_using_lower_tri_from_chol_fac(
-                    lower_tri, rhs
-                )
-            )
+            mean = self.solve_linear_sys_using_lower_tri_from_chol_fac(lower_tri, rhs)
         else:
-            mean: np.ndarray = scipy.linalg.solve(
-                precision, rhs, assume_a="pos"
-            )
+            mean = scipy.linalg.solve(precision, rhs, assume_a="pos")
 
         posterior: Gaussian = Gaussian(mean, precision=precision)
         self.push_to_prior_list(posterior)
         if self.use_factorization:
             self.push_to_lower_tri_list(lower_tri)
 
-    def get_predictive_dist(
-        self, x_array_1d: np.ndarray
-    ) -> Tuple[float, float]:
+    def get_predictive_dist(self, x_array_1d: np.ndarray) -> Tuple[float, float]:
         """
         Returns the predictive distribution for a data point.
 
@@ -97,25 +87,17 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
         prob_dist:
           The predictive distribution.
         """
-        feature: np.ndarray = self.feature_trans.get_transformed_features(
-            x_array_1d
-        )
+        feature: np.ndarray = self.feature_trans.get_transformed_features(x_array_1d)
         posterior = self.prior_list[-1]
 
         mean: float = np.dot(posterior.mean, feature)
         if self.use_factorization:
-            temp_array_1d: np.ndarray = (
-                self.solve_linear_sys_using_lower_tri_from_chol_fac(
-                    self.lower_tri_list[-1], feature
-                )
+            temp_array_1d: np.ndarray = self.solve_linear_sys_using_lower_tri_from_chol_fac(
+                self.lower_tri_list[-1], feature
             )
         else:
-            temp_array_1d: np.ndarray = scipy.linalg.solve(
-                posterior.precision, feature
-            )
+            temp_array_1d = scipy.linalg.solve(posterior.precision, feature)
 
-        variance: float = (
-            np.dot(feature, temp_array_1d) + 1.0 / self.noise_precision
-        )
+        variance: float = np.dot(feature, temp_array_1d) + 1.0 / self.noise_precision
 
         return mean, variance

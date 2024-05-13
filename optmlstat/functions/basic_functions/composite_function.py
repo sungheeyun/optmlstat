@@ -26,7 +26,7 @@ class CompositeFunction(FunctionBase):
 
     @property
     def is_differentiable(self) -> bool:
-        return all([fcn.is_differentiable for fcn in self.function_list])
+        return bool(all([fcn.is_differentiable for fcn in self.function_list]))
 
     def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
@@ -44,7 +44,7 @@ class CompositeFunction(FunctionBase):
 
         self.shape_tuple: tuple = tuple([function.get_shape() for function in function_list])
 
-        self._is_affine: bool | None = None
+        self._is_affine: bool = False
         if all([function.is_affine for function in self.function_list]):
             self._is_affine = True
 
@@ -62,11 +62,11 @@ class CompositeFunction(FunctionBase):
 
     @property
     def is_strictly_convex(self) -> bool:
-        return None
+        raise NotImplementedError()
 
     @property
     def is_convex(self) -> bool:
-        return None
+        raise NotImplementedError()
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         y_array_2d: ndarray = x_array_2d

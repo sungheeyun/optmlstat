@@ -38,11 +38,9 @@ class TestQuadraticFunctions(unittest.TestCase):
         num_inputs: int = 1
         num_outputs: int = c_0_array.size
 
-        intercept_array_1d: ndarray[float] = c_0_array
+        intercept_array_1d: ndarray = c_0_array
         slope_array_2d: ndarray = c_1_array[newaxis, :]
-        quad_array_3d: ndarray = ndarray(
-            (num_inputs, num_inputs, c_0_array.size), float
-        )
+        quad_array_3d: ndarray = ndarray((num_inputs, num_inputs, c_0_array.size), float)
 
         for idx in range(c_2_array.size):
             quad_array_3d[:, :, idx] = c_2_array[idx]
@@ -61,15 +59,11 @@ class TestQuadraticFunctions(unittest.TestCase):
         # check evaluated values
 
         x_array_1d: ndarray = randn(TestQuadraticFunctions.num_test_points)
-        y_values_2d: ndarray = (
-            quadratic_function.get_y_values_2d_from_x_values_1d(x_array_1d)
-        )
+        y_values_2d: ndarray = quadratic_function.get_y_values_2d_from_x_values_1d(x_array_1d)
 
         true_y_values_2d: ndarray = ndarray((x_array_1d.size, num_outputs))
         for idx, x_value in enumerate(x_array_1d):
-            true_y_values_2d[idx, :] = (
-                c_0_array + c_1_array * x_value + c_2_array * x_value ** 2.0
-            )
+            true_y_values_2d[idx, :] = c_0_array + c_1_array * x_value + c_2_array * x_value**2.0
 
         self.assertTrue(allclose(y_values_2d, true_y_values_2d))
 
@@ -86,9 +80,7 @@ class TestQuadraticFunctions(unittest.TestCase):
             quad_array_3d, slope_array_2d, intercept_array_1d
         )
 
-        x_array_2d: ndarray = randn(
-            TestQuadraticFunctions.num_test_points, num_inputs
-        )
+        x_array_2d: ndarray = randn(TestQuadraticFunctions.num_test_points, num_inputs)
         y_values_2d: ndarray = quadratic_function.get_y_values_2d(x_array_2d)
 
         true_y_values_2d: ndarray = ndarray((x_array_2d.shape[0], num_outputs))
@@ -96,12 +88,10 @@ class TestQuadraticFunctions(unittest.TestCase):
             true_y_values_2d[idx_data, :] = intercept_array_1d
             true_y_values_2d[idx_data, :] += x_array_1d.dot(slope_array_2d)
 
-            for idx, quad_array_2d in enumerate(
-                moveaxis(quad_array_3d, -1, 0)
-            ):
-                true_y_values_2d[idx_data, idx] += x_array_1d.dot(
-                    quad_array_2d
-                ).dot(array([x_array_1d]).T)
+            for idx, quad_array_2d in enumerate(moveaxis(quad_array_3d, -1, 0)):
+                true_y_values_2d[idx_data, idx] += x_array_1d.dot(quad_array_2d).dot(
+                    array([x_array_1d]).T
+                )
 
         logger.info(y_values_2d)
         logger.info(true_y_values_2d)

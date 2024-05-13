@@ -54,7 +54,9 @@ class QuadFeatureTransformer(FeatureTransformer):
         array_list: tp.List = list()
 
         for i1 in range(num_features - 1):
-            array_list.append(x_array_2d[:, i1].reshape((-1, 1)) * x_array_2d[:, i1 + 1 :])
+            array_list.append(
+                x_array_2d[:, i1].reshape((-1, 1)) * x_array_2d[:, i1 + 1 :]  # noqa:E203
+            )
 
         return np.hstack(array_list)
 

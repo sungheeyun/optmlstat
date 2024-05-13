@@ -79,6 +79,7 @@ class TestBayesianLeastSquares(unittest.TestCase):
         inf_time_list: List[float] = list()
 
         T0: float = time.time()
+        t0: float
         for idx in tqdm.tqdm(range(num_trainings)):
             logger.debug(f"randomly generate {batch_size} data points")
             x_data_array_2d: np.ndarray = nr.randn(batch_size, input_dim)
@@ -103,7 +104,7 @@ class TestBayesianLeastSquares(unittest.TestCase):
             logger.debug(
                 f"{idx + 1}th training with {batch_size} data points, i.e., " "updating the prior"
             )
-            t0: float = time.time()
+            t0 = time.time()
             bayesian_least_squares.train(x_data_array_2d, y_data_array_1d)
             training_time_list.append(time.time() - t0)
 
