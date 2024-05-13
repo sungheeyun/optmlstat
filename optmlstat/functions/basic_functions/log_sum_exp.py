@@ -5,7 +5,6 @@ sum exp (Ax+b)
 
 import numpy as np
 
-from optmlstat.functions.fcn_decorators import fcn_evaluator
 from optmlstat.functions.function_base import FunctionBase
 
 

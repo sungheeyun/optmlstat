@@ -135,7 +135,7 @@ def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
         num_vars = 2
         num_terms: int = 10
         obj_fcn = LogSumExp([1e-1 * nr.randn(num_terms, num_vars)], 1e-1 * nr.randn(1, num_terms))
-        data_lim: tuple[float, float] = -3.0, 4.0
+        data_lim = -3.0, 4.0
     elif problem == "quad":
         num_vars = 100
         P = get_random_pos_def_array(num_vars)

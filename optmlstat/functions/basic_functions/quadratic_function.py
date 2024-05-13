@@ -11,11 +11,6 @@ from numpy import ndarray, vstack, array, stack
 from numpy.linalg import eig, inv, solve
 
 from optmlstat.functions.function_base import FunctionBase
-from optmlstat.functions.fcn_decorators import (
-    fcn_evaluator,
-    differentiable_fcn_evaluator,
-    twice_differentiable_fcn_evaluator,
-)
 
 logger: Logger = getLogger()
 

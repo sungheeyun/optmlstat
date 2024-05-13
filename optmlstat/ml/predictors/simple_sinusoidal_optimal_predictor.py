@@ -12,7 +12,14 @@ class SimpleSinusoidalOptimalPredictor(FunctionBase):
     An optimal predictor for SimpleSinusoidalSampler in least-square-mean sense.
     """
 
-    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+    @property
+    def is_twice_differentiable(self) -> bool:
+        raise NotImplementedError()
+
+    def _jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
+    def _hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
     @property
@@ -57,7 +64,7 @@ class SimpleSinusoidalOptimalPredictor(FunctionBase):
     def is_convex(self) -> bool:
         return False
 
-    def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
+    def _get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         y_hat_array_2d = sin((2.0 * pi) * x_array_2d)
 
         return y_hat_array_2d

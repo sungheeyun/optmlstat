@@ -16,7 +16,11 @@ class CompositeFunction(FunctionBase):
 
     """
 
-    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+    @property
+    def is_twice_differentiable(self) -> bool:
+        raise NotImplementedError()
+
+    def _hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
     @property
@@ -31,7 +35,7 @@ class CompositeFunction(FunctionBase):
     def is_differentiable(self) -> bool:
         return bool(all([fcn.is_differentiable for fcn in self.function_list]))
 
-    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
+    def _jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
     @property
@@ -71,7 +75,7 @@ class CompositeFunction(FunctionBase):
     def is_convex(self) -> bool:
         raise NotImplementedError()
 
-    def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
+    def _get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         y_array_2d: ndarray = x_array_2d
         for function in self.function_list:
             y_array_2d = function.get_y_values_2d(y_array_2d)

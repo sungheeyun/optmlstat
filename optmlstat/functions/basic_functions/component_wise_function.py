@@ -17,7 +17,11 @@ class ComponentWiseFunction(FunctionBase):
     f(x) = [f1(x1) f2(x2) ... fn(xn)]^T
     """
 
-    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+    @property
+    def is_twice_differentiable(self) -> bool:
+        raise NotImplementedError()
+
+    def _hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
     @property
@@ -32,7 +36,7 @@ class ComponentWiseFunction(FunctionBase):
     def is_differentiable(self) -> bool:
         raise NotImplementedError()
 
-    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
+    def _jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
     @property
@@ -81,7 +85,7 @@ class ComponentWiseFunction(FunctionBase):
     def is_convex(self) -> bool:
         raise NotImplementedError()
 
-    def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
+    def _get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         if self.vectorize_fcn_list is not None:
             return vstack(
                 [

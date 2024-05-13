@@ -17,10 +17,14 @@ class AffineFunction(FunctionBase):
     Affine function.
     """
 
-    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+    @property
+    def is_twice_differentiable(self) -> bool:
+        return True
+
+    def _hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
-    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
+    def _jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
     def __init__(self, slope_array_2d: ndarray, intercept_array_1d: ndarray) -> None:
@@ -100,7 +104,7 @@ class AffineFunction(FunctionBase):
         assert False
         return ndarray(0)
 
-    def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
+    def _get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         logger.debug(x_array_2d.shape)
         logger.debug(self.slope_array_2d.shape)
         logger.debug(self.intercept_array_1d.shape)

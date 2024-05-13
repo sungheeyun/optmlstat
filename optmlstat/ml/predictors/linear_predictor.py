@@ -13,7 +13,11 @@ class LinearPredictor(FunctionBase):
     Linear predictor with basis functions.
     """
 
-    def hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
+    @property
+    def is_twice_differentiable(self) -> bool:
+        raise NotImplementedError()
+
+    def _hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
     @property
@@ -28,7 +32,7 @@ class LinearPredictor(FunctionBase):
     def is_differentiable(self) -> bool:
         raise NotImplementedError()
 
-    def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
+    def _jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
     @property
@@ -68,7 +72,7 @@ class LinearPredictor(FunctionBase):
     def is_convex(self) -> bool:
         return self._is_convex
 
-    def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
+    def _get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
         z_array_2d: ndarray = hstack(
             (
                 self.basis_function.get_y_values_2d(x_array_2d),
