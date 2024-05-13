@@ -45,7 +45,7 @@ class OptResults(OMSClassBase):
         logger.info(
             f"iter: {iteration.outer_iteration}/{iteration.inner_iteration}"
             f" - best: {self.best_obj_values.min()}"
-            f" - avg. jac: {self.last_obj_jac_norm_avg.min()}"
+            f" - avg. grad norm: {self.last_obj_grad_norm_avg.min()}"
         )
         if verbose:
             logger.info(f"\tterminated: {terminated}")
@@ -132,7 +132,7 @@ class OptResults(OMSClassBase):
         ).min(axis=0)
 
     @property
-    def last_obj_jac_norm_avg(self) -> np.ndarray:
+    def last_obj_grad_norm_avg(self) -> np.ndarray:
         assert self.iteration_iterate_list[1][-1].primal_prob_evaluation.obj_fcn_jac_3d is not None
         assert (
             self.iteration_iterate_list[1][-1].primal_prob_evaluation.obj_fcn_jac_3d.ndim == 3
