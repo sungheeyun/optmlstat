@@ -35,7 +35,7 @@ class TestUnitFunctions(unittest.TestCase):
         axes: Axes
         figure, axes = plt.subplots()
         axes.plot(x_array_1d, ufcn(x_array_1d))
-        axes.set_title(ufcn)
+        axes.set_title(str(ufcn))
         figure.show()
 
 

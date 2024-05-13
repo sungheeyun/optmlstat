@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict, Any, Callable, Optional, Iterable
+from typing import Any, Callable, Iterable
 from logging import Logger, getLogger
 from enum import Enum
 
@@ -53,7 +53,7 @@ class ButtonSliderBase:
         self.bottom_position: float = bottom_position
 
         self.axis: Axes = figure.add_axes(
-            [self.center_position - self.width / 2.0, self.bottom_position, self.width, self.height]
+            (self.center_position - self.width / 2.0, self.bottom_position, self.width, self.height)
         )
 
 
@@ -69,7 +69,7 @@ class MySlider(ButtonSliderBase):
         height: float,
         center_position: float,
         bottom_position: float,
-        slider_kwargs: Dict[str, Any],
+        slider_kwargs: dict[str, Any],
     ) -> None:
         super(MySlider, self).__init__(figure, width, height, center_position, bottom_position)
 
@@ -88,7 +88,7 @@ class MyButton(ButtonSliderBase):
         height: float,
         center_position: float,
         bottom_position: float,
-        button_kwargs: Dict[str, Any],
+        button_kwargs: dict[str, Any],
     ) -> None:
         super(MyButton, self).__init__(figure, width, height, center_position, bottom_position)
 
@@ -129,12 +129,12 @@ class LagrangianIllustrator:
         obj_fcn: FunctionBase,
         const_fcn: FunctionBase,
         cnst_boundary_points: Iterable[float],
-        minimum_point_fcn: Optional[Callable] = None,
-        minimum_value_fcn: Optional[Callable] = None,
+        minimum_point_fcn: Callable | None = None,
+        minimum_value_fcn: Callable | None = None,
     ) -> None:
         self.obj_fcn: FunctionBase = obj_fcn
         self.const_fcn: FunctionBase = const_fcn
-        self.cnst_boundary_points: List[float] = list(cnst_boundary_points)
+        self.cnst_boundary_points: list[float] = list(cnst_boundary_points)
 
         self.minimum_point_fcn: Callable = lambda x: 0.0
         if minimum_point_fcn is not None:
@@ -180,7 +180,7 @@ class LagrangianIllustrator:
             label="equality constraint function",
             alpha=LagrangianIllustrator.ALPHA,
         )
-        ylim: Tuple[float] = axis.get_ylim()
+        ylim: tuple[float, float] = axis.get_ylim()
         for cnst_boundary_point in self.cnst_boundary_points:
             axis.plot(
                 ones(2) * cnst_boundary_point,
@@ -190,18 +190,18 @@ class LagrangianIllustrator:
                 alpha=LagrangianIllustrator.ALPHA,
             )
 
-        lagrangian_line_2d_list: List[Line2D] = axis.plot(
+        lagrangian_line_2d_list: list[Line2D] = axis.plot(
             x_array_1d, zeros_like(x_array_1d), "r-", label="Lagrangian"
         )
         lagrangian_minimum_x_list_2d_list = axis.plot(
             zeros(2), ylim, "r-.", label="Lagrangian minimum x"
         )
-        lagrangian_minimum_y_line_2d_list: List[Line2D] = axis.plot(
+        lagrangian_minimum_y_line_2d_list: list[Line2D] = axis.plot(
             [x_min, x_max], zeros(2), "r-.", label="Lagrangian minimum y"
         )
 
-        obj_minimum_point_line_2d_list: List[Line2D] = axis.plot([0.0], [0.0], "o", markersize=8)
-        lagrangian_minimum_point_line_2d_list: List[Line2D] = axis.plot(
+        obj_minimum_point_line_2d_list: list[Line2D] = axis.plot([0.0], [0.0], "o", markersize=8)
+        lagrangian_minimum_point_line_2d_list: list[Line2D] = axis.plot(
             [0.0], [0.0], "o", markersize=8, markerfacecolor="r", markeredgecolor="none"
         )
 
@@ -302,7 +302,7 @@ if __name__ == "__main__":
 
     obj_fcn: FunctionBase
     cnst_fcn: FunctionBase
-    cnst_boundary_points: List[float]
+    cnst_boundary_points: list[float]
 
     if case == Problem.LCQM:
         """

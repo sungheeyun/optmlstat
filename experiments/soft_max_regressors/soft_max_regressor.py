@@ -1,16 +1,20 @@
+"""
+
+"""
+
 import abc
+import logging
 import typing as tp
 
 import cvxpy as cp
-from freq_used.logging_utils import set_logging_basic_config
-import logging
 import matplotlib as mpl
+import numpy as np
+import numpy.random as nr
+from freq_used.logging_utils import set_logging_basic_config
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
-import numpy as np
+from matplotlib.axes._base import _AxesBase
 from numpy.linalg import lstsq
-import numpy.random as nr
-
 
 mpl.use("TkAgg")
 logger: logging.Logger = logging.getLogger()
@@ -28,9 +32,7 @@ class IdentityFeatureTransformer(FeatureTransformer):
 
 
 class QuadFeatureTransformer(FeatureTransformer):
-    def __init__(
-        self, /, *, square: bool = True, cross_product: bool = True
-    ) -> None:
+    def __init__(self, /, *, square: bool = True, cross_product: bool = True) -> None:
         super().__init__()
         self.square: bool = square
         self.cross_product: bool = cross_product
@@ -39,7 +41,7 @@ class QuadFeatureTransformer(FeatureTransformer):
         array_list: tp.List[np.ndarray] = [x_array_2d]
 
         if self.square:
-            array_list.append(x_array_2d ** 2)
+            array_list.append(x_array_2d**2)
 
         if self.cross_product:
             array_list.append(self.get_cross_product_array(x_array_2d))
@@ -52,18 +54,18 @@ class QuadFeatureTransformer(FeatureTransformer):
         array_list: tp.List = list()
 
         for i1 in range(num_features - 1):
-            array_list.append(
-                x_array_2d[:, i1].reshape((-1, 1)) * x_array_2d[:, i1 + 1:]
-            )
+            array_list.append(x_array_2d[:, i1].reshape((-1, 1)) * x_array_2d[:, i1 + 1 :])
 
         return np.hstack(array_list)
 
 
 class Regressor(abc.ABC):
-    def __init__(self, feature_transformer: FeatureTransformer = None) -> None:
+    def __init__(self, feature_transformer: FeatureTransformer | None = None) -> None:
         if feature_transformer is None:
             feature_transformer = IdentityFeatureTransformer()
         self.feature_transformer: FeatureTransformer = feature_transformer
+
+        self.param_array_1d: np.ndarray = np.ndarray(0)
 
     @abc.abstractmethod
     def train(self, x_array_2d: np.ndarray, y_array_1d: np.ndarray) -> None:
@@ -83,9 +85,7 @@ class LinRegressor(Regressor):
     Linear regressor
     """
 
-    def __init__(
-        self, /, *, intercept: bool = False, lambd: float = 0.0, **kwargs
-    ) -> None:
+    def __init__(self, /, *, intercept: bool = False, lambd: float = 0.0, **kwargs) -> None:
         """
         :param intercept:
         :param lambd: the positive weight on the 2-norm regularizer
@@ -95,7 +95,6 @@ class LinRegressor(Regressor):
 
         self.intercept: bool = intercept
         self.lambd: float = lambd
-        self.param_array_1d: np.ndarray = np.ndarray(0)
 
     def predict(self, x_array_2d: np.ndarray) -> np.ndarray:
         assert self.param_array_1d.size > 0, self.param_array_1d.shape
@@ -105,13 +104,9 @@ class LinRegressor(Regressor):
         return np.dot(x_pre_array_2d, self.param_array_1d)
 
     def get_x_array_for_reg(self, x_trans_array_2d: np.ndarray) -> np.ndarray:
-        x_trans_array_2d: np.ndarray = self.feature_transformer.transform(
-            x_trans_array_2d
-        )
+        x_trans_array_2d = self.feature_transformer.transform(x_trans_array_2d)
         if self.intercept:
-            return np.hstack(
-                (x_trans_array_2d, np.ones((x_trans_array_2d.shape[0], 1)))
-            )
+            return np.hstack((x_trans_array_2d, np.ones((x_trans_array_2d.shape[0], 1))))
         else:
             return x_trans_array_2d
 
@@ -135,13 +130,9 @@ class RidgeRegressor(LinRegressor):
                 np.sqrt(self.lambd) * np.eye(x_reg_array_2d.shape[1]),
             )
         )
-        b_array_2d: np.ndarray = np.concatenate(
-            (y_array_1d, np.zeros(x_reg_array_2d.shape[1]))
-        )
+        b_array_2d: np.ndarray = np.concatenate((y_array_1d, np.zeros(x_reg_array_2d.shape[1])))
 
-        self.param_array_1d, _, _, _ = lstsq(
-            a_array_2d, b_array_2d, rcond=None
-        )
+        self.param_array_1d, _, _, _ = lstsq(a_array_2d, b_array_2d, rcond=None)
 
     def __repr__(self) -> str:
         # return f"ridge regressor with lambda = {self.lambd:g}"
@@ -170,14 +161,11 @@ class PNormRegressor(LinRegressor):
         self.p_: int = p_
 
     def train_(self, x_array_2d: np.ndarray, y_array_1d: np.ndarray) -> None:
-
         x_reg_array_2d: np.ndarray = self.get_x_array_for_reg(x_array_2d)
 
         opt_var = cp.Variable(x_reg_array_2d.shape[1])
 
-        objective = cp.Minimize(
-            cp.sum((x_reg_array_2d * opt_var - y_array_1d) ** self.p_)
-        )
+        objective = cp.Minimize(cp.sum((x_reg_array_2d * opt_var - y_array_1d) ** self.p_))
         problem = cp.Problem(objective)
 
         # problem.solve(verbose=True, solver=cp.CVXOPT)
@@ -192,7 +180,6 @@ class PNormRegressor(LinRegressor):
         self.param_array_1d = opt_var.value
 
     def train__(self, x_array_2d: np.ndarray, y_array_1d: np.ndarray) -> None:
-
         x_reg_array_2d: np.ndarray = self.get_x_array_for_reg(x_array_2d)
 
         x_opt_var = cp.Variable(x_reg_array_2d.shape[1])
@@ -215,7 +202,6 @@ class PNormRegressor(LinRegressor):
         self.param_array_1d = x_opt_var.value
 
     def train(self, x_array_2d: np.ndarray, y_array_1d: np.ndarray) -> None:
-
         scale_factor: float = 0.1
 
         x_reg_array_2d: np.ndarray = self.get_x_array_for_reg(x_array_2d)
@@ -228,7 +214,7 @@ class PNormRegressor(LinRegressor):
 
         objective = cp.Minimize(
             cp.sum((scale_factor * t_opt_var) ** self.p_)
-            + scale_factor ** self.p_ * self.lambd * cp.sum_squares(x_opt_var)
+            + scale_factor**self.p_ * self.lambd * cp.sum_squares(x_opt_var)
         )
         cnsts = list()
         cnsts.append(x_reg_array_2d @ x_opt_var - y_array_1d <= t_opt_var)
@@ -264,7 +250,6 @@ class MaxRegressor(LinRegressor):
     """
 
     def train(self, x_array_2d: np.ndarray, y_array_1d: np.ndarray) -> None:
-
         x_reg_array_2d: np.ndarray = self.get_x_array_for_reg(x_array_2d)
 
         x_opt_var = cp.Variable(x_reg_array_2d.shape[1])
@@ -299,9 +284,7 @@ class MaxRegressor(LinRegressor):
 class ModelError:
     P_LIST: tp.List[float] = [1.0, 2.0, 4.0, 8.0, 16.0]
 
-    def __init__(
-        self, y_array_1d: np.ndarray, y_hat_array_1d: np.ndarray
-    ) -> None:
+    def __init__(self, y_array_1d: np.ndarray, y_hat_array_1d: np.ndarray) -> None:
         self.y_array_1d: np.ndarray = y_array_1d
         self.y_hat_array_1d: np.ndarray = y_hat_array_1d
         self.res_array_1d: np.ndarray = self.y_array_1d - self.y_hat_array_1d
@@ -311,9 +294,7 @@ class ModelError:
         self.max_error: float
 
         for p in self.P_LIST:
-            self.p_norm_errors[p] = np.power(
-                np.power(self.abs_res_array_1d, p).mean(), 1.0 / p
-            )
+            self.p_norm_errors[p] = np.power(np.power(self.abs_res_array_1d, p).mean(), 1.0 / p)
 
         self.max_idx = int(self.abs_res_array_1d.argmax())
         self.max_error = self.abs_res_array_1d.max()
@@ -332,11 +313,10 @@ class ModelError:
 
     def plot_analysis(self, ax: Axes) -> None:
         ax.plot(self.y_array_1d, "bo", alpha=0.5)
-        ax.plot(
-            self.y_hat_array_1d, "o", mec="#FFA500", mfc="#FFA500", alpha=0.5
-        )
+        ax.plot(self.y_hat_array_1d, "o", mec="#FFA500", mfc="#FFA500", alpha=0.5)
 
-        ax2: Axes = ax.twinx()
+        ax2: _AxesBase = ax.twinx()
+        assert isinstance(ax2, Axes), ax2.__class__
         ax2.plot(self.abs_res_array_1d, "x")
         ax2.plot(self.max_idx, self.abs_res_array_1d[self.max_idx], "ro")
 
@@ -363,15 +343,11 @@ class ModelErrorContainer:
         self.model_name_list: tp.List[str] = list()
         self.model_error_list: tp.List[ModelError] = list()
 
-    def put_model_error(
-        self, model_name: str, model_error: ModelError
-    ) -> None:
+    def put_model_error(self, model_name: str, model_error: ModelError) -> None:
         self.model_name_list.append(model_name)
         self.model_error_list.append(model_error)
 
-    def report(
-        self, model_name_list: tp.Optional[tp.List[str]] = None
-    ) -> None:
+    def report(self, model_name_list: tp.Optional[tp.List[str]] = None) -> None:
         if (self.model_name_list) == 0:
             return
 
@@ -402,12 +378,7 @@ class ModelErrorContainer:
             )
         logger.info(
             "    max error = %s",
-            "".join(
-                [
-                    f"{model_error.max_error:10.3g}"
-                    for model_error in self.model_error_list
-                ]
-            ),
+            "".join([f"{model_error.max_error:10.3g}" for model_error in self.model_error_list]),
         )
 
 
@@ -425,24 +396,21 @@ def run() -> None:
 
     z_array_1d: np.ndarray = np.dot(x_array_2d, w_array_1d)
     # y_array_1d += 1 * np.dot(x_array_2d ** 2, w2_array_1d)
-    y_array_1d: np.ndarray = z_array_1d + np.sqrt(noise_variance) * nr.randn(
-        *z_array_1d.shape
-    )
+    y_array_1d: np.ndarray = z_array_1d + np.sqrt(noise_variance) * nr.randn(*z_array_1d.shape)
 
     lambd: float = 0.1
 
     kwargs = dict(lambd=lambd)
-    kwargs.update(feature_transformer=QuadFeatureTransformer())
+    kwargs.update(feature_transformer=QuadFeatureTransformer())  # type:ignore
 
     regressor_list: tp.List[Regressor] = list()
     regressor_list.append(RidgeRegressor(intercept=False, **kwargs))
-    regressor_list.append(PNormRegressor(p_=8, **kwargs))
-    regressor_list.append(MaxRegressor(**kwargs))
+    regressor_list.append(PNormRegressor(p_=8, **kwargs))  # type:ignore
+    regressor_list.append(MaxRegressor(**kwargs))  # type:ignore
 
     model_err_container: ModelErrorContainer = ModelErrorContainer()
 
     for regressor in regressor_list:
-
         regressor.train(x_array_2d, y_array_1d)
         logger.info("opt_params: %s", regressor.param_array_1d)
         y_hat_array_1d = regressor.predict(x_array_2d)

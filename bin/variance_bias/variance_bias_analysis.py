@@ -87,8 +87,8 @@ def variance_bias_analysis(
             plot_1d_data(ax2, x_array_2d_for_meas, y_array_3d_prediction[:, :, idx], "r-")
 
         for ax in figure.get_axes():
-            ax.set_ylim([-1.5, 1.5])
-            ax.set_xlim([0.0, 1.0])
+            ax.set_ylim(-1.5, 1.5)
+            ax.set_xlim(0.0, 1.0)
 
         figure.show()
 

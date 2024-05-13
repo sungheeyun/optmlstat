@@ -87,7 +87,7 @@ def test_bayesian_least_squares(bayesian_ls_cls: Type[U]) -> None:
         logger.debug(
             f"{idx + 1}th training with {batch_size} data points, i.e., " "updating the prior"
         )
-        t0: float = time.time()
+        t0 = time.time()
         bayesian_least_squares.train(x_data_array_2d, y_data_array_1d)
         training_time_list.append(time.time() - t0)
 
