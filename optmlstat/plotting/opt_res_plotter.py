@@ -36,60 +36,38 @@ class OptimizationResultPlotter:
     major_xtick_label_font_size: float = 10.0
     major_ytick_label_font_size: float = 10.0
 
-    # def plot_obj_fcn_contour(self, ax: Axes, **kwargs) -> None:
-    #     xlim: tuple[float, float] = kwargs.pop("xlim", (-1.0, 1.0))
-    #     ylim: tuple[float, float] = kwargs.pop("ylim", (-1.0, 1.0))
-    #     num_pnts_per_axis: int = kwargs.pop("num_pnts_per_axis", 100)
-    #
-    #     obj_fcn: FunctionBase = self.opt_res.opt_prob.obj_fcn
-    #
-    #     x: np.ndarray = np.linspace(xlim[0], xlim[1], num_pnts_per_axis)
-    #     y: np.ndarray = np.linspace(ylim[0], ylim[1], num_pnts_per_axis)
-    #     X, Y = np.meshgrid(x, y)
-    #
-    #     Z = obj_fcn.eval(np.array([X, Y]).reshape((2, -1)).T).reshape(X.shape)
-    #
-    #     ax.contour(X, Y, Z, **kwargs)
-
-    def _get_sorted_iteration_and_iterate(
-        self,
-    ) -> tuple[list[Iteration], list[OptimizationIterate]]:
-        iteration_list, opt_iterate_list = zip(*sorted(self.opt_res.iter_iterate_dict.items()))
-        return list(iteration_list), list(opt_iterate_list)
-
     def plot_primal_and_dual_objs(
-        self, axis: Axes, *args, **kwargs
-    ) -> tuple[list[Line2D], list[Line2D] | None, list[Line2D] | None]:
-        gap_axis: Axes | None = kwargs.pop("gap_axis", None)
-        true_opt_val: float | None = kwargs.pop("true_opt_val", None)
+        self, axis: Axes, gap_axis: Axes | None, true_opt_val: float | None, /, *args, **kwargs
+    ) -> tuple[
+        list[Line2D],
+        list[Line2D] | None,
+        list[Line2D] | None,
+        list[Line2D] | None,
+        list[Line2D] | None,
+    ]:
+        dual_objs: list[Line2D] | None = None
+        dual_gap: list[Line2D] | None = None
+        primal_subopt: list[Line2D] | None = None
+        dual_subopt: list[Line2D] | None = None
+
+        iter_plot_fcn = axis.plot
+        # iter_plot_fcn = axis.semilogy
+        # gap_axis: Axes | None = kwargs.pop("gap_axis", None)
+        # true_opt_val: float | None = kwargs.pop("true_opt_val", None)
 
         iteration_list: list[Iteration]
         opt_iterate_list: list[OptimizationIterate]
-        (
-            iteration_list,
-            opt_iterate_list,
-        ) = self._get_sorted_iteration_and_iterate()
+        iteration_list, opt_iterate_list = self.opt_res.iteration_iterate_list
+
         outer_iteration_list: list[int] = Iteration.get_outer_iteration_list(iteration_list)
 
-        num_pnts: int = opt_iterate_list[0].primal_prob_evaluation.x_array_2d.shape[0]
-
-        primal_obj_fcn_array_2d: np.ndarray = np.vstack(
-            [
-                opt_iterate.primal_prob_evaluation.obj_fcn_array_2d[:, 0]  # type:ignore
-                for opt_iterate in opt_iterate_list
-            ]
-        )
+        num_pnts: int = self.opt_res.population_size
+        primal_obj_fcn_array_2d: np.ndarray = self.opt_res.primal_1st_obj_fcn_iterates_2d
 
         plot_outer_iter: list[list[int]] = [list() for _ in range(num_pnts)]
         plot_obj_fcn: list[list[float]] = [list() for _ in range(num_pnts)]
 
-        num_iterations_list: list[int] = (
-            ~np.vstack([opt_iterate.terminated for opt_iterate in opt_iterate_list])
-        ).sum(axis=0) + 1
-
-        logger.info(f"# iters: {num_iterations_list}")
-        logger.info(f"avg # iters: {np.array(num_iterations_list).mean()}")
-
+        num_iterations_list: list[int] = self.opt_res.num_iterations_list
         for iter_idx, opt_iterate in enumerate(opt_iterate_list):
             iteration = iteration_list[iter_idx]
 
@@ -125,15 +103,7 @@ class OptimizationResultPlotter:
                 ]
             )
 
-        # line2d_line_1: list[Line2D] = axis.plot(
-        #     outer_iteration_list[0:],
-        #     primal_obj_fcn_array_2d[0:, 0],
-        #     label=r"$f(x^{(k)})$: primal obj",
-        #     *args,
-        #     **kwargs,
-        # )
-        #
-        line2d_line_1: list[Line2D] = axis.plot(
+        primal_objs: list[Line2D] = iter_plot_fcn(
             plot_outer_iter[0],
             plot_obj_fcn[0],
             label=r"$f(x^{(k)})$: primal obj",
@@ -141,56 +111,56 @@ class OptimizationResultPlotter:
             **kwargs,
         )
 
-        # line2d_line_1.extend(
-        #     axis.plot(
-        #         outer_iteration_list[0:],
-        #         primal_obj_fcn_array_2d[0:, 1:],
-        #         *args,
-        #         **kwargs,
-        #     )
-        # )
-        #
+        if gap_axis is not None and true_opt_val is not None:
+            primal_subopt = gap_axis.semilogy(
+                plot_outer_iter[0],
+                np.array(plot_obj_fcn[0]) - true_opt_val,
+                label=r"$f(x^{(k)}) - p^\ast$: primal suboptimality",
+                *args,
+                **kwargs,
+            )
 
         for idx in range(1, len(plot_outer_iter)):
             outer_iter: list[int] = plot_outer_iter[idx]
             obj_fcn: list[float] = plot_obj_fcn[idx]
-            line2d_line_1.extend(axis.plot(outer_iter, obj_fcn, *args, **kwargs))
+            primal_objs.extend(iter_plot_fcn(outer_iter, obj_fcn, *args, **kwargs))
+
+            if gap_axis is not None and true_opt_val is not None:
+                gap_axis.semilogy(outer_iter, np.array(obj_fcn) - true_opt_val, *args, **kwargs)
 
         if true_opt_val is not None:
-            line2d_line_1.extend(
+            primal_objs.extend(
                 axis.plot(axis.get_xlim(), np.ones(2) * true_opt_val, "r-", linewidth=2)
             )
 
-        line2d_line_2: list[Line2D] | None = None
         if dual_obj_fcn_array_2d is not None:
-            line2d_line_2 = axis.plot(
+            dual_objs = iter_plot_fcn(
                 outer_iteration_list,
                 dual_obj_fcn_array_2d[:, 0],
                 label=r"$g(\lambda^{(k)})$: dual obj",
                 *args,
                 **kwargs,
             )
-            assert line2d_line_2 is not None
-            line2d_line_2.extend(
-                axis.plot(outer_iteration_list, dual_obj_fcn_array_2d[:, 1:], *args, **kwargs)
+            assert dual_objs is not None
+            dual_objs.extend(
+                iter_plot_fcn(outer_iteration_list, dual_obj_fcn_array_2d[:, 1:], *args, **kwargs)
             )
 
-        line2d_list_3: list[Line2D] | None = None
         if gap_axis is not None and dual_obj_fcn_array_2d is not None:
             gap_array_2d: np.ndarray = (
                 (DataFrame(primal_obj_fcn_array_2d) - DataFrame(dual_obj_fcn_array_2d))
                 .abs()
                 .to_numpy()
             )
-            line2d_list_3 = gap_axis.semilogy(
+            dual_gap = gap_axis.semilogy(
                 outer_iteration_list,
                 gap_array_2d[:, 0],
                 label=r"$|f(x^{(k)})| - g(\lambda^{(k)})$:" " optimality certificate",
                 *args,
                 **kwargs,
             )
-            assert line2d_list_3 is not None
-            line2d_list_3.extend(
+            assert dual_gap is not None
+            dual_gap.extend(
                 gap_axis.semilogy(outer_iteration_list, gap_array_2d[:, 1:], *args, **kwargs)
             )
 
@@ -210,10 +180,11 @@ class OptimizationResultPlotter:
                 labelsize=self.major_ytick_label_font_size,
             )
 
-        return line2d_line_1, line2d_line_2, line2d_list_3
+        return primal_objs, dual_objs, dual_gap, primal_subopt, dual_subopt
 
-    # TODO (4) add method for drawing dual variable trajectories
     # TODO (2) add a method for drawing 3-d trajectories.
+    #  CANCELLED on 12-May-2024
+    # TODO (4) add method for drawing dual variable trajectories
     # TODO (3) add a method for drawing variable trajectories and
     #  (primal and/or dual) obj functions together.
 
@@ -244,7 +215,7 @@ class OptimizationResultPlotter:
         assert 0.0 < head_ratio < 1.0
 
         opt_iterate_list: list[OptimizationIterate]
-        _, opt_iterate_list = self._get_sorted_iteration_and_iterate()
+        _, opt_iterate_list = self.opt_res.iteration_iterate_list
         selected_opt_iterate_list: list[OptimizationIterate] = opt_iterate_list[
             :max_num_iterations_to_draw
         ]

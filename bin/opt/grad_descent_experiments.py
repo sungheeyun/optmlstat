@@ -17,8 +17,8 @@ from numpy import linalg as la
 
 from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
-from optmlstat.functions.function_base import FunctionBase
 from optmlstat.functions.example_functions import get_cvxopt_book_for_grad_method
+from optmlstat.functions.function_base import FunctionBase
 from optmlstat.linalg.utils import get_random_pos_def_array
 from optmlstat.opt.constants import LineSearchMethod
 from optmlstat.opt.opt_parameter import OptParams
@@ -47,32 +47,38 @@ def solve_and_draw(
     opt_res: OptResults = grad_descent.solve(
         opt_prob, opt_params, verbose, initial_x_array_2d=initial_x_2d
     )
+    opt_res.result_analysis(true_opt_val)
 
     figure: Figure = get_figure(
         1,
-        1,
+        2,
         axis_width=5.0,
         axis_height=5.0,
         top_margin=0.5,
         bottom_margin=0.5,
         vertical_padding=0.5,
     )
-    (ax,) = figure.get_axes()
+    ax, gap_ax = figure.get_axes()
 
     optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
     optimization_result_plotter.plot_primal_and_dual_objs(
-        ax, linestyle="-", marker="o", markersize=1.0, true_opt_val=true_opt_val
+        ax,
+        gap_ax,
+        true_opt_val,
+        linestyle="-",
+        marker="o",
+        markersize=100.0 / np.array(opt_res.num_iterations_list).mean(),
     )
 
     if trajectory:
         optimization_result_plotter.animate_primal_sol(
-            contour=contour, contour_xlim=contour_xlim, contour_ylim=contour_ylim, interval=0.0
+            contour=contour, contour_xlim=contour_xlim, contour_ylim=contour_ylim, interval=100.0
         )
 
 
 @click.command()
 @click.argument("problem", type=str)
-@click.option("-m", "--mute", is_flag=True, default=False, help="mute optimization processes")
+@click.option("-b", "--verbose", is_flag=True, default=False, help="verbose optimization processes")
 @click.option(
     "-t",
     "--trajectory",
@@ -80,7 +86,7 @@ def solve_and_draw(
     default=False,
     help="show animation of optimization variable trajectory",
 )
-def main(problem: str, mute: bool, trajectory: bool) -> None:
+def main(problem: str, verbose: bool, trajectory: bool) -> None:
     set_logging_basic_config(
         __file__, level=eval(f"logging.{os.environ.get('TEST_LOG_LEVEL', 'INFO')}")
     )
@@ -100,6 +106,7 @@ def main(problem: str, mute: bool, trajectory: bool) -> None:
     # type defs
     P: np.ndarray
     q: np.ndarray
+    r: float
 
     true_opt_val: float | None = None
     if problem == "cvxopt_book":
@@ -112,28 +119,30 @@ def main(problem: str, mute: bool, trajectory: bool) -> None:
         num_vars = 100
         P = get_random_pos_def_array(num_vars)
         q = nr.randn(num_vars)
-        obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], np.zeros(1))
+        r = 10.0
+        obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], r * np.ones(1))
         opt_params = OptParams(
             0.1,
-            300,
+            50,
             back_tracking_line_search_alpha=0.2,
             back_tracking_line_search_beta=0.9,
             tolerance_on_grad=10.0,
         )
-        true_opt_val = -np.dot(la.lstsq(P, q)[0], q) / 4.0
-    elif problem == "well-conditioned_quad":
+        true_opt_val = -np.dot(la.lstsq(P, q)[0], q) / 4.0 + r
+    elif problem == "conditioned-quad":
         num_vars = 100
-        P = get_random_pos_def_array(num_vars)
+        P = get_random_pos_def_array(np.logspace(-1, 1, num_vars))
         q = nr.randn(num_vars)
-        obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], np.zeros(1))
+        r = 100.0
+        obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], r * np.ones(1))
         opt_params = OptParams(
             0.1,
-            30,
+            20,
             back_tracking_line_search_alpha=0.2,
             back_tracking_line_search_beta=0.9,
-            tolerance_on_grad=10.0,
+            tolerance_on_grad=1e0,
         )
-        true_opt_val = -np.dot(la.lstsq(P, q)[0], q) / 4.0
+        true_opt_val = -np.dot(la.lstsq(P, q)[0], q) / 4.0 + r
     else:
         assert False, problem
 
@@ -145,7 +154,7 @@ def main(problem: str, mute: bool, trajectory: bool) -> None:
     solve_and_draw(
         opt_prob,
         opt_params,
-        not mute,
+        verbose,
         trajectory,
         initial_x_2d,
         contour=(num_vars == 2),

@@ -84,7 +84,7 @@ class TestGradDescent(unittest.TestCase):
         axis1, axis2 = figure.get_axes()
 
         optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
-        optimization_result_plotter.plot_primal_and_dual_objs(axis1, "-", gap_axis=axis2)
+        optimization_result_plotter.plot_primal_and_dual_objs(axis1, axis2, None, "-")
         # optimization_result_plotter.animate_primal_sol(interval=1000.0)
 
 
