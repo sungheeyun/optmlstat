@@ -78,7 +78,7 @@ def solve_and_draw(
         true_opt_val,
         linestyle="-",
         marker="o",
-        markersize=100.0 / np.array(opt_res.num_iterations_list).mean(),
+        markersize=min(100.0 / np.array(opt_res.num_iterations_list).mean(), 5.0),
     )
 
     if trajectory:
@@ -132,8 +132,8 @@ def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
     if problem == "cvxopt_book":
         obj_fcn = get_cvxopt_book_for_grad_method()
     elif problem == "lse":
-        num_vars = 2
-        num_terms: int = 10
+        num_vars = 1000
+        num_terms: int = 3000
         obj_fcn = LogSumExp([1e-1 * nr.randn(num_terms, num_vars)], 1e-1 * nr.randn(1, num_terms))
         data_lim = -3.0, 4.0
     elif problem == "quad":

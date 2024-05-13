@@ -45,20 +45,18 @@ class MultiAxesAnimation(animation.TimedAnimation):
 
         # TODO (2) control color, line width, etc. using constructor arguments.
 
-        self.figure: Figure = figure
-        self.axis_list: List[Axes] = axis_list
         self.name_line2d_dict_list: List[Dict[str, Line2D]] = [
             dict(
                 line1=Line2D([], [], color="black", linewidth=1, alpha=0.5),
                 line1a=Line2D([], [], color="red", linewidth=1, alpha=0.8),
                 line1e=Line2D([], [], color="red", marker="o", markeredgecolor="r", markersize=4),
             )
-            for _ in self.axis_list
+            for _ in axis_list
         ]
 
         axis_interval_dict: Dict[Axes, Tuple[Interval, Interval]] = dict()
 
-        for axis_idx, axis in enumerate(self.axis_list):
+        for axis_idx, axis in enumerate(axis_list):
             for line2d in self.name_line2d_dict_list[axis_idx].values():
                 axis.add_line(line2d)
 
