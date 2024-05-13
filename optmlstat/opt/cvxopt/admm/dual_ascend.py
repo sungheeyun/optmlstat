@@ -1,6 +1,10 @@
-from typing import Optional
+"""
+dual ascend as described in ADMM paper by Boyd
+"""
+
 from logging import Logger, getLogger
 
+import numpy as np
 from numpy import ndarray, newaxis
 
 from optmlstat.functions.function_base import FunctionBase
@@ -39,9 +43,12 @@ class DualAscend(OptAlgBase):
         self,
         opt_prob: OptProb,
         opt_param: OptParams,
-        initial_x_array_2d: Optional[ndarray] = None,
-        initial_lambda_array_2d: Optional[ndarray] = None,
-        initial_nu_array_2d: Optional[ndarray] = None,
+        verbose: bool,
+        /,
+        *,
+        initial_x_array_2d: np.ndarray,
+        initial_lambda_array_2d: np.ndarray | None = None,
+        initial_nu_array_2d: np.ndarray | None = None,
     ) -> OptResults:
         """
         This only deals with a single objective optimization problem
@@ -67,6 +74,8 @@ class DualAscend(OptAlgBase):
          The optimization problem to solve.
         opt_param:
          Optimization parameter
+        verbose:
+         verbose
         initial_x_array_2d:
          N-by-n array representing initial points for x.
         initial_lambda_array_2d:

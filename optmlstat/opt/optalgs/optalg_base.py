@@ -1,5 +1,11 @@
+"""
+base class for optimization algorithms
+"""
+
 from abc import abstractmethod
 from typing import Any
+
+import numpy as np
 
 from optmlstat.basic_modules.class_base import OMSClassBase
 from optmlstat.opt.opt_prob import OptProb
@@ -12,23 +18,16 @@ class OptAlgBase(OMSClassBase):
     """
 
     @abstractmethod
-    def solve(self, opt_prob: OptProb, opt_param: OptParams, *args, **kwargs) -> Any:
-        """
-        Solve the optimization problem.
-
-        Parameters
-        ----------
-        opt_param
-        opt_prob:
-         OptimizationProblem instance
-        initial_point_or_list:
-         If is ndarray, it is the initial point of a sequential method.
-         If is list of ndarray, it is the initial points of decentralized or distributed algorithm
-         or evolutionary algorithm.
-
-        Returns
-        -------
-        optimization_result:
-         OptimizationResult instance
-        """
+    def solve(
+        self,
+        opt_prob: OptProb,
+        opt_param: OptParams,
+        verbose: bool,
+        /,
+        *,
+        initial_x_array_2d: np.ndarray,
+        initial_lambda_array_2d: np.ndarray | None = None,
+        initial_nu_array_2d: np.ndarray | None = None,
+        **kwargs,
+    ) -> Any:
         pass
