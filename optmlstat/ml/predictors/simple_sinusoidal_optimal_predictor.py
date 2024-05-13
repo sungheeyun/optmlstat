@@ -27,7 +27,7 @@ class SimpleSinusoidalOptimalPredictor(FunctionBase):
         return False
 
     @property
-    def is_convex(self) -> Optional[bool]:
+    def is_convex(self) -> bool:
         return False
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:

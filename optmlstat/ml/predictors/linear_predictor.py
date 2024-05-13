@@ -14,18 +14,12 @@ class LinearPredictor(FunctionBase):
         self.coef: ndarray = coef
         self.basis_function: FunctionBase = basis_function
 
-        self._is_affine: Optional[bool] = (
-            True if self.basis_function.is_affine else None
-        )
+        self._is_affine: Optional[bool] = True if self.basis_function.is_affine else None
         self._is_convex: Optional[bool] = (
-            True
-            if self.basis_function.is_convex and (coef >= 0.0).all()
-            else None
+            True if self.basis_function.is_convex and (coef >= 0.0).all() else None
         )
         self._is_strictly_convex: Optional[bool] = (
-            True
-            if self.basis_function.is_strictly_convex and (coef > 0.0).all()
-            else None
+            True if self.basis_function.is_strictly_convex and (coef > 0.0).all() else None
         )
 
     @property
@@ -45,7 +39,7 @@ class LinearPredictor(FunctionBase):
         return self._is_strictly_convex
 
     @property
-    def is_convex(self) -> Optional[bool]:
+    def is_convex(self) -> bool:
         return self._is_convex
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:

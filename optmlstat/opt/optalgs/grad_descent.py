@@ -104,5 +104,5 @@ class GradDescent(OptAlgBase):
     def satisfy_stopping_criteria(jac: np.ndarray, opt_param: OptParams) -> np.ndarray:
         assert jac is not None
         assert jac.shape[1] == 1, jac.shape
-        print(np.sqrt((jac.squeeze(axis=1) ** 2).sum(axis=1)))
+        # print(np.sqrt((jac.squeeze(axis=1) ** 2).sum(axis=1)))
         return np.sqrt((jac.squeeze(axis=1) ** 2).sum(axis=1)) < opt_param.tolerance_on_grad

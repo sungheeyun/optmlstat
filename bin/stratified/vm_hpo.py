@@ -52,7 +52,7 @@ class SquareSum(Fcn):
         self.center: np.ndarray = center_array_1d.copy()
 
     def eval(self, x_array_1d: np.ndarray) -> float:
-        return 0.5 * np.linalg.norm(x_array_1d - self.center) ** 2.0
+        return float(0.5 * np.linalg.norm(x_array_1d - self.center) ** 2.0)
 
     @property
     def num_vars(self) -> int:
@@ -116,7 +116,7 @@ class ObjFcn(Loss):
         assert nu.shape == warm_start.shape, (nu.shape, warm_start.shape)
 
         prox_list: tp.List[np.ndarray]
-        num_processes: int = pool._processes
+        num_processes: int = pool._processes  # type:ignore
         if num_processes == 1:
             prox_list = list()
             for idx, x in enumerate(nu):

@@ -29,6 +29,7 @@ class OptResults(OMSClassBase):
         primal_prob_evaluation: OptProbEval,
         dual_prob_evaluation: OptProbEval | None = None,
         terminated: np.ndarray | None = None,
+        verbose: bool = False,
     ) -> None:
         assert iteration not in self._iter_iterate_dict
 
@@ -40,9 +41,10 @@ class OptResults(OMSClassBase):
         )
 
         logger.info(f"iter: {iteration.outer_iteration}/{iteration.inner_iteration}")
-        logger.info(f"\tterminated: {terminated}")
-        logger.info(f"\tprimal: {primal_prob_evaluation}")
-        logger.info(f"\tdual: {dual_prob_evaluation}")
+        if verbose:
+            logger.info(f"\tterminated: {terminated}")
+            logger.info(f"\tprimal: {primal_prob_evaluation}")
+            logger.info(f"\tdual: {dual_prob_evaluation}")
 
     @property
     def opt_prob(self) -> OptProb:

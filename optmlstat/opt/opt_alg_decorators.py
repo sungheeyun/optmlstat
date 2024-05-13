@@ -69,10 +69,7 @@ def solver(func: Callable) -> Callable:
             initial_lambda_array_2d is None
             or initial_lambda_array_2d.shape[1] == opt_prob.num_ineq_cnst
         )
-        assert (
-            initial_nu_array_2d is None
-            or initial_nu_array_2d.shape[1] == opt_prob.num_eq_cnst
-        )
+        assert initial_nu_array_2d is None or initial_nu_array_2d.shape[1] == opt_prob.num_eq_cnst
 
         return func(
             self,
@@ -94,9 +91,7 @@ def convex_solver(func: Callable) -> Callable:
     """
 
     @wraps(func)
-    def convex_solver_wrapper(
-        self: OptAlgBase, opt_prob: OptProb, *args, **kwargs
-    ) -> OptResults:
+    def convex_solver_wrapper(self: OptAlgBase, opt_prob: OptProb, *args, **kwargs) -> OptResults:
         assert opt_prob.is_convex
 
         return func(self, opt_prob, *args, **kwargs)
@@ -127,9 +122,7 @@ def eq_cnst_solver(func: Callable) -> Callable:
     """
 
     @wraps(func)
-    def eq_cnst_solver_wrapper(
-        self: OptAlgBase, opt_prob: OptProb, *args, **kwargs
-    ) -> OptResults:
+    def eq_cnst_solver_wrapper(self: OptAlgBase, opt_prob: OptProb, *args, **kwargs) -> OptResults:
         assert opt_prob.obj_fcn is not None
         assert opt_prob.ineq_cnst_fcn is None
         assert opt_prob.eq_cnst_fcn is not None
@@ -179,6 +172,7 @@ def differentiable_obj_required_solver(func: Callable) -> Callable:
     def differentiable_obj_required_solver_wrapper(
         self: OptAlgBase, opt_prob: OptProb, *args, **kwargs
     ) -> OptResults:
+        assert opt_prob.obj_fcn is not None
         assert opt_prob.obj_fcn.is_differentiable
         return func(self, opt_prob, *args, **kwargs)
 

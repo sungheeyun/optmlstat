@@ -1,4 +1,9 @@
+"""
+quadratic functions
+"""
+
 from __future__ import annotations
+
 from logging import Logger, getLogger
 
 import numpy as np
@@ -6,7 +11,6 @@ from numpy import ndarray, vstack, array, stack
 from numpy.linalg import eig, inv, solve
 
 from optmlstat.functions.function_base import FunctionBase
-
 
 logger: Logger = getLogger()
 
@@ -83,24 +87,30 @@ class QuadraticFunction(FunctionBase):
             intercept_array_1d.shape,
         )
 
-        self.quad_array_3d: ndarray = None if quad_array_3d is None else quad_array_3d.copy()
+        self.quad_array_3d: ndarray | None = None if quad_array_3d is None else quad_array_3d.copy()
         self.slope_array_2d: ndarray = slope_array_2d.copy()
         self.intercept_array_1d: ndarray = intercept_array_1d.copy()
 
-        self._is_affine: bool = (self.quad_array_3d == 0.0).all()
+        self._is_affine: bool = (
+            True if self.quad_array_3d is None else (self.quad_array_3d == 0.0).all()
+        )
         self._is_convex: bool
         self._is_strictly_convex: bool
         self._is_concave: bool
         self._is_strictly_concave: bool
 
-        (
-            self._is_convex,
-            self._is_strictly_convex,
-        ) = self.test_convexity(self.quad_array_3d)
-        (
-            self._is_concave,
-            self._is_strictly_concave,
-        ) = self.test_convexity(-self.quad_array_3d)
+        if self.quad_array_3d is None:
+            self._is_convex = self._is_concave = True
+            self._is_strictly_convex = self._is_strictly_concave = True
+        else:
+            (
+                self._is_convex,
+                self._is_strictly_convex,
+            ) = self.test_convexity(self.quad_array_3d)
+            (
+                self._is_concave,
+                self._is_strictly_concave,
+            ) = self.test_convexity(-self.quad_array_3d)
 
     @property
     def num_inputs(self) -> int:
@@ -146,6 +156,7 @@ class QuadraticFunction(FunctionBase):
         the conjugate is :math:`(z^T P^{-1} z - 2 q^T P^{-1} z + q^T P^{-1} q)/4 - r`.
         """
         assert self.is_strictly_convex
+        assert self.quad_array_3d is not None
 
         conjugate_quad_array_3d: ndarray = ndarray(shape=self.quad_array_3d.shape, dtype=float)
         conjugate_slope_array_1d_list: list[ndarray] = list()
@@ -191,6 +202,7 @@ class QuadraticFunction(FunctionBase):
 
         x_array_2d_list: list[ndarray] = list()
 
+        assert self.quad_array_3d is not None
         for idx3 in range(self.quad_array_3d.shape[2]):
             p_array_2d: ndarray = self.quad_array_3d[:, :, idx3]
             q_array_1d: ndarray = self.slope_array_2d[:, idx3]

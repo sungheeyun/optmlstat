@@ -9,23 +9,22 @@ from logging import getLogger, Logger
 import click
 import numpy as np
 import numpy.random as nr
-from numpy import linalg as la
 from freq_used.logging_utils import set_logging_basic_config
 from freq_used.plotting import get_figure
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
+from numpy import linalg as la
 
-from optmlstat.functions.basic_functions.identity_function import IdentityFunction
 from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
 from optmlstat.functions.function_base import FunctionBase
+from optmlstat.linalg.utils import get_random_pos_def_array
 from optmlstat.opt.constants import LineSearchMethod
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
 from optmlstat.opt.optalgs.grad_descent import GradDescent
 from optmlstat.plotting.opt_res_plotter import OptimizationResultPlotter
-from optmlstat.linalg.utils import get_random_pos_def_array
 
 logger: Logger = getLogger()
 
@@ -34,10 +33,14 @@ def solve_and_draw(
     opt_prob: OptProb,
     opt_params: OptParams,
     initial_x_2d: np.ndarray,
+    /,
+    *,
     contour: bool,
     contour_xlim: tuple[float, float],
     contour_ylim: tuple[float, float],
     true_opt_val: float | None = None,
+    verbose: bool = True,
+    x_trajectory: bool = True,
 ) -> None:
     grad_descent: GradDescent = GradDescent(LineSearchMethod.BackTrackingLineSearch)
     opt_res: OptResults = grad_descent.solve(opt_prob, opt_params, initial_x_2d)
@@ -55,11 +58,13 @@ def solve_and_draw(
 
     optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
     optimization_result_plotter.plot_primal_and_dual_objs(
-        ax, linestyle="-", marker="o", markersize=1.0, true_opt_val=true_opt_val
+        ax, linestyle="-", marker="o", markersize=1.0, true_opt_val=true_opt_val, verbose=verbose
     )
-    # optimization_result_plotter.animate_primal_sol(
-    #     contour=contour, contour_xlim=contour_xlim, contour_ylim=contour_ylim, interval=0.0
-    # )
+
+    if x_trajectory:
+        optimization_result_plotter.animate_primal_sol(
+            contour=contour, contour_xlim=contour_xlim, contour_ylim=contour_ylim, interval=0.0
+        )
 
 
 @click.command()
@@ -71,7 +76,7 @@ def main(problem: str) -> None:
 
     num_data_points: int = 10
     data_lim: tuple[float, float] = -3.0, 3.0
-    obj_fcn: FunctionBase = IdentityFunction()
+    obj_fcn: FunctionBase
     num_vars: int = 2
     opt_params: OptParams = OptParams(
         0.1,
@@ -80,6 +85,10 @@ def main(problem: str) -> None:
         back_tracking_line_search_beta=0.9,
         tolerance_on_grad=0.01,
     )
+
+    # type defs
+    P: np.ndarray
+    q: np.ndarray
 
     true_opt_val: float | None = None
     if problem == "cvxopt_book":
@@ -90,8 +99,21 @@ def main(problem: str) -> None:
         obj_fcn = LogSumExp([0.1 * nr.randn(num_terms, num_vars)], 0.1 * nr.randn(1, num_terms))
     elif problem == "quad":
         num_vars = 100
-        P: np.ndarray = get_random_pos_def_array(num_vars)
-        q: np.ndarray = nr.randn(num_vars)
+        P = get_random_pos_def_array(num_vars)
+        q = nr.randn(num_vars)
+        obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], np.zeros(1))
+        opt_params = OptParams(
+            0.1,
+            300,
+            back_tracking_line_search_alpha=0.2,
+            back_tracking_line_search_beta=0.9,
+            tolerance_on_grad=10.0,
+        )
+        true_opt_val = -np.dot(la.lstsq(P, q)[0], q) / 4.0
+    elif problem == "well-conditioned_quad":
+        num_vars = 100
+        P = get_random_pos_def_array(num_vars)
+        q = nr.randn(num_vars)
         obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], np.zeros(1))
         opt_params = OptParams(
             0.1,
@@ -113,9 +135,9 @@ def main(problem: str) -> None:
         opt_prob,
         opt_params,
         initial_x_2d,
-        num_vars == 2,
-        data_lim,
-        data_lim,
+        contour=(num_vars == 2),
+        contour_xlim=data_lim,
+        contour_ylim=data_lim,
         true_opt_val=true_opt_val,
     )
     plt.show()

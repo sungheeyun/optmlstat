@@ -1,4 +1,6 @@
-from typing import Optional
+"""
+identity function
+"""
 
 import numpy as np
 from numpy import ndarray
@@ -7,11 +9,12 @@ from optmlstat.functions.function_base import FunctionBase
 
 
 class IdentityFunction(FunctionBase):
+
+    def __init__(self, num_vars: int) -> None:
+        self.num_vars: int = num_vars
+
     def jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
-
-    def __init__(self):
-        super().__init__()
 
     @property
     def is_strictly_concave(self) -> bool:
@@ -33,23 +36,23 @@ class IdentityFunction(FunctionBase):
         raise NotImplementedError()
 
     @property
-    def num_inputs(self) -> Optional[int]:
-        return None
+    def num_inputs(self) -> int:
+        return self.num_vars
 
     @property
-    def num_outputs(self) -> Optional[int]:
-        return None
+    def num_outputs(self) -> int:
+        return self.num_vars
 
     @property
-    def is_affine(self) -> Optional[bool]:
+    def is_affine(self) -> bool:
         return True
 
     @property
-    def is_strictly_convex(self) -> Optional[bool]:
+    def is_strictly_convex(self) -> bool:
         return False
 
     @property
-    def is_convex(self) -> Optional[bool]:
+    def is_convex(self) -> bool:
         return True
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:

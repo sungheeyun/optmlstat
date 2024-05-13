@@ -62,6 +62,7 @@ class OptimizationResultPlotter:
     ) -> tuple[list[Line2D], list[Line2D] | None, list[Line2D] | None]:
         gap_axis: Axes | None = kwargs.pop("gap_axis", None)
         true_opt_val: float | None = kwargs.pop("true_opt_val", None)
+        verbose: bool = kwargs.pop("verbose", True)
 
         iteration_list: list[Iteration]
         opt_iterate_list: list[OptimizationIterate]
@@ -87,7 +88,8 @@ class OptimizationResultPlotter:
             ~np.vstack([opt_iterate.terminated for opt_iterate in opt_iterate_list])
         ).sum(axis=0) + 1
 
-        logger.info(f"num_iters: {num_iterations_list}")
+        logger.info(f"# iters: {num_iterations_list}")
+        logger.info(f"avg # iters: {np.array(num_iterations_list).mean()}")
 
         for iter_idx, opt_iterate in enumerate(opt_iterate_list):
             iteration = iteration_list[iter_idx]

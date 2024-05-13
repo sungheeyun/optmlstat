@@ -1,5 +1,8 @@
+"""
+affine functions
+"""
+
 from logging import Logger, getLogger
-from typing import Optional
 
 import numpy as np
 from numpy import ndarray
@@ -53,31 +56,31 @@ class AffineFunction(FunctionBase):
         return self.intercept_array_1d
 
     @property
-    def num_inputs(self) -> Optional[int]:
+    def num_inputs(self) -> int:
         return self.slope_array_2d.shape[0]
 
     @property
-    def num_outputs(self) -> Optional[int]:
+    def num_outputs(self) -> int:
         return self.slope_array_2d.shape[1]
 
     @property
-    def is_affine(self) -> Optional[bool]:
+    def is_affine(self) -> bool:
         return True
 
     @property
-    def is_strictly_convex(self) -> Optional[bool]:
+    def is_strictly_convex(self) -> bool:
         return False
 
     @property
-    def is_convex(self) -> Optional[bool]:
+    def is_convex(self) -> bool:
         return True
 
     @property
-    def is_strictly_concave(self) -> Optional[bool]:
+    def is_strictly_concave(self) -> bool:
         return False
 
     @property
-    def is_concave(self) -> Optional[bool]:
+    def is_concave(self) -> bool:
         return True
 
     @property

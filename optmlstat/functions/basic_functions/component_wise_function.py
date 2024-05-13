@@ -1,4 +1,8 @@
-from typing import Callable, Iterable, Union, List, Optional
+"""
+component-wise function
+"""
+
+from typing import Callable, Iterable
 
 from numpy import ndarray, vectorize, vstack
 
@@ -12,11 +16,11 @@ class ComponentWiseFunction(FunctionBase):
     f(x) = [f1(x1) f2(x2) ... fn(xn)]^T
     """
 
-    def __init__(self, unit_fcn_or_list: Union[Callable, Iterable]) -> None:
-        self.unit_fcn: Optional[Callable] = None
-        self.unit_fcn_list: Optional[List[Callable]] = None
-        self.vectorize_fcn: Optional[vectorize] = None
-        self.vectorize_fcn_list: Optional[List[vectorize]] = None
+    def __init__(self, unit_fcn_or_list: Callable | Iterable) -> None:
+        self.unit_fcn: Callable | None = None
+        self.unit_fcn_list: list[Callable] | None = None
+        self.vectorize_fcn: vectorize | None = None
+        self.vectorize_fcn_list: list[vectorize] | None = None
 
         if callable(unit_fcn_or_list):
             self.unit_fcn = unit_fcn_or_list
@@ -27,28 +31,28 @@ class ComponentWiseFunction(FunctionBase):
         else:
             assert False, unit_fcn_or_list.__class__
 
-        self._num_inputs: Optional[int] = (
+        self._num_inputs: int | None = (
             None if self.unit_fcn_list is None else len(self.unit_fcn_list)
         )
 
     @property
-    def num_inputs(self) -> Optional[int]:
+    def num_inputs(self) -> int:
         return self._num_inputs
 
     @property
-    def num_outputs(self) -> Optional[int]:
+    def num_outputs(self) -> int:
         return self._num_inputs
 
     @property
-    def is_affine(self) -> Optional[bool]:
+    def is_affine(self) -> bool:
         return None
 
     @property
-    def is_strictly_convex(self) -> Optional[bool]:
+    def is_strictly_convex(self) -> bool:
         return None
 
     @property
-    def is_convex(self) -> Optional[bool]:
+    def is_convex(self) -> bool:
         return None
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:

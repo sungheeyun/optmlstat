@@ -105,13 +105,11 @@ class FunctionBase(OMSClassBase):
 
         Parameters
         ----------
-        x_array_2d:
-          N-by-n np.array representing x.
+        x_array_2d: N-by-n np.array representing x.
 
         Returns
         -------
-        y_array_2d:
-          N-by-m np.array representing y.
+        y_array_2d: N-by-m np.array representing y.
         """
         pass
 

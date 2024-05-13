@@ -107,17 +107,11 @@ class OptProb(OMSClassBase):
         return dict(
             class_category="OptimizationProblem",
             obj_fcn=None if self.obj_fcn is None else self.obj_fcn.to_json_data(),
-            eq_cnst=(
-                None if self.eq_cnst_fcn is None else self.eq_cnst_fcn.to_json_data()
-            ),
-            ineq_cnst=(
-                None
-                if self.ineq_cnst_fcn is None
-                else self.ineq_cnst_fcn.to_json_data()
-            ),
+            eq_cnst=(None if self.eq_cnst_fcn is None else self.eq_cnst_fcn.to_json_data()),
+            ineq_cnst=(None if self.ineq_cnst_fcn is None else self.ineq_cnst_fcn.to_json_data()),
         )
 
-    def evaluate(self, x_array_2d: ndarray | None = None) -> OptProbEval:
+    def evaluate(self, x_array_2d: ndarray) -> OptProbEval:
 
         obj_fcn_jac_3d: ndarray | None = (
             None if self.obj_fcn is None else self.obj_fcn.jacobian(x_array_2d)
@@ -127,15 +121,11 @@ class OptProb(OMSClassBase):
             opt_prob=self,
             x_array_2d=x_array_2d.copy(),
             obj_fcn_array_2d=(
-                None
-                if self.obj_fcn is None
-                else self.obj_fcn.get_y_values_2d(x_array_2d)
+                None if self.obj_fcn is None else self.obj_fcn.get_y_values_2d(x_array_2d)
             ),
             obj_fcn_jac_3d=obj_fcn_jac_3d,
             eq_cnst_array_2d=(
-                None
-                if self.eq_cnst_fcn is None
-                else self.eq_cnst_fcn.get_y_values_2d(x_array_2d)
+                None if self.eq_cnst_fcn is None else self.eq_cnst_fcn.get_y_values_2d(x_array_2d)
             ),
             ineq_cnst_array_2d=(
                 None

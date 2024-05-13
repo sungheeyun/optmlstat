@@ -1,4 +1,6 @@
-from typing import List, Optional, Union
+"""
+
+"""
 
 from numpy import ndarray, array, vstack, zeros, exp
 from numpy.linalg import inv
@@ -15,15 +17,15 @@ class GaussianBasisFunction(FunctionBase):
 
     def __init__(
         self,
-        covariance_list: Union[List[Union[ndarray, float, int]], ndarray, float, int],
-        mean_array_2d: Optional[ndarray] = None,
+        covariance_list: list[ndarray | float | int] | ndarray | float | int,
+        mean_array_2d: ndarray | None = None,
         inverse: bool = False,
     ) -> None:
         """
         Parameters
         ----------
         covariance_list:
-          List of covariance matrices
+          list of covariance matrices
         inverse:
           If inverse is True, covariance_list is interpreted
           as a list of the inverses of the covariance matrices.
@@ -51,7 +53,7 @@ class GaussianBasisFunction(FunctionBase):
                 covariance.shape,
             )
 
-        self.covariance_list: List[ndarray] = covariance_list
+        self.covariance_list: list[ndarray] = covariance_list
 
         self.mean_array_2d: ndarray = mean_array_2d
 
@@ -60,32 +62,32 @@ class GaussianBasisFunction(FunctionBase):
 
         assert self.mean_array_2d.shape == (self.num_outputs, self.num_inputs)
 
-        self.inverse_covariance_list: List[ndarray] = self.covariance_list
+        self.inverse_covariance_list: list[ndarray] = self.covariance_list
         if not inverse:
             self.inverse_covariance_list = [inv(covariance) for covariance in self.covariance_list]
 
     @property
-    def num_inputs(self) -> Optional[int]:
+    def num_inputs(self) -> int:
         return self.covariance_list[0].shape[0]
 
     @property
-    def num_outputs(self) -> Optional[int]:
+    def num_outputs(self) -> int:
         return len(self.covariance_list)
 
     @property
-    def is_affine(self) -> Optional[bool]:
+    def is_affine(self) -> bool:
         return False
 
     @property
-    def is_strictly_convex(self) -> Optional[bool]:
+    def is_strictly_convex(self) -> bool:
         return False
 
     @property
-    def is_convex(self) -> Optional[bool]:
+    def is_convex(self) -> bool:
         return False
 
     def get_y_values_2d(self, x_array_2d: ndarray) -> ndarray:
-        y_array_1d_list: List[ndarray] = list()
+        y_array_1d_list: list[ndarray] = list()
 
         for idx, inverse_covariance in enumerate(self.inverse_covariance_list):
             x_array_2d_ = x_array_2d - self.mean_array_2d[idx, :]
