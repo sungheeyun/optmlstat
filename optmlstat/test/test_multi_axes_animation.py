@@ -33,8 +33,9 @@ class TestMultiAxesAnimation(unittest.TestCase):
         y_array_2d: ndarray = vstack([y_array_1d, z_array_1d, z_array_1d]).T
 
         subplot_animation: MultiAxesAnimation = MultiAxesAnimation(
-            figure=fig,
-            axis_list=[ax1, ax2, ax3],
+            fig,
+            [ax1, ax2, ax3],
+            [ax1],
             time_array_1d=t_array_1d,
             x_array_2d=x_array_2d,
             y_array_2d=y_array_2d,

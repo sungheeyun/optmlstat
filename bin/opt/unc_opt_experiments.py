@@ -92,6 +92,7 @@ def solve_and_draw(
     if trajectory:
         optimization_result_plotter.animate_primal_sol(
             trajectory_ax,
+            [ax, gap_ax],
             contour=contour,
             contour_xlim=contour_xlim,
             contour_ylim=contour_ylim,
@@ -126,7 +127,7 @@ def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
     num_vars: int = 2
     opt_params: OptParams = OptParams(
         0.1,
-        1000,
+        100,
         back_tracking_line_search_alpha=0.2,
         back_tracking_line_search_beta=0.5,
         tolerance_on_grad=1e-2,

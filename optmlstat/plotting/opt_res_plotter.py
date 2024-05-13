@@ -189,6 +189,7 @@ class OptimizationResultPlotter:
     def animate_primal_sol(
         self,
         ax: Axes,
+        iter_axes: list[Axes],
         /,
         *,
         head_ratio: float = 0.1,
@@ -202,6 +203,8 @@ class OptimizationResultPlotter:
         ----------
         ax:
          Axes
+        iter_axes:
+         Axes to iteration plots
         head_ratio:
          the ratio of the head part when drawing the trajectory
         max_num_iterations_to_draw:
@@ -240,6 +243,7 @@ class OptimizationResultPlotter:
         multi_axes_animation: MultiAxesAnimation = MultiAxesAnimation(
             ax.get_figure(),  # type:ignore
             [ax] * x_array_2d.shape[1],
+            iter_axes,
             time_array_1d,
             x_array_2d,
             y_array_2d,
