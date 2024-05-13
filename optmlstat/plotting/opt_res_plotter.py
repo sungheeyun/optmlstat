@@ -190,7 +190,7 @@ class OptimizationResultPlotter:
 
     # TODO (4) add arguments for selection of variables to draw
     def animate_primal_sol(
-        self, head_ratio: float = 0.3, max_num_iterations_to_draw: int = 1000000, **kwargs
+        self, head_ratio: float = 0.1, max_num_iterations_to_draw: int = 1000000, **kwargs
     ) -> MultiAxesAnimation:
         """
         Create animation for primal solution trajectories.

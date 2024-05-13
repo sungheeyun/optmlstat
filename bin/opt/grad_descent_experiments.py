@@ -72,7 +72,10 @@ def solve_and_draw(
 
     if trajectory:
         optimization_result_plotter.animate_primal_sol(
-            contour=contour, contour_xlim=contour_xlim, contour_ylim=contour_ylim, interval=100.0
+            contour=contour,
+            contour_xlim=contour_xlim,
+            contour_ylim=contour_ylim,
+            interval=3e3 / np.array(opt_res.num_iterations_list).mean(),
         )
 
 
@@ -100,7 +103,7 @@ def main(problem: str, verbose: bool, trajectory: bool) -> None:
         1000,
         back_tracking_line_search_alpha=0.2,
         back_tracking_line_search_beta=0.9,
-        tolerance_on_grad=0.01,
+        tolerance_on_grad=1e-3,
     )
 
     # type defs
@@ -112,9 +115,9 @@ def main(problem: str, verbose: bool, trajectory: bool) -> None:
     if problem == "cvxopt_book":
         obj_fcn = get_cvxopt_book_for_grad_method()
     elif problem == "lse":
-        num_vars = 100
-        num_terms: int = 10
-        obj_fcn = LogSumExp([0.1 * nr.randn(num_terms, num_vars)], 0.1 * nr.randn(1, num_terms))
+        num_vars = 10
+        num_terms: int = 5
+        obj_fcn = LogSumExp([1e-1 * nr.randn(num_terms, num_vars)], 1e-1 * nr.randn(1, num_terms))
     elif problem == "quad":
         num_vars = 100
         P = get_random_pos_def_array(num_vars)
@@ -131,13 +134,13 @@ def main(problem: str, verbose: bool, trajectory: bool) -> None:
         true_opt_val = -np.dot(la.lstsq(P, q)[0], q) / 4.0 + r
     elif problem == "conditioned-quad":
         num_vars = 100
-        P = get_random_pos_def_array(np.logspace(-1, 1, num_vars))
+        P = get_random_pos_def_array(np.logspace(-2, 2, num_vars))
         q = nr.randn(num_vars)
         r = 100.0
         obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], r * np.ones(1))
         opt_params = OptParams(
             0.1,
-            20,
+            300,
             back_tracking_line_search_alpha=0.2,
             back_tracking_line_search_beta=0.9,
             tolerance_on_grad=1e0,
