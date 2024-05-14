@@ -90,6 +90,7 @@ def solve_and_draw(
         markersize=min(100.0 / np.array(opt_res.num_iterations_list).mean(), 5.0),
     )
 
+    assert opt_res.solve_time is not None
     optimization_result_plotter.animate_primal_sol(
         trajectory_ax,
         [ax, gap_ax],
