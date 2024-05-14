@@ -50,7 +50,7 @@ def solver(func: Callable) -> Callable:
         logger.debug(initial_nu_array_2d.__class__)
 
         if initial_x_array_2d is None:
-            initial_x_array_2d = randn(1, opt_prob.domain_dim)
+            initial_x_array_2d = randn(1, opt_prob.dim_domain)
 
         if opt_prob.num_ineq_cnst > 0 and initial_lambda_array_2d is None:
             initial_lambda_array_2d = randn(1, opt_prob.num_ineq_cnst)
@@ -67,7 +67,7 @@ def solver(func: Callable) -> Callable:
             or initial_x_array_2d.shape[0] == initial_nu_array_2d.shape[0]
         )
 
-        assert initial_x_array_2d.shape[1] == opt_prob.domain_dim
+        assert initial_x_array_2d.shape[1] == opt_prob.dim_domain
         assert (
             initial_lambda_array_2d is None
             or initial_lambda_array_2d.shape[1] == opt_prob.num_ineq_cnst

@@ -20,3 +20,12 @@ def get_random_pos_def_array(size_or_array_1d: int | np.ndarray) -> np.ndarray:
         assert False, size_or_array_1d.__class__
 
     return res
+
+
+def get_random_orthogonal_array(num: int) -> np.ndarray:
+    """
+    name comes from linear algebra term, "orthogonal matrix",
+    which is a matrix whose column (or equivalently row) vectors
+    are ortho*normal*!
+    """
+    return ortho_group.rvs(dim=num)

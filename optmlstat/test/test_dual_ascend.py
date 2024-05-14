@@ -123,7 +123,7 @@ class TestDualAscend(unittest.TestCase):
 
         # solve by dual ascend
 
-        initial_x_point_2d: ndarray = randn(num_data_points, opt_prob.domain_dim)
+        initial_x_point_2d: ndarray = randn(num_data_points, opt_prob.dim_domain)
         initial_nu_point_2d: ndarray = randn(num_data_points, opt_prob.num_eq_cnst)
 
         dual_ascend: DualAscend = DualAscend()

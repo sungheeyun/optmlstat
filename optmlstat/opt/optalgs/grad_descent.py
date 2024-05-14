@@ -44,7 +44,7 @@ class GradDescent(UnconstrainedOptAlgBase):
     ) -> np.ndarray:
         assert jac is not None
         assert jac.shape[1] == 1, jac.shape
-        return np.sqrt((jac.squeeze(axis=1) ** 2).sum(axis=1)) < opt_param.tolerance_on_grad
+        return (jac.squeeze(axis=1) ** 2).sum(axis=1) < opt_param.tolerance_on_grad
 
     @property
     def need_hessian(self) -> bool:

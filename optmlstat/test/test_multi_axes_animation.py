@@ -7,7 +7,9 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib import pyplot as plt
 
-from optmlstat.plotting.multi_axes_animation import MultiAxesAnimation
+from optmlstat.plotting.trajectory_obj_val_progress_animation import (
+    TrajectoryObjValProgressAnimation,
+)
 
 OUTPUT_DIR: str = os.path.join(os.curdir, "output")
 
@@ -32,7 +34,7 @@ class TestMultiAxesAnimation(unittest.TestCase):
         x_array_2d: ndarray = vstack([x_array_1d, y_array_1d, x_array_1d]).T
         y_array_2d: ndarray = vstack([y_array_1d, z_array_1d, z_array_1d]).T
 
-        subplot_animation: MultiAxesAnimation = MultiAxesAnimation(
+        subplot_animation: TrajectoryObjValProgressAnimation = TrajectoryObjValProgressAnimation(
             fig,
             [ax1, ax2, ax3],
             [ax1],

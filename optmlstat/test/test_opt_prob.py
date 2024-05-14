@@ -26,21 +26,13 @@ class TestOptimizationProblem(unittest.TestCase):
         set_logging_basic_config(__file__)
 
     def test_something(self):
-        obj_fcn: QuadraticFunction = get_sum_of_square_function(
-            TestOptimizationProblem.num_inputs
-        )
-        eq_cnst_fcn: AffineFunction = get_sum_function(
-            TestOptimizationProblem.num_inputs, -1.0
-        )
+        obj_fcn: QuadraticFunction = get_sum_of_square_function(TestOptimizationProblem.num_inputs)
+        eq_cnst_fcn: AffineFunction = get_sum_function(TestOptimizationProblem.num_inputs, -1.0)
 
         optimization_problem: OptProb = OptProb(obj_fcn, eq_cnst_fcn)
 
-        logger.info(
-            f"optimization_problem.domain_dim: {optimization_problem.domain_dim}"
-        )
-        logger.info(
-            f"optimization_problem.is_convex: {optimization_problem._is_convex}"
-        )
+        logger.info(f"optimization_problem.domain_dim: {optimization_problem.dim_domain}")
+        logger.info(f"optimization_problem.is_convex: {optimization_problem._is_convex}")
 
         logger.info("optimization_problem:")
         logger.info(f"{json.dumps(optimization_problem.to_json_data(), indent=2)}")

@@ -11,11 +11,14 @@ from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
 from pandas import DataFrame
 
+from optmlstat.linalg.utils import get_random_orthogonal_array
 from optmlstat.opt.iteration import Iteration
 from optmlstat.opt.opt_iterate import OptimizationIterate
 from optmlstat.opt.opt_res import OptResults
-from optmlstat.plotting.multi_axes_animation import MultiAxesAnimation
 from optmlstat.plotting.plotter import plot_fcn_contour
+from optmlstat.plotting.trajectory_obj_val_progress_animation import (
+    TrajectoryObjValProgressAnimation,
+)
 
 logger: Logger = getLogger()
 
@@ -49,7 +52,7 @@ class OptimizationResultPlotter:
         primal_subopt: list[Line2D] | None = None
         dual_subopt: list[Line2D] | None = None
 
-        iter_plot_fcn = ax.plot
+        # iter_plot_fcn = ax.plot
         # iter_plot_fcn = axis.semilogy
         # gap_axis: Axes | None = kwargs.pop("gap_axis", None)
         # true_opt_val: float | None = kwargs.pop("true_opt_val", None)
@@ -102,7 +105,7 @@ class OptimizationResultPlotter:
                 ]
             )
 
-        primal_objs: list[Line2D] = iter_plot_fcn(
+        primal_objs: list[Line2D] = ax.plot(
             plot_outer_iter[0],
             plot_obj_fcn[0],
             label=r"$f(x^{(k)})$: primal obj",
@@ -122,7 +125,7 @@ class OptimizationResultPlotter:
         for idx in range(1, len(plot_outer_iter)):
             outer_iter: list[int] = plot_outer_iter[idx]
             obj_fcn: list[float] = plot_obj_fcn[idx]
-            primal_objs.extend(iter_plot_fcn(outer_iter, obj_fcn, *args, **kwargs))
+            primal_objs.extend(ax.plot(outer_iter, obj_fcn, *args, **kwargs))
 
             if gap_axis is not None and true_opt_val is not None:
                 gap_axis.semilogy(outer_iter, np.array(obj_fcn) - true_opt_val, *args, **kwargs)
@@ -131,7 +134,7 @@ class OptimizationResultPlotter:
             primal_objs.extend(ax.plot(ax.get_xlim(), np.ones(2) * true_opt_val, "r-", linewidth=2))
 
         if dual_obj_fcn_array_2d is not None:
-            dual_objs = iter_plot_fcn(
+            dual_objs = ax.plot(
                 outer_iteration_list,
                 dual_obj_fcn_array_2d[:, 0],
                 label=r"$g(\lambda^{(k)})$: dual obj",
@@ -140,7 +143,7 @@ class OptimizationResultPlotter:
             )
             assert dual_objs is not None
             dual_objs.extend(
-                iter_plot_fcn(outer_iteration_list, dual_obj_fcn_array_2d[:, 1:], *args, **kwargs)
+                ax.plot(outer_iteration_list, dual_obj_fcn_array_2d[:, 1:], *args, **kwargs)
             )
 
         if gap_axis is not None and dual_obj_fcn_array_2d is not None:
@@ -195,7 +198,7 @@ class OptimizationResultPlotter:
         head_ratio: float = 0.1,
         max_num_iterations_to_draw: int = 1000000,
         **kwargs,
-    ) -> MultiAxesAnimation:
+    ) -> TrajectoryObjValProgressAnimation:
         """
         Create animation for primal solution trajectories.
 
@@ -213,14 +216,19 @@ class OptimizationResultPlotter:
         Returns
         -------
         multi_axes_animation:
-         MultiAxesAnimation:
+         TrajectoryObjValProgressAnimation:
         """
 
-        contour: bool = kwargs.pop("contour", False)
-        contour_xlim: tuple[float, float] = kwargs.pop("contour_xlim", (-1.0, 1.0))
-        contour_ylim: tuple[float, float] = kwargs.pop("contour_ylim", (-1.0, 1.0))
+        # contour: bool = kwargs.pop("contour", False)
+        # contour_xlim: tuple[float, float] = kwargs.pop("contour_xlim", (-1.0, 1.0))
+        # contour_ylim: tuple[float, float] = kwargs.pop("contour_ylim", (-1.0, 1.0))
 
         assert 0.0 < head_ratio < 1.0
+
+        proj_array_2d: np.ndarray = np.eye(2)  # projection matrix n-by-2
+        assert self.opt_res.opt_prob.dim_domain > 1, self.opt_res.opt_prob.dim_domain
+        if self.opt_res.opt_prob.dim_domain > 2:
+            proj_array_2d = get_random_orthogonal_array(self.opt_res.opt_prob.dim_domain)[:, :2]
 
         opt_iterate_list: list[OptimizationIterate]
         _, opt_iterate_list = self.opt_res.iteration_iterate_list
@@ -230,17 +238,17 @@ class OptimizationResultPlotter:
 
         time_array_1d: np.ndarray = np.linspace(0.0, 1.0, len(selected_opt_iterate_list))
 
-        idx1 = 0
-        idx2 = 1
-
-        x_array_2d: np.ndarray = np.vstack(
-            [opt_iterate.x_array_2d[:, idx1] for opt_iterate in selected_opt_iterate_list]
-        )
-        y_array_2d: np.ndarray = np.vstack(
-            [opt_iterate.x_array_2d[:, idx2] for opt_iterate in selected_opt_iterate_list]
+        x_array_3d: np.ndarray = np.array(  # {iter} x {data} x {0,1}
+            [
+                np.dot(opt_iterate.x_array_2d, proj_array_2d)
+                for opt_iterate in selected_opt_iterate_list
+            ]
         )
 
-        multi_axes_animation: MultiAxesAnimation = MultiAxesAnimation(
+        x_array_2d: np.ndarray = x_array_3d[:, :, 0]
+        y_array_2d: np.ndarray = x_array_3d[:, :, 1]
+
+        multi_axes_animation: TrajectoryObjValProgressAnimation = TrajectoryObjValProgressAnimation(
             ax.get_figure(),  # type:ignore
             [ax] * x_array_2d.shape[1],
             iter_axes,
@@ -251,18 +259,23 @@ class OptimizationResultPlotter:
             **kwargs,
         )
 
-        if contour:
-            assert self.opt_res.opt_prob.obj_fcn is not None
-            plot_fcn_contour(
-                ax,
-                self.opt_res.opt_prob.obj_fcn,
-                levels=30,
-                xlim=contour_xlim,
-                ylim=contour_ylim,
-            )
-            ax.set_xlim(contour_xlim)
-            ax.set_ylim(contour_ylim)
-            ax.axis("equal")
+        assert self.opt_res.opt_prob.obj_fcn is not None
+        # ax.axis("equal")
+        plot_fcn_contour(
+            ax,
+            self.opt_res.opt_prob.obj_fcn,
+            proj_array_2d,
+            center=self.opt_res.opt_prob.true_optimum,
+            xlim=ax.get_xlim(),
+            ylim=ax.get_ylim(),
+            levels=20,
+        )
+        if proj_array_2d.shape[0] > 2:
+            ax.set_xlabel("v1")
+            ax.set_ylabel("v2")
+        else:
+            ax.set_xlabel("[" + ", ".join([f"{x:g}" for x in proj_array_2d[:, 0]]) + "]")
+            ax.set_ylabel("[" + ", ".join([f"{x:g}" for x in proj_array_2d[:, 1]]) + "]")
 
         plt.show()
 

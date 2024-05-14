@@ -17,6 +17,7 @@ class OptParams:
     abs_tolerance_on_optimality: float = 0.0
     rel_tolerance_on_optimality: float = 0.0
     tolerance_on_grad: float = 0.0
+    tolerance_on_newton_dec: float = 0.0
 
     @property
     def learning_rate_strategy(self) -> LearningRateStrategy:

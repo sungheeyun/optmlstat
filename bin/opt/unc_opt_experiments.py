@@ -12,9 +12,9 @@ import numpy.random as nr
 from freq_used.logging_utils import set_logging_basic_config
 from freq_used.plotting import get_figure
 from matplotlib import pyplot as plt
-from matplotlib.figure import Figure
 from matplotlib.axes import Axes
-from numpy import linalg as la
+from matplotlib.figure import Figure
+from scipy import linalg
 
 from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
@@ -26,8 +26,8 @@ from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
 from optmlstat.opt.optalgs.grad_descent import GradDescent
-from optmlstat.opt.optalgs.unconstrained_optalg_base import UnconstrainedOptAlgBase
 from optmlstat.opt.optalgs.newtons_method import NewtonsMethod
+from optmlstat.opt.optalgs.unconstrained_optalg_base import UnconstrainedOptAlgBase
 from optmlstat.plotting.opt_res_plotter import OptimizationResultPlotter
 
 logger: Logger = getLogger()
@@ -93,9 +93,6 @@ def solve_and_draw(
         optimization_result_plotter.animate_primal_sol(
             trajectory_ax,
             [ax, gap_ax],
-            contour=contour,
-            contour_xlim=contour_xlim,
-            contour_ylim=contour_ylim,
             interval=3e3 / np.array(opt_res.num_iterations_list).mean(),
         )
 
@@ -131,6 +128,7 @@ def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
         back_tracking_line_search_alpha=0.2,
         back_tracking_line_search_beta=0.5,
         tolerance_on_grad=1e-2,
+        tolerance_on_newton_dec=1e-2,
     )
 
     # type defs
@@ -139,6 +137,7 @@ def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
     r: float
 
     true_opt_val: float | None = None
+    true_optimum: np.ndarray | None = None
     if problem == "cvxopt_book":
         obj_fcn = get_cvxopt_book_for_grad_method()
     elif problem == "lse":
@@ -157,12 +156,14 @@ def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
             100,
             back_tracking_line_search_alpha=0.2,
             back_tracking_line_search_beta=0.9,
-            tolerance_on_grad=1e0,
+            tolerance_on_grad=1e-2,
+            tolerance_on_newton_dec=1e-2,
         )
-        true_opt_val = -np.dot(la.lstsq(P, q)[0], q) / 4.0 + r
+        true_opt_val = -np.dot(linalg.solve(P, q, assume_a="sym"), q.T) / 4.0 + r
+        true_optimum = -linalg.solve(P, q, assume_a="sym") / 2.0
     elif problem == "conditioned-quad":
         num_vars = 100
-        P = get_random_pos_def_array(np.logspace(-2, 2, num_vars))
+        P = get_random_pos_def_array(np.logspace(-1e-1, 1e-1, num_vars))
         q = nr.randn(num_vars)
         r = 100.0
         obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], r * np.ones(1))
@@ -171,13 +172,17 @@ def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
             300,
             back_tracking_line_search_alpha=0.2,
             back_tracking_line_search_beta=0.9,
-            tolerance_on_grad=1e0,
+            tolerance_on_grad=1e-1,
+            tolerance_on_newton_dec=1e-1,
         )
-        true_opt_val = -np.dot(la.lstsq(P, q)[0], q) / 4.0 + r
+        true_opt_val = -np.dot(linalg.solve(P, q, assume_a="sym"), q.T) / 4.0 + r
+        true_optimum = -linalg.solve(P, q, assume_a="sym") / 2.0
     else:
         assert False, problem
 
-    opt_prob: OptProb = OptProb(obj_fcn)
+    opt_prob: OptProb = OptProb(
+        obj_fcn, None, None, true_opt_val=true_opt_val, true_optimum=true_optimum
+    )
     initial_x_2d: np.ndarray = (data_lim[1] - data_lim[0]) * nr.rand(
         num_data_points, num_vars
     ) + data_lim[0]

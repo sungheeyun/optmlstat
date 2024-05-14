@@ -26,7 +26,7 @@ class TestSumExpFcn(unittest.TestCase):
         # ylim = -10.0, 10.0
         xlim = -3.0, 3.0
         ylim = -3.0, 3.0
-        plot_fcn_contour(ax, sum_exp, xlim=xlim, ylim=ylim, levels=10)
+        plot_fcn_contour(ax, sum_exp, np.eye(2), xlim=xlim, ylim=ylim, levels=10)
         # ax.set_xlim(xlim)
         # ax.set_ylim(ylim)
 

@@ -127,7 +127,4 @@ class UnconstrainedOptAlgBase(OptAlgBase):
     def satisfy_stopping_criteria(
         self, jac: np.ndarray, hess: np.ndarray | None, opt_param: OptParams
     ) -> np.ndarray:
-        assert jac is not None
-        assert jac.shape[1] == 1, jac.shape
-        # print(np.sqrt((jac.squeeze(axis=1) ** 2).sum(axis=1)))
-        return np.sqrt((jac.squeeze(axis=1) ** 2).sum(axis=1)) < opt_param.tolerance_on_grad
+        pass

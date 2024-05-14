@@ -1,5 +1,6 @@
 from typing import Any
 
+import numpy as np
 from numpy import ndarray
 
 from optmlstat.basic_modules.class_base import OMSClassBase
@@ -17,6 +18,10 @@ class OptProb(OMSClassBase):
         obj_fcn: FunctionBase | None = None,
         eq_cnst: FunctionBase | None = None,
         ineq_cnst: FunctionBase | None = None,
+        /,
+        *,
+        true_opt_val: float | None = None,
+        true_optimum: np.ndarray | None = None,
     ) -> None:
         """
         The optimization problem is
@@ -40,6 +45,8 @@ class OptProb(OMSClassBase):
         self.obj_fcn: FunctionBase | None = obj_fcn
         self.eq_cnst_fcn: FunctionBase | None = eq_cnst
         self.ineq_cnst_fcn: FunctionBase | None = ineq_cnst
+        self._true_opt_val: float | None = true_opt_val
+        self._true_optimum: np.ndarray | None = true_optimum
 
         self._num_eq_cnst: int
         if self.eq_cnst_fcn is None:
@@ -88,7 +95,7 @@ class OptProb(OMSClassBase):
             self._is_convex = False
 
     @property
-    def domain_dim(self) -> int:
+    def dim_domain(self) -> int:
         return self._domain_dim
 
     @property
@@ -133,3 +140,11 @@ class OptProb(OMSClassBase):
                 else self.ineq_cnst_fcn.get_y_values_2d(x_array_2d)
             ),
         )
+
+    @property
+    def true_opt_val(self) -> float | None:
+        return self._true_opt_val
+
+    @property
+    def true_optimum(self) -> np.ndarray | None:
+        return self._true_optimum

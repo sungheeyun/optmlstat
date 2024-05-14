@@ -7,11 +7,11 @@ from logging import Logger, getLogger
 import numpy as np
 from scipy import linalg
 
+from optmlstat.opt.opt_alg_decorators import twice_differentiable_obj_required_solver
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
 from optmlstat.opt.optalgs.unconstrained_optalg_base import UnconstrainedOptAlgBase
-from optmlstat.opt.opt_alg_decorators import twice_differentiable_obj_required_solver
 
 logger: Logger = getLogger()
 
@@ -46,8 +46,27 @@ class NewtonsMethod(UnconstrainedOptAlgBase):
         self, jac: np.ndarray, hess: np.ndarray | None, opt_param: OptParams
     ) -> np.ndarray:
         assert jac is not None
+        assert jac.ndim == 3, jac.shape
         assert jac.shape[1] == 1, jac.shape
-        return np.sqrt((jac.squeeze(axis=1) ** 2).sum(axis=1)) < opt_param.tolerance_on_grad
+        assert hess is not None
+        assert hess.ndim == 4, hess.shape
+        assert hess.shape[1] == 1, hess.shape
+
+        if opt_param.tolerance_on_newton_dec is None:
+            return np.array([False] * jac.shape[0])
+
+        jac_2d: np.ndarray = jac.squeeze(axis=1)
+        hess_3d: np.ndarray = hess.squeeze(axis=1)
+
+        return (
+            np.array(
+                [
+                    np.dot(linalg.solve(hess_3d[x_idx], jac_1d, assume_a="sym"), jac_1d)
+                    for x_idx, jac_1d in enumerate(jac_2d)
+                ]
+            )
+            < opt_param.tolerance_on_newton_dec
+        )
 
     @property
     def need_hessian(self) -> bool:
