@@ -39,7 +39,6 @@ def solve_and_draw(
     opt_prob: OptProb,
     opt_params: OptParams,
     verbose: bool,
-    trajectory: bool,
     initial_x_2d: np.ndarray,
     /,
     *,
@@ -90,12 +89,11 @@ def solve_and_draw(
         markersize=min(100.0 / np.array(opt_res.num_iterations_list).mean(), 5.0),
     )
 
-    if trajectory:
-        optimization_result_plotter.animate_primal_sol(
-            trajectory_ax,
-            [ax, gap_ax],
-            interval=3e3 / np.array(opt_res.num_iterations_list).mean(),
-        )
+    optimization_result_plotter.animate_primal_sol(
+        trajectory_ax,
+        [ax, gap_ax],
+        interval=3e3 / np.array(opt_res.num_iterations_list).mean(),
+    )
 
 
 @click.command()
@@ -108,14 +106,7 @@ def solve_and_draw(
     default=False,
     help="use gradient descent instead of Newton's method",
 )
-@click.option(
-    "-t",
-    "--trajectory",
-    is_flag=True,
-    default=False,
-    help="show animation of optimization variable trajectory",
-)
-def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
+def main(problem: str, gradient: bool, verbose: bool) -> None:
     set_logging_basic_config(
         __file__, level=eval(f"logging.{os.environ.get('TEST_LOG_LEVEL', 'INFO')}")
     )
@@ -194,7 +185,6 @@ def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
         opt_prob,
         opt_params,
         verbose,
-        trajectory,
         initial_x_2d,
         contour=(num_vars == 2),
         contour_xlim=data_lim,
