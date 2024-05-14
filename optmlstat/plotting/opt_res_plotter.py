@@ -260,7 +260,7 @@ class OptimizationResultPlotter:
         )
 
         assert self.opt_res.opt_prob.obj_fcn is not None
-        # ax.axis("equal")
+        ax.axis("equal")
         plot_fcn_contour(
             ax,
             self.opt_res.opt_prob.obj_fcn,

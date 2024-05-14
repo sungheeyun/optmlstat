@@ -34,6 +34,7 @@ logger: Logger = getLogger()
 
 
 def solve_and_draw(
+    problem_name: str,
     algorithm: str,
     opt_prob: OptProb,
     opt_params: OptParams,
@@ -71,7 +72,7 @@ def solve_and_draw(
         vertical_padding=0.5,
     )
 
-    figure.suptitle(str(opt_res.opt_prob.obj_fcn))
+    figure.suptitle(f"problem: {problem_name}, algorithm: {algorithm}")
 
     ax: Axes
     gap_ax: Axes
@@ -188,6 +189,7 @@ def main(problem: str, gradient: bool, verbose: bool, trajectory: bool) -> None:
     ) + data_lim[0]
 
     solve_and_draw(
+        problem,
         "grad" if gradient else "newton",
         opt_prob,
         opt_params,

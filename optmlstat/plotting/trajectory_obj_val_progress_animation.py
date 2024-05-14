@@ -51,8 +51,8 @@ class TrajectoryObjValProgressAnimation(animation.TimedAnimation):
 
         # TODO (2) control color, line width, etc. using constructor arguments.
 
-        for ax in axis_list:
-            ax.axis("equal")
+        # for ax in axis_list:
+        #     ax.axis("equal")
         self.name_line2d_dict_list: list[dict[str, Line2D]] = [
             dict(
                 line1=Line2D([], [], color="black", linewidth=1, alpha=0.2),
