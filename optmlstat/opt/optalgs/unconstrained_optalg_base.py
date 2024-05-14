@@ -38,7 +38,7 @@ class UnconstrainedOptAlgBase(OptAlgBase):
     @single_obj_solver
     @unconstrained_opt_solver
     @differentiable_obj_required_solver
-    def _solve(
+    def _unc_solve(
         self,
         opt_prob: OptProb,
         opt_param: OptParams,

@@ -39,6 +39,7 @@ def solve_and_draw(
     opt_prob: OptProb,
     opt_params: OptParams,
     verbose: bool,
+    proportional_real_solving_time: bool,
     initial_x_2d: np.ndarray,
     /,
     *,
@@ -92,7 +93,8 @@ def solve_and_draw(
     optimization_result_plotter.animate_primal_sol(
         trajectory_ax,
         [ax, gap_ax],
-        interval=3e3 / np.array(opt_res.num_iterations_list).mean(),
+        interval=(2e4 * opt_res.solve_time if proportional_real_solving_time else 3e3)
+        / np.array(opt_res.num_iterations_list).max(),
     )
 
 
@@ -100,16 +102,39 @@ def solve_and_draw(
 @click.argument("problem", type=str)
 @click.option("-v", "--verbose", is_flag=True, default=False, help="verbose optimization processes")
 @click.option(
+    "-r",
+    "--proportional-real-solving-time",
+    is_flag=True,
+    default=False,
+    help="trajectory animation speed proportional to reaal solving time",
+)
+@click.option(
     "-g",
     "--gradient",
     is_flag=True,
     default=False,
     help="use gradient descent instead of Newton's method",
 )
-def main(problem: str, gradient: bool, verbose: bool) -> None:
+@click.option(
+    "-s",
+    "--random-seed",
+    is_flag=False,
+    type=int,
+    help="seed for random number generation",
+)
+def main(
+    problem: str,
+    gradient: bool,
+    verbose: bool,
+    proportional_real_solving_time: bool,
+    random_seed: int | None,
+) -> None:
     set_logging_basic_config(
         __file__, level=eval(f"logging.{os.environ.get('TEST_LOG_LEVEL', 'INFO')}")
     )
+    if random_seed is not None:
+        nr.seed(random_seed)
+
     num_data_points: int = 20
     data_lim: tuple[float, float] = -3.0, 3.0
     obj_fcn: FunctionBase
@@ -185,6 +210,7 @@ def main(problem: str, gradient: bool, verbose: bool) -> None:
         opt_prob,
         opt_params,
         verbose,
+        proportional_real_solving_time,
         initial_x_2d,
         contour=(num_vars == 2),
         contour_xlim=data_lim,

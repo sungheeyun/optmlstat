@@ -22,7 +22,7 @@ class NewtonsMethod(UnconstrainedOptAlgBase):
     """
 
     @twice_differentiable_obj_required_solver
-    def solve(
+    def _solve(
         self,
         opt_prob: OptProb,
         opt_param: OptParams,
@@ -33,7 +33,7 @@ class NewtonsMethod(UnconstrainedOptAlgBase):
         initial_lambda_array_2d: np.ndarray | None = None,
         initial_nu_array_2d: np.ndarray | None = None,
     ) -> OptResults:
-        return self._solve(
+        return self._unc_solve(
             opt_prob,
             opt_param,
             verbose,

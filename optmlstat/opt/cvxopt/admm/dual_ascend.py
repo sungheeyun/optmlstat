@@ -39,7 +39,7 @@ class DualAscend(OptAlgBase):
     @single_obj_solver
     @eq_cnst_solver
     @solver
-    def solve(
+    def _solve(
         self,
         opt_prob: OptProb,
         opt_param: OptParams,

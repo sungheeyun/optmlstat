@@ -23,6 +23,16 @@ class OptResults(OMSClassBase):
         self._opt_alg: OptAlgBase = opt_alg
         self._iter_iterate_dict: dict[Iteration, OptimizationIterate] = dict()
 
+        self._solve_time: float | None = None
+
+    @property
+    def solve_time(self) -> float | None:
+        return self._solve_time
+
+    @solve_time.setter
+    def solve_time(self, value: float) -> None:
+        self._solve_time = value
+
     def register_solution(
         self,
         iteration: Iteration,
@@ -78,6 +88,7 @@ class OptResults(OMSClassBase):
         logger.info(f"\topt. prob.: {str(self.opt_prob)}")
         logger.info(f"\tobj fcn: {str(self.opt_prob.obj_fcn)}")
         logger.info(f"\tpopulation size: {str(self.population_size)}")
+        logger.info(f"\tsolving time: {str(self.solve_time)}")
 
         logger.info(f"\t# iters: {num_iterations_list}")
         logger.info(f"\tavg # iters: {np.array(num_iterations_list).mean()}")
