@@ -2,9 +2,36 @@
 linear algebra utils
 """
 
+from functools import reduce
+
 import numpy as np
 from numpy import random as nr
 from scipy.stats import ortho_group
+
+
+def generic_array_mul(*args: np.ndarray) -> np.ndarray:
+    # for idx, array in enumerate(args):
+    #     sh = (
+    #         array.shape[:-1]
+    #         + tuple([1] * idx)
+    #         + array.shape[-1:]
+    #         + tuple([1] * (len(args) - idx - 1))
+    #     )
+    #     a = array.reshape(sh)
+    #     pass
+    mul_array: np.ndarray = reduce(
+        np.ndarray.__mul__,
+        [
+            array.reshape(
+                array.shape[:-1]
+                + tuple([1] * idx)
+                + array.shape[-1:]
+                + tuple([1] * (len(args) - idx - 1))
+            )
+            for idx, array in enumerate(args)
+        ],
+    )
+    return mul_array.sum(axis=tuple(range(mul_array.ndim - len(args))))
 
 
 def get_random_pos_def_array(size_or_array_1d: int | np.ndarray) -> np.ndarray:
