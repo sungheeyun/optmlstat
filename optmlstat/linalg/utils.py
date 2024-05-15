@@ -25,6 +25,87 @@ def generic_array_mul(*args: np.ndarray) -> np.ndarray:
     return mul_array.sum(axis=tuple(range(mul_array.ndim - len(args))))
 
 
+def idx_iterator(shape: tuple[int, ...]) -> list[tuple[int, ...]]:
+
+    rev_shape: tuple[int, ...] = shape[::-1]
+
+    return [
+        tuple(
+            [
+                int(idx / int(np.array(rev_shape[:dim_idx]).prod())) % dim
+                for dim_idx, dim in enumerate(rev_shape)
+            ]
+        )[::-1]
+        for idx in range(int(np.array(rev_shape).prod()))
+    ]
+
+
+def block_array(blk_list: list) -> np.ndarray:
+
+    shape, dims = _block_array_shape_and_dims(blk_list)
+
+    blk_list = blk_list.copy()
+
+    for idx_tuple in idx_iterator(shape):
+        _blk_list = blk_list
+        for idx in idx_tuple[:-1]:
+            _blk_list = _blk_list[idx]
+
+        # print(
+        #     idx_tuple,
+        #     dims,
+        #     np.array(_blk_list[idx_tuple[-1]]).shape,
+        #     [dims[_idx][idx] for _idx, idx in enumerate(idx_tuple)],
+        # )
+        _blk_list[idx_tuple[-1]] = _blk_list[idx_tuple[-1]] + np.zeros(
+            [dims[_idx][idx] for _idx, idx in enumerate(idx_tuple)]
+        )
+
+    return merge_blk_array(blk_list, 0)
+
+
+def merge_blk_array(blk: list | np.ndarray, axis: int, /) -> np.ndarray:
+    if isinstance(blk, np.ndarray):
+        return blk
+    elif isinstance(blk, list):
+        # print([merge_blk_array(bl, axis + 1).shape for bl in blk], axis)
+        return np.concatenate([merge_blk_array(bl, axis + 1) for bl in blk], axis=axis)
+    else:
+        assert False, (blk, blk.__class__)
+
+
+def _block_array_shape_and_dims(blk_list: list) -> tuple[tuple[int, ...], list[list[int]]]:
+    """
+    return block matrix
+    """
+    _blk_list: list = blk_list
+
+    _shape: list[int] = []
+    while isinstance(_blk_list, list):
+        _shape.append(len(_blk_list))
+        _blk_list = _blk_list[0]
+    shape: tuple[int, ...] = tuple(_shape)
+
+    dims: list[list[int]] = [list([1] * num) for num in _shape]
+
+    for idx_tuple in idx_iterator(shape):
+        _blk_list = blk_list
+        for idx in idx_tuple:
+            _blk_list = _blk_list[idx]
+
+        assert isinstance(_blk_list, (np.ndarray, float, int)), (_blk_list, _blk_list.__class__)
+
+        array: np.ndarray = np.array(_blk_list)
+
+        for idx, size in enumerate(tuple([1] * (len(dims) - len(array.shape))) + array.shape):
+            assert (
+                dims[idx][idx_tuple[idx]] == 1 or size == 1 or dims[idx][idx_tuple[idx]] == size
+            ), ("block array dimension mismatch", idx_tuple, dims[idx][idx_tuple[idx]], size)
+            dims[idx][idx_tuple[idx]] = max(dims[idx][idx_tuple[idx]], size)
+
+    return shape, dims
+
+
 def get_random_pos_def_array(size_or_array_1d: int | np.ndarray) -> np.ndarray:
     res: np.ndarray
     if isinstance(size_or_array_1d, int):
