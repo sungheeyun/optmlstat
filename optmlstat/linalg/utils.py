@@ -10,15 +10,6 @@ from scipy.stats import ortho_group
 
 
 def generic_array_mul(*args: np.ndarray) -> np.ndarray:
-    # for idx, array in enumerate(args):
-    #     sh = (
-    #         array.shape[:-1]
-    #         + tuple([1] * idx)
-    #         + array.shape[-1:]
-    #         + tuple([1] * (len(args) - idx - 1))
-    #     )
-    #     a = array.reshape(sh)
-    #     pass
     mul_array: np.ndarray = reduce(
         np.ndarray.__mul__,
         [
