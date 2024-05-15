@@ -97,7 +97,8 @@ class AffineFunction(FunctionBase):
     @property
     def conjugate(self) -> FunctionBase:
         assert False
-        # TODO (3) should we defined non-function? :)
+        # TODO (H) should we defined non-function? :)
+        #  -> decided to define not-defined exceptions (14-May-2024)
         return FunctionBase()
 
     def conjugate_arg(self, z_array_2d: ndarray) -> ndarray:

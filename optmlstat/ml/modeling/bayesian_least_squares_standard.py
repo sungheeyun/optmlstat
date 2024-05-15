@@ -16,7 +16,7 @@ class BayesianLeastSquaresStandard(BayesianLeastSquaresBase):
     Bayesian Least Squares
     """
 
-    # TODO !!! implement below
+    # TODO (L) implement below
     def get_prior(self) -> Gaussian:
         raise NotImplementedError()
 

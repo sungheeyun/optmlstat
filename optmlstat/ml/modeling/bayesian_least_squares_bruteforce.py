@@ -16,7 +16,7 @@ class BayesianLeastSquaresBruteforce(BayesianLeastSquaresBase):
     Bayesian Least Squares
     """
 
-    # TODO !!! implement the below method properly
+    # TODO (L) implement the below method properly
     def get_prior(self) -> Gaussian:
         return self.prior_list[-1]
 

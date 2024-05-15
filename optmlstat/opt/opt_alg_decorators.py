@@ -18,10 +18,11 @@ from optmlstat.opt.optalgs.optalg_base import OptAlgBase
 logger: Logger = getLogger()
 
 
-# TODO (3) Sridhar told me that a decorator shouldn't add any functionalities
+# DONE (H) Sridhar told me that a decorator shouldn't add any functionalities
 #  just checking conditions. probably the below decorator violates that condition.
 #  Review whether the below decorators satisfy the requirements
 #  after a little research on this aspect.
+#  done on 14-May-2024 - now decorators do check things only
 
 
 def solver(func: Callable) -> Callable:

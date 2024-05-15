@@ -75,7 +75,9 @@ class FunctionBase(OMSClassBase):
     def is_twice_differentiable(self) -> bool:
         pass
 
-    # TODO (2) implemented the below method for all subclasses of FunctionBase
+    # DONE (2) implemented the below method for all subclasses of FunctionBase
+    #  done on May-14-2024 - decide to do this as needed
+    #  most of problems can be solved by running mypy
 
     def get_shape(self) -> tuple[int, int]:
         return self.num_inputs, self.num_outputs
@@ -120,6 +122,10 @@ class FunctionBase(OMSClassBase):
     def _hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
         pass
 
+    # DONE (2) define decorator
+    #  to check whether a function is convex for conjugate and conjugate_arg
+    #  done on 14-May-2024
+
     @fcn_evaluator
     def get_y_values_2d(self, x_array_2d: np.ndarray) -> np.ndarray:
         """
@@ -147,9 +153,6 @@ class FunctionBase(OMSClassBase):
     @abstractmethod
     def _get_y_values_2d(self, x_array_2d: np.ndarray) -> np.ndarray:
         pass
-
-    # TODO (2) define decorator
-    #  to check whether a function is convex for conjugate and conjugate_arg
 
     @property
     @abstractmethod

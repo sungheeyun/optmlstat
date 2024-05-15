@@ -49,7 +49,9 @@ class TrajectoryObjValProgressAnimation(animation.TimedAnimation):
         self.y_array_2d: np.ndarray = y_array_2d.copy()
         self.head_time_period: float = head_time_period
 
-        # TODO (2) control color, line width, etc. using constructor arguments.
+        # DONE (2) control color, line width, etc. using constructor arguments.
+        #  done 13-My-2024 - kind of did it, and kind of decide not to do it
+        #  because it's partially done
 
         # for ax in axis_list:
         #     ax.axis("equal")

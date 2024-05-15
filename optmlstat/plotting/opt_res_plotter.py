@@ -23,7 +23,8 @@ from optmlstat.plotting.trajectory_obj_val_progress_animation import (
 logger: Logger = getLogger()
 
 
-# TODO (2) implement a class containing the information re the plotting options
+# CANCELED (2) implement a class containing the information re the plotting options
+#  done on 14-May-2024 - decided not to do this
 
 
 @dataclass(frozen=True)
@@ -182,13 +183,20 @@ class OptimizationResultPlotter:
 
         return primal_objs, dual_objs, dual_gap, primal_subopt, dual_subopt
 
-    # TODO (2) add a method for drawing 3-d trajectories.
-    #  CANCELLED on 12-May-2024
-    # TODO (4) add method for drawing dual variable trajectories
-    # TODO (3) add a method for drawing variable trajectories and
-    #  (primal and/or dual) obj functions together.
+    # CANCELED (2) add a method for drawing 3-d trajectories.
+    #  cancelled on 12-May-2024
+    # TODO (M) written in 2020
+    #  add method for drawing dual variable trajectories
 
-    # TODO (4) add arguments for selection of variables to draw
+    # DONE (M)
+    #  add a method for drawing variable trajectories and
+    #  (primal and/or dual) obj functions together.
+    #  done on 13-May-2024
+
+    # CANCELED (M) add arguments for selection of variables to draw
+    #  canceled on 14-May-2024 - decide not to do this
+    #  because currently we do projection using two randomly chosen two orthonormal
+    #  projection vectors when # primal variables is greater than two
     def animate_primal_sol(
         self,
         ax: Axes,
