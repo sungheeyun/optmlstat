@@ -51,12 +51,6 @@ def block_array(blk_list: list) -> np.ndarray:
         for idx in idx_tuple[:-1]:
             _blk_list = _blk_list[idx]
 
-        # print(
-        #     idx_tuple,
-        #     dims,
-        #     np.array(_blk_list[idx_tuple[-1]]).shape,
-        #     [dims[_idx][idx] for _idx, idx in enumerate(idx_tuple)],
-        # )
         _blk_list[idx_tuple[-1]] = _blk_list[idx_tuple[-1]] + np.zeros(
             [dims[_idx][idx] for _idx, idx in enumerate(idx_tuple)]
         )
@@ -68,7 +62,6 @@ def merge_blk_array(blk: list | np.ndarray, axis: int, /) -> np.ndarray:
     if isinstance(blk, np.ndarray):
         return blk
     elif isinstance(blk, list):
-        # print([merge_blk_array(bl, axis + 1).shape for bl in blk], axis)
         return np.concatenate([merge_blk_array(bl, axis + 1) for bl in blk], axis=axis)
     else:
         assert False, (blk, blk.__class__)
