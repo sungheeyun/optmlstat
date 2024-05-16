@@ -8,7 +8,7 @@ from logging import Logger, getLogger
 
 import numpy as np
 from numpy import ndarray, vstack, array, stack
-from numpy.linalg import eig, inv, solve
+from scipy import linalg as la
 
 from optmlstat.functions.function_base import FunctionBase
 
@@ -17,18 +17,61 @@ logger: Logger = getLogger()
 
 class QuadraticFunction(FunctionBase):
     """
-    Quadratic function. The ith function is
-
-      :math:`f_i(x) = x^T P x + q^T x + r`
-
-    where x is n-dimensional real column-vector,
-     P is an real n-by-n matrix, q is an real n-dimensional
-    column vector, and r is a real scalar. i goes from 1 to m.
-
-    Note that when data are actually interchanged,
-     e.g., though method, QuadraticFunction.get_y_array_2d,
-    x is represented by row vectors (not column vectors).
+    quadratic function
     """
+
+    @property
+    def maximal_point(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def maximal_value(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def maximum_point(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def maximum_value(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def minimal_point(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def minimal_value(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def minimum_point(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def minimum_value(self) -> np.ndarray:
+        if self.num_outputs != 1:
+            raise NotImplementedError()
+
+        if self.quad_array_3d is None:
+            if np.abs(self.slope_array_2d[:, 0]).sum() == 0.0:
+                return self.intercept_array_1d[0]
+            else:
+                return np.array([-np.inf])
+
+        quad_array_2d: np.ndarray = self.quad_array_3d[:, :, 0]
+        slope_array_1d: np.ndarray = self.slope_array_2d[:, 0]
+        intercept: float = float(self.intercept_array_1d[0])
+
+        if np.any(la.eig(quad_array_2d)[0] < 0):
+            return np.array([-np.inf])
+
+        sol: np.ndarray = la.lstsq(quad_array_2d, slope_array_1d)[0]
+
+        if not np.allclose(np.dot(quad_array_2d, sol), slope_array_1d):
+            return np.array([-np.inf])
+
+        return -np.dot(sol, slope_array_1d) / 4.0 + intercept
 
     @staticmethod
     def test_convexity(quad_array_3d: ndarray) -> tuple[bool, bool]:
@@ -36,7 +79,7 @@ class QuadraticFunction(FunctionBase):
         is_convex: bool = True
         for idx3 in range(quad_array_3d.shape[2]):
             symmetric_array: ndarray = quad_array_3d[:, :, idx3] + quad_array_3d[:, :, idx3].T
-            eigen_value_array: ndarray = eig(symmetric_array)[0]
+            eigen_value_array: ndarray = la.eig(symmetric_array)[0]
             if (eigen_value_array <= 0.0).any():
                 is_strictly_convex = False
 
@@ -168,10 +211,10 @@ class QuadraticFunction(FunctionBase):
 
         for idx in range(self.quad_array_3d.shape[2]):
             p_array_2d: ndarray = self.quad_array_3d[:, :, idx]
-            conjugate_quad_array_3d[:, :, idx] = 0.25 * inv(p_array_2d)
+            conjugate_quad_array_3d[:, :, idx] = 0.25 * la.inv(p_array_2d)
 
             q_array_1d: ndarray = self.slope_array_2d[:, idx]
-            p_inv_q_array_1d: ndarray = solve(p_array_2d, q_array_1d)
+            p_inv_q_array_1d: ndarray = la.solve(p_array_2d, q_array_1d)
             conjugate_slope_array_1d_list.append(-0.5 * p_inv_q_array_1d)
 
             conjugate_intercept_list.append(0.25 * q_array_1d.dot(p_inv_q_array_1d))
@@ -213,7 +256,7 @@ class QuadraticFunction(FunctionBase):
 
             assert z_array_2d.shape[1] == q_array_1d.size
 
-            x_array_2d: ndarray = solve(p_array_2d, (z_array_2d - q_array_1d).T).T / 2.0
+            x_array_2d: ndarray = la.solve(p_array_2d, (z_array_2d - q_array_1d).T).T / 2.0
 
             assert x_array_2d.shape == z_array_2d.shape
 
