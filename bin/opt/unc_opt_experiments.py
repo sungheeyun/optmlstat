@@ -14,7 +14,6 @@ from freq_used.plotting import get_figure
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from scipy import linalg
 
 from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
@@ -42,11 +41,6 @@ def solve_and_draw(
     proportional_real_solving_time: bool,
     initial_x_2d: np.ndarray,
     /,
-    *,
-    contour: bool,
-    contour_xlim: tuple[float, float],
-    contour_ylim: tuple[float, float],
-    true_opt_val: float | None = None,
 ) -> None:
     lsm: LineSearchMethod = LineSearchMethod.BackTrackingLineSearch
     unc_algorithm: UnconstrainedOptAlgBase = NewtonsMethod(lsm)
@@ -60,7 +54,7 @@ def solve_and_draw(
     opt_res: OptResults = unc_algorithm.solve(
         opt_prob, opt_params, verbose, initial_x_array_2d=initial_x_2d
     )
-    opt_res.result_analysis(true_opt_val)
+    opt_res.result_analysis()
 
     figure: Figure = get_figure(
         1,
@@ -88,7 +82,6 @@ def solve_and_draw(
     optimization_result_plotter.plot_primal_and_dual_objs(
         ax,
         gap_ax,
-        true_opt_val,
         linestyle="-",
         marker="o",
         markersize=min(100.0 / np.array(opt_res.num_iterations_list).mean(), 5.0),
@@ -158,8 +151,6 @@ def main(
     q: np.ndarray
     r: float
 
-    true_opt_val: float | None = None
-    true_optimum: np.ndarray | None = None
     if problem == "cvxopt_book":
         obj_fcn = get_cvxopt_book_for_grad_method()
     elif problem == "lse":
@@ -181,8 +172,6 @@ def main(
             tolerance_on_grad=1e-2,
             tolerance_on_newton_dec=1e-2,
         )
-        true_opt_val = -np.dot(linalg.solve(P, q, assume_a="sym"), q.T) / 4.0 + r
-        true_optimum = -linalg.solve(P, q, assume_a="sym") / 2.0
     elif problem == "well-conditioned-quad":
         num_vars = 100
         P = get_random_pos_def_array(np.logspace(-1.0, 1.0, num_vars))
@@ -195,10 +184,8 @@ def main(
             back_tracking_line_search_alpha=0.2,
             back_tracking_line_search_beta=0.9,
             tolerance_on_grad=1e1,
-            tolerance_on_newton_dec=1e-1,
+            tolerance_on_newton_dec=1e-3,
         )
-        true_opt_val = -np.dot(linalg.solve(P, q, assume_a="sym"), q.T) / 4.0 + r
-        true_optimum = -linalg.solve(P, q, assume_a="sym") / 2.0
     elif problem == "ill-conditioned-quad":
         num_vars = 100
         P = get_random_pos_def_array(np.logspace(-3.0, 3.0, num_vars))
@@ -211,16 +198,12 @@ def main(
             back_tracking_line_search_alpha=0.2,
             back_tracking_line_search_beta=0.9,
             tolerance_on_grad=1e-1,
-            tolerance_on_newton_dec=1e-1,
+            tolerance_on_newton_dec=1e-3,
         )
-        true_opt_val = -np.dot(linalg.solve(P, q, assume_a="sym"), q.T) / 4.0 + r
-        true_optimum = -linalg.solve(P, q, assume_a="sym") / 2.0
     else:
         assert False, problem
 
-    opt_prob: OptProb = OptProb(
-        obj_fcn, None, None, true_opt_val=true_opt_val, true_optimum=true_optimum
-    )
+    opt_prob: OptProb = OptProb(obj_fcn, None, None)
     initial_x_2d: np.ndarray = (data_lim[1] - data_lim[0]) * nr.rand(
         num_data_points, num_vars
     ) + data_lim[0]
@@ -233,10 +216,6 @@ def main(
         verbose,
         proportional_real_solving_time,
         initial_x_2d,
-        contour=(num_vars == 2),
-        contour_xlim=data_lim,
-        contour_ylim=data_lim,
-        true_opt_val=true_opt_val,
     )
     plt.show()
 

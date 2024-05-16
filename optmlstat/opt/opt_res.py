@@ -94,15 +94,11 @@ class OptResults(OMSClassBase):
         logger.info(f"\tavg # iters: {np.array(num_iterations_list).mean()}")
         logger.info(f"\tbest obj values: {self.best_obj_values}")
 
-        if true_opt_val is not None:
-            assert isinstance(true_opt_val, np.ndarray), true_opt_val.__class__
-            assert true_opt_val.ndim == 1, true_opt_val.shape
-            assert true_opt_val.size == self.best_obj_values.size
-
-            logger.info(f"\tabs suboptimality: {self.best_obj_values - true_opt_val}")
-            logger.info(
-                f"\trel suboptimality: {(self.best_obj_values - true_opt_val)/np.abs(true_opt_val)}"
-            )
+        true_opt_val: float = self.opt_prob.optimum_value
+        logger.info(f"\tabs suboptimality: {self.best_obj_values - true_opt_val}")
+        logger.info(
+            f"\trel suboptimality: {(self.best_obj_values - true_opt_val)/np.abs(true_opt_val)}"
+        )
 
     @property
     def iteration_iterate_list(self) -> tuple[list[Iteration], list[OptimizationIterate]]:

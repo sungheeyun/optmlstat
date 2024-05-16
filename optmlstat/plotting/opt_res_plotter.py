@@ -40,7 +40,7 @@ class OptimizationResultPlotter:
     major_ytick_label_font_size: float = 10.0
 
     def plot_primal_and_dual_objs(
-        self, ax: Axes, gap_axis: Axes | None, true_opt_val: float | None, /, *args, **kwargs
+        self, ax: Axes, gap_axis: Axes | None, /, *args, **kwargs
     ) -> tuple[
         list[Line2D],
         list[Line2D] | None,
@@ -57,6 +57,8 @@ class OptimizationResultPlotter:
         # iter_plot_fcn = axis.semilogy
         # gap_axis: Axes | None = kwargs.pop("gap_axis", None)
         # true_opt_val: float | None = kwargs.pop("true_opt_val", None)
+
+        true_opt_val: float = self.opt_res.opt_prob.optimum_value
 
         iteration_list: list[Iteration]
         opt_iterate_list: list[OptimizationIterate]
@@ -273,7 +275,7 @@ class OptimizationResultPlotter:
             ax,
             self.opt_res.opt_prob.obj_fcn,
             proj_array_2d,
-            center=self.opt_res.opt_prob.true_optimum,
+            center=self.opt_res.opt_prob.optimum_point,
             xlim=ax.get_xlim(),
             ylim=ax.get_ylim(),
             levels=20,

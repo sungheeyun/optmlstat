@@ -11,6 +11,10 @@ from numpy import ndarray, vstack, array, stack
 from scipy import linalg as la
 
 from optmlstat.functions.function_base import FunctionBase
+from optmlstat.functions.exceptions import (
+    UnboundedBelowException,
+    InfiniteNumberOfSolutionsException,
+)
 
 logger: Logger = getLogger()
 
@@ -42,11 +46,34 @@ class QuadraticFunction(FunctionBase):
 
     @property
     def minimal_value(self) -> np.ndarray:
-        raise NotImplementedError()
+        if self.num_outputs != 1:
+            raise NotImplementedError()
+
+        return self.minimum_value
 
     @property
     def minimum_point(self) -> np.ndarray:
-        raise NotImplementedError()
+        if self.num_outputs != 1:
+            raise NotImplementedError()
+
+        if self.quad_array_3d is None:
+            if np.abs(self.slope_array_2d[:, 0]).sum() == 0.0:
+                raise InfiniteNumberOfSolutionsException()
+            else:
+                raise UnboundedBelowException()
+
+        quad_array_2d: np.ndarray = self.quad_array_3d[:, :, 0]
+        slope_array_1d: np.ndarray = self.slope_array_2d[:, 0]
+
+        if np.any(la.eig(quad_array_2d)[0] < 0):
+            raise UnboundedBelowException()
+
+        sol: np.ndarray = la.lstsq(2 * quad_array_2d, -slope_array_1d)[0]
+
+        if not np.allclose(np.dot(2 * quad_array_2d, sol), -slope_array_1d):
+            raise UnboundedBelowException()
+
+        return sol
 
     @property
     def minimum_value(self) -> np.ndarray:
@@ -66,12 +93,12 @@ class QuadraticFunction(FunctionBase):
         if np.any(la.eig(quad_array_2d)[0] < 0):
             return np.array([-np.inf])
 
-        sol: np.ndarray = la.lstsq(quad_array_2d, slope_array_1d)[0]
+        sol: np.ndarray = la.lstsq(2 * quad_array_2d, -slope_array_1d)[0]
 
-        if not np.allclose(np.dot(quad_array_2d, sol), slope_array_1d):
+        if not np.allclose(np.dot(2 * quad_array_2d, sol), -slope_array_1d):
             return np.array([-np.inf])
 
-        return -np.dot(sol, slope_array_1d) / 4.0 + intercept
+        return np.dot(sol, slope_array_1d) / 2.0 + intercept
 
     @staticmethod
     def test_convexity(quad_array_3d: ndarray) -> tuple[bool, bool]:
