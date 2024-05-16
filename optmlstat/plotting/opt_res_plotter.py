@@ -258,15 +258,17 @@ class OptimizationResultPlotter:
         x_array_2d: np.ndarray = x_array_3d[:, :, 0]
         y_array_2d: np.ndarray = x_array_3d[:, :, 1]
 
-        multi_axes_animation: TrajectoryObjValProgressAnimation = TrajectoryObjValProgressAnimation(
-            ax.get_figure(),  # type:ignore
-            [ax] * x_array_2d.shape[1],
-            iter_axes,
-            time_array_1d,
-            x_array_2d,
-            y_array_2d,
-            head_time_period=head_ratio,
-            **kwargs,
+        opt_progress_animation: TrajectoryObjValProgressAnimation = (
+            TrajectoryObjValProgressAnimation(
+                ax.get_figure(),
+                [ax] * x_array_2d.shape[1],
+                iter_axes,
+                time_array_1d,
+                x_array_2d,
+                y_array_2d,
+                head_time_period=head_ratio,
+                **kwargs,
+            )
         )
 
         assert self.opt_res.opt_prob.obj_fcn is not None
@@ -289,4 +291,4 @@ class OptimizationResultPlotter:
 
         plt.show()
 
-        return multi_axes_animation
+        return opt_progress_animation
