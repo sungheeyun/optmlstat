@@ -72,7 +72,11 @@ def solve_and_draw(
         vertical_padding=0.5,
     )
 
-    figure.suptitle(f"problem: {problem_name}, algorithm: {algorithm}")
+    figure.suptitle(
+        f"problem: {problem_name}, algorithm: {algorithm}"
+        f", optimization time: {opt_res.solve_time:.3g} [sec]"
+        f", # opt vars: {opt_res.opt_prob.dim_domain}"
+    )
 
     ax: Axes
     gap_ax: Axes
@@ -163,7 +167,7 @@ def main(
         num_terms: int = 300
         obj_fcn = LogSumExp([1e-1 * nr.randn(num_terms, num_vars)], 1e-1 * nr.randn(1, num_terms))
         data_lim = -3.0, 4.0
-    elif problem == "quad":
+    elif problem == "random-quad":
         num_vars = 100
         P = get_random_pos_def_array(num_vars)
         q = nr.randn(num_vars)
@@ -179,9 +183,25 @@ def main(
         )
         true_opt_val = -np.dot(linalg.solve(P, q, assume_a="sym"), q.T) / 4.0 + r
         true_optimum = -linalg.solve(P, q, assume_a="sym") / 2.0
-    elif problem == "conditioned-quad":
+    elif problem == "well-conditioned-quad":
         num_vars = 100
-        P = get_random_pos_def_array(np.logspace(-1e-1, 1e-1, num_vars))
+        P = get_random_pos_def_array(np.logspace(-1.0, 1.0, num_vars))
+        q = nr.randn(num_vars)
+        r = 100.0
+        obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], r * np.ones(1))
+        opt_params = OptParams(
+            0.1,
+            300,
+            back_tracking_line_search_alpha=0.2,
+            back_tracking_line_search_beta=0.9,
+            tolerance_on_grad=1e1,
+            tolerance_on_newton_dec=1e-1,
+        )
+        true_opt_val = -np.dot(linalg.solve(P, q, assume_a="sym"), q.T) / 4.0 + r
+        true_optimum = -linalg.solve(P, q, assume_a="sym") / 2.0
+    elif problem == "ill-conditioned-quad":
+        num_vars = 100
+        P = get_random_pos_def_array(np.logspace(-3.0, 3.0, num_vars))
         q = nr.randn(num_vars)
         r = 100.0
         obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], r * np.ones(1))

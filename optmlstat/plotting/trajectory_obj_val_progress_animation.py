@@ -2,6 +2,7 @@
 animation showing optimization progress
 """
 
+import time
 from functools import reduce
 from typing import Any
 
@@ -14,7 +15,8 @@ import numpy as np
 from optmlstat.utils.interval import Interval
 
 
-class TrajectoryObjValProgressAnimation(animation.TimedAnimation):
+# class TrajectoryObjValProgressAnimation(animation.TimedAnimation):
+class TrajectoryObjValProgressAnimation(animation.FuncAnimation):
     """
     Performs simultaneous animation for multiple Axes.
 
@@ -30,6 +32,7 @@ class TrajectoryObjValProgressAnimation(animation.TimedAnimation):
         x_array_2d: np.ndarray,
         y_array_2d: np.ndarray,
         head_time_period: float = 3.0,
+        interval_between_runs_seconds: float = 1.0,
         **kwargs,
     ) -> None:
         assert time_array_1d.ndim == 1
@@ -48,6 +51,7 @@ class TrajectoryObjValProgressAnimation(animation.TimedAnimation):
         self.x_array_2d: np.ndarray = x_array_2d.copy()
         self.y_array_2d: np.ndarray = y_array_2d.copy()
         self.head_time_period: float = head_time_period
+        self.interval_between_runs_seconds: float = interval_between_runs_seconds
 
         # DONE (2) control color, line width, etc. using constructor arguments.
         #  done 13-My-2024 - kind of did it, and kind of decide not to do it
@@ -107,6 +111,9 @@ class TrajectoryObjValProgressAnimation(animation.TimedAnimation):
 
     def _draw_frame(self, frame_data) -> None:
         current_idx = frame_data
+        if current_idx == 0:
+            time.sleep(self.interval_between_runs_seconds)
+
         head = current_idx
         head_slice = (
             self.time_array_1d > self.time_array_1d[current_idx] - self.head_time_period
