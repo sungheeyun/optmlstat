@@ -42,6 +42,70 @@ class FunctionBase(OMSClassBase):
 
     @property
     @abstractmethod
+    def minimum_value(self) -> np.ndarray:
+        """
+        1-d vector in output space
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def minimum_point(self) -> np.ndarray:
+        """
+        1-d vector in input space
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def minimal_value(self) -> np.ndarray:
+        """
+        1-d vector in output space
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def minimal_point(self) -> np.ndarray:
+        """
+        1-d vector in output space
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def maximum_value(self) -> np.ndarray:
+        """
+        1-d vector in output space
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def maximum_point(self) -> np.ndarray:
+        """
+        1-d vector in input space
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def maximal_value(self) -> np.ndarray:
+        """
+        1-d vector in output space
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def maximal_point(self) -> np.ndarray:
+        """
+        1-d vector in output space
+        """
+        pass
+
+    @property
+    @abstractmethod
     def is_affine(self) -> bool:
         pass
 
