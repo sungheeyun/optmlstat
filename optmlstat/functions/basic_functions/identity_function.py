@@ -11,6 +11,38 @@ from optmlstat.functions.function_base import FunctionBase
 class IdentityFunction(FunctionBase):
 
     @property
+    def maximal_point(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def maximal_value(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def maximum_point(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def maximum_value(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def minimal_point(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def minimal_value(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def minimum_point(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def minimum_value(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
     def is_twice_differentiable(self) -> bool:
         return True
 

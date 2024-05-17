@@ -6,6 +6,7 @@ from numpy import ndarray
 from optmlstat.basic_modules.class_base import OMSClassBase
 from optmlstat.functions.function_base import FunctionBase
 from optmlstat.opt.opt_prob_eval import OptProbEval
+from optmlstat.functions.exceptions import ValueUnknownException
 
 
 class OptProb(OMSClassBase):
@@ -116,7 +117,7 @@ class OptProb(OMSClassBase):
         if self.num_objs == 1 and self.num_eq_cnst == 0 and self.num_ineq_cnst == 0:
             return self.obj_fcn.minimum_value
         else:
-            raise NotImplementedError()
+            raise ValueUnknownException()
 
     @property
     def optimum_point(self) -> np.ndarray:
