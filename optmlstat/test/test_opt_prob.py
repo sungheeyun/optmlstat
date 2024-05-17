@@ -4,7 +4,7 @@ import json
 
 from freq_used.logging_utils import set_logging_basic_config
 
-from optmlstat.functions.example_functions import (
+from optmlstat.functions.some_typical_functions import (
     get_sum_of_square_function,
     get_sum_function,
 )

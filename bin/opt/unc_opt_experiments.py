@@ -17,7 +17,7 @@ from matplotlib.figure import Figure
 
 from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
-from optmlstat.functions.example_functions import get_cvxopt_book_for_grad_method
+from optmlstat.functions.some_typical_functions import get_cvxopt_book_for_grad_method
 from optmlstat.functions.function_base import FunctionBase
 from optmlstat.linalg.utils import get_random_pos_def_array
 from optmlstat.opt.constants import LineSearchMethod
@@ -25,8 +25,8 @@ from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
 from optmlstat.opt.optalgs.grad_descent import GradDescent
-from optmlstat.opt.optalgs.newtons_method import NewtonsMethod
-from optmlstat.opt.optalgs.unconstrained_optalg_base import UnconstrainedOptAlgBase
+from optmlstat.opt.optalgs.unconstrained_newtons_method import UnconstrainedNewtonsMethod
+from optmlstat.opt.optalgs.derivative_based_optalg_base import DerivativeBasedOptAlgBase
 from optmlstat.plotting.opt_res_plotter import OptimizationResultPlotter
 
 logger: Logger = getLogger()
@@ -43,7 +43,7 @@ def solve_and_draw(
     /,
 ) -> None:
     lsm: LineSearchMethod = LineSearchMethod.BackTrackingLineSearch
-    unc_algorithm: UnconstrainedOptAlgBase = NewtonsMethod(lsm)
+    unc_algorithm: DerivativeBasedOptAlgBase = UnconstrainedNewtonsMethod(lsm)
     if algorithm == "grad":
         unc_algorithm = GradDescent(lsm)
     elif algorithm == "newton":
@@ -151,7 +151,7 @@ def main(
     q: np.ndarray
     r: float
 
-    if problem == "cvxopt_book":
+    if problem == "cvxopt-book":
         obj_fcn = get_cvxopt_book_for_grad_method()
     elif problem == "lse":
         num_vars = 100
@@ -180,11 +180,11 @@ def main(
         obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], r * np.ones(1))
         opt_params = OptParams(
             0.1,
-            300,
+            100,
             back_tracking_line_search_alpha=0.2,
             back_tracking_line_search_beta=0.9,
             tolerance_on_grad=1e1,
-            tolerance_on_newton_dec=1e-3,
+            tolerance_on_newton_dec=1e-6,
         )
     elif problem == "ill-conditioned-quad":
         num_vars = 100
@@ -194,11 +194,11 @@ def main(
         obj_fcn = QuadraticFunction(P[:, :, None], q[:, None], r * np.ones(1))
         opt_params = OptParams(
             0.1,
-            300,
+            15,
             back_tracking_line_search_alpha=0.2,
             back_tracking_line_search_beta=0.9,
             tolerance_on_grad=1e-1,
-            tolerance_on_newton_dec=1e-3,
+            tolerance_on_newton_dec=1e-6,
         )
     else:
         assert False, problem

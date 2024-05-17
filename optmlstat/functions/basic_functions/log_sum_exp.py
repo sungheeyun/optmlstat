@@ -6,9 +6,42 @@ sum exp (Ax+b)
 import numpy as np
 
 from optmlstat.functions.function_base import FunctionBase
+from optmlstat.functions.exceptions import ValueUnknownException
 
 
 class LogSumExp(FunctionBase):
+
+    @property
+    def maximal_point(self) -> np.ndarray:
+        raise ValueUnknownException()
+
+    @property
+    def maximal_value(self) -> np.ndarray:
+        raise ValueUnknownException()
+
+    @property
+    def maximum_point(self) -> np.ndarray:
+        raise ValueUnknownException()
+
+    @property
+    def maximum_value(self) -> np.ndarray:
+        raise ValueUnknownException()
+
+    @property
+    def minimal_point(self) -> np.ndarray:
+        raise ValueUnknownException()
+
+    @property
+    def minimal_value(self) -> np.ndarray:
+        raise ValueUnknownException()
+
+    @property
+    def minimum_point(self) -> np.ndarray:
+        raise ValueUnknownException()
+
+    @property
+    def minimum_value(self) -> np.ndarray:
+        raise ValueUnknownException()
 
     def __init__(self, A_3d: np.ndarray | list, b_2d: np.ndarray | list) -> None:
         """

@@ -2,6 +2,7 @@ from logging import Logger, getLogger
 
 import numpy as np
 from numpy import linalg
+from typing import Any
 
 from optmlstat.basic_modules.class_base import OMSClassBase
 from optmlstat.opt.opt_prob import OptProb
@@ -9,6 +10,7 @@ from optmlstat.opt.optalgs.optalg_base import OptAlgBase
 from optmlstat.opt.iteration import Iteration
 from optmlstat.opt.opt_iterate import OptimizationIterate
 from optmlstat.opt.opt_prob_eval import OptProbEval
+from optmlstat.functions.exceptions import ValueUnknownException
 
 logger: Logger = getLogger()
 
@@ -42,7 +44,11 @@ class OptResults(OMSClassBase):
         *,
         dual_prob_evaluation: OptProbEval | None = None,
         terminated: np.ndarray | None = None,
+        stopping_criteria_info: dict[str, Any] = None,
     ) -> None:
+        stopping_criteria_info = (
+            dict() if stopping_criteria_info is None else stopping_criteria_info
+        )
         assert iteration not in self._iter_iterate_dict
 
         if terminated is None:
@@ -57,8 +63,13 @@ class OptResults(OMSClassBase):
             f" - best: {self.best_obj_values.min()}"
             f" - avg. grad norm: {self.last_obj_grad_norm_avg.min()}"
         )
+        for key in sorted(stopping_criteria_info):
+            logger.info(
+                f"\t{key}: {self.opt_progress_report_info_to_str(stopping_criteria_info[key])}"
+            )
+        logger.info(f"\tterminated: {self.opt_progress_report_info_to_str(terminated)}")
+
         if verbose:
-            logger.info(f"\tterminated: {terminated}")
             logger.info(f"\tprimal: {primal_prob_evaluation}")
             logger.info(f"\tdual: {dual_prob_evaluation}")
 
@@ -85,20 +96,22 @@ class OptResults(OMSClassBase):
         num_iterations_list: list[int] = self.num_iterations_list
 
         logger.info("optimization result analysis")
-        logger.info(f"\topt. prob.: {str(self.opt_prob)}")
-        logger.info(f"\tobj fcn: {str(self.opt_prob.obj_fcn)}")
-        logger.info(f"\tpopulation size: {str(self.population_size)}")
-        logger.info(f"\tsolving time: {str(self.solve_time)}")
+        logger.info(f"\topt. prob.: {self.opt_prob}")
+        logger.info(f"\t# members: {self.population_size}")
+        logger.info(f"\toptimization time: {self.solve_time:.3g} sec.")
 
         logger.info(f"\t# iters: {num_iterations_list}")
         logger.info(f"\tavg # iters: {np.array(num_iterations_list).mean()}")
         logger.info(f"\tbest obj values: {self.best_obj_values}")
 
-        true_opt_val: float = self.opt_prob.optimum_value
-        logger.info(f"\tabs suboptimality: {self.best_obj_values - true_opt_val}")
-        logger.info(
-            f"\trel suboptimality: {(self.best_obj_values - true_opt_val)/np.abs(true_opt_val)}"
-        )
+        try:
+            true_opt_val: float = self.opt_prob.optimum_value
+            logger.info(f"\tabs suboptimality: {self.best_obj_values - true_opt_val}")
+            logger.info(
+                f"\trel suboptimality: {(self.best_obj_values - true_opt_val)/np.abs(true_opt_val)}"
+            )
+        except ValueUnknownException:
+            pass
 
     @property
     def iteration_iterate_list(self) -> tuple[list[Iteration], list[OptimizationIterate]]:
@@ -153,3 +166,9 @@ class OptResults(OMSClassBase):
                 ].primal_prob_evaluation.obj_fcn_jac_3d
             ]
         ).mean()
+
+    @staticmethod
+    def opt_progress_report_info_to_str(value: Any) -> Any:
+        if isinstance(value, np.ndarray) and value.ndim == 1:
+            return list(value)
+        return value

@@ -6,9 +6,17 @@ from typing import Any
 from dataclasses import dataclass
 import json
 
+import numpy as np
 from numpy import ndarray
 
 from optmlstat.formatting import convert_data_for_json
+
+
+def ndarray_to_list(a: np.ndarray | float) -> list:
+    if isinstance(a, np.ndarray):
+        return [ndarray_to_list(x) for x in a]
+    else:
+        return float(a)
 
 
 @dataclass(frozen=True)
@@ -35,7 +43,7 @@ class OptProbEval:
             ineq_cnst_array_2d=self.ineq_cnst_array_2d,
             ineq_cnst_jac_3d=self.ineq_cnst_jac_3d,
             ineq_cnst_hess_4d=self.ineq_cnst_hess_4d,
-            eq_cnst_array_2d=self.ineq_cnst_array_2d,
+            eq_cnst_array_2d=self.eq_cnst_array_2d,
             eq_cnst_jac_3d=self.eq_cnst_jac_3d,
             eq_cnst_hess_4d=self.eq_cnst_hess_4d,
         )

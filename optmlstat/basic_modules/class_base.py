@@ -1,5 +1,12 @@
+"""
+formatter
+"""
+
 from typing import Union
 from abc import ABC
+import json
+
+from optmlstat.formatting import convert_data_for_json
 
 
 class OMSClassBase(ABC):
@@ -19,3 +26,7 @@ class OMSClassBase(ABC):
          json data object
         """
         return dict(class_category=self.__class__.__name__)
+
+    def __repr__(self) -> str:
+        # return json.dumps(self.to_json_data(), indent=2, default=convert_data_for_json)
+        return json.dumps(self.to_json_data(), default=convert_data_for_json)

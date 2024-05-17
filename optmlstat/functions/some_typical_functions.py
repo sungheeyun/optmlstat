@@ -1,5 +1,5 @@
 """
-examples functions
+some typical functions
 """
 
 import numpy as np

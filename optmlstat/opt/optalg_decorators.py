@@ -8,8 +8,8 @@ from logging import Logger, getLogger
 from typing import Callable
 
 import numpy as np
-from numpy.random import randn
 
+from optmlstat.functions.basic_functions.affine_function import AffineFunction
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
@@ -20,8 +20,8 @@ logger: Logger = getLogger()
 
 # DONE (H) Sridhar told me that a decorator shouldn't add any functionalities
 #  just checking conditions. probably the below decorator violates that condition.
-#  Review whether the below decorators satisfy the requirements
-#  after a little research on this aspect.
+#  Review whether the below decorators satisfy the requirements after a little research on this
+#  aspect.
 #  done on 14-May-2024 - now decorators do check things only
 
 
@@ -50,14 +50,14 @@ def solver(func: Callable) -> Callable:
         logger.debug(initial_lambda_array_2d.__class__)
         logger.debug(initial_nu_array_2d.__class__)
 
-        if initial_x_array_2d is None:
-            initial_x_array_2d = randn(1, opt_prob.dim_domain)
-
-        if opt_prob.num_ineq_cnst > 0 and initial_lambda_array_2d is None:
-            initial_lambda_array_2d = randn(1, opt_prob.num_ineq_cnst)
-
-        if opt_prob.num_eq_cnst > 0 and initial_nu_array_2d is None:
-            initial_nu_array_2d = randn(1, opt_prob.num_eq_cnst)
+        # if initial_x_array_2d is None:
+        #     initial_x_array_2d = randn(1, opt_prob.dim_domain)
+        #
+        # if opt_prob.num_ineq_cnst > 0 and initial_lambda_array_2d is None:
+        #     initial_lambda_array_2d = randn(1, opt_prob.num_ineq_cnst)
+        #
+        # if opt_prob.num_eq_cnst > 0 and initial_nu_array_2d is None:
+        #     initial_nu_array_2d = randn(1, opt_prob.num_eq_cnst)
 
         assert (
             initial_lambda_array_2d is None
@@ -92,7 +92,7 @@ def solver(func: Callable) -> Callable:
 def convex_solver(func: Callable) -> Callable:
     """
     A decorator for OptimizationAlgorithmBase.solve method.
-    Checks whether an optimization problem has an equality constraint and it is linear.
+    Checks whether an OPTIMIZATION PROBLEM IS CONVEX
     """
 
     @wraps(func)
@@ -109,7 +109,7 @@ def convex_solver(func: Callable) -> Callable:
 def single_obj_solver(func: Callable) -> Callable:
     """
     A decorator for OptimizationAlgorithmBase.solve method.
-    Checks whether an optimization problem is a single objective optimization problem.
+    Checks whether an optimization problem is a SINGLE OBJECTIVE OPTIMIZATION PROBLEM.
     """
 
     @wraps(func)
@@ -125,7 +125,8 @@ def single_obj_solver(func: Callable) -> Callable:
 def eq_cnst_solver(func: Callable) -> Callable:
     """
     A decorator for OptimizationAlgorithmBase.solve method.
-    Checks whether an optimization problem is an equality constrained optimization problem.
+    checks whether an optimization problem has
+    - OBJ FNC & EQ CONST ONLY
     """
 
     @wraps(func)
@@ -133,34 +134,51 @@ def eq_cnst_solver(func: Callable) -> Callable:
         self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs
     ) -> OptResults:
         assert opt_prob.obj_fcn is not None
-        assert opt_prob.ineq_cnst_fcn is None
         assert opt_prob.eq_cnst_fcn is not None
+        assert opt_prob.ineq_cnst_fcn is None
 
         return func(self, opt_prob, verbose, *args, **kwargs)
 
     return eq_cnst_solver_wrapper
 
 
-def linear_eq_cnst_solver(func: Callable) -> Callable:
+def no_ineq_cnst_solver(func: Callable) -> Callable:
     """
     A decorator for OptimizationAlgorithmBase.solve method.
-    Checks whether an optimization problem has an equality constraint and it is linear.
+    Checks whether an optimization problem has
+    NO INEQ CONSTRAINTS
     """
 
     @wraps(func)
-    def linear_eq_cnst_solver_wrapper(
-        self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs
-    ) -> OptResults:
-        assert opt_prob.eq_cnst_fcn is not None and opt_prob.eq_cnst_fcn.is_affine
+    def wrapper(self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs) -> OptResults:
+        assert opt_prob.ineq_cnst_fcn is None
+
         return func(self, opt_prob, verbose, *args, **kwargs)
 
-    return linear_eq_cnst_solver_wrapper
+    return wrapper
+
+
+def linear_eq_cnst_solver(func: Callable) -> Callable:
+    """
+    A decorator for OptimizationAlgorithmBase.solve method.
+    Checks whether equality constraints has
+    - EITHER NO EQ CONSTRAINT OR LINEAR EQ CONSTRAINTS IF IT HAS
+    """
+
+    @wraps(func)
+    def wrapper(self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs) -> OptResults:
+        assert opt_prob.eq_cnst_fcn is None or isinstance(
+            opt_prob.eq_cnst_fcn, AffineFunction
+        ), opt_prob.eq_cnst_fcn
+        return func(self, opt_prob, verbose, *args, **kwargs)
+
+    return wrapper
 
 
 def unconstrained_opt_solver(func: Callable) -> Callable:
     """
-    A decorator for optmlstat.opt.optalgs.optalg_base.OptAlgBase.solve method.
-    Checks whether an optimization problem has an equality constraint and it is linear.
+    check whether opt prob has no eq constrainta and ineq constraints
+    doesn't care whether it has obj fcn
     """
 
     @wraps(func)
@@ -177,6 +195,11 @@ def unconstrained_opt_solver(func: Callable) -> Callable:
 
 
 def differentiable_obj_required_solver(func: Callable) -> Callable:
+    """
+    checks whether all obj fcn, eq & ineq constraint functions
+    are differentiable
+    """
+
     @wraps(func)
     def differentiable_obj_required_solver_wrapper(
         self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs
@@ -189,6 +212,11 @@ def differentiable_obj_required_solver(func: Callable) -> Callable:
 
 
 def twice_differentiable_obj_required_solver(func: Callable) -> Callable:
+    """
+    checks whether all obj fcn, eq & ineq constraint functions
+    are twice-differentiable
+    """
+
     @wraps(func)
     def twice_differentiable_obj_required_solver_wrapper(
         self: OptAlgBase, opt_prob: OptProb, verbose: bool, *args, **kwargs

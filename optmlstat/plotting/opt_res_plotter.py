@@ -19,6 +19,7 @@ from optmlstat.plotting.plotter import plot_fcn_contour
 from optmlstat.plotting.trajectory_obj_val_progress_animation import (
     TrajectoryObjValProgressAnimation,
 )
+from optmlstat.functions.exceptions import ValueUnknownException
 
 logger: Logger = getLogger()
 
@@ -58,7 +59,11 @@ class OptimizationResultPlotter:
         # gap_axis: Axes | None = kwargs.pop("gap_axis", None)
         # true_opt_val: float | None = kwargs.pop("true_opt_val", None)
 
-        true_opt_val: float = self.opt_res.opt_prob.optimum_value
+        true_opt_val: float | None = None
+        try:
+            true_opt_val: float = self.opt_res.opt_prob.optimum_value
+        except ValueUnknownException:
+            pass
 
         iteration_list: list[Iteration]
         opt_iterate_list: list[OptimizationIterate]
@@ -191,14 +196,13 @@ class OptimizationResultPlotter:
     #  add method for drawing dual variable trajectories
 
     # DONE (M)
-    #  add a method for drawing variable trajectories and
-    #  (primal and/or dual) obj functions together.
+    #  add a method for drawing variable trajectories and (primal and/or dual) obj functions
+    #  together.
     #  done on 13-May-2024
 
     # CANCELED (M) add arguments for selection of variables to draw
-    #  canceled on 14-May-2024 - decide not to do this
-    #  because currently we do projection using two randomly chosen two orthonormal
-    #  projection vectors when # primal variables is greater than two
+    #  canceled on 14-May-2024 - decide not to do this because currently we do projection using two
+    #  randomly chosen two orthonormal vectors when # primal variables is greater than two
     def animate_primal_sol(
         self,
         ax: Axes,
@@ -272,12 +276,17 @@ class OptimizationResultPlotter:
         )
 
         assert self.opt_res.opt_prob.obj_fcn is not None
+        optimum_point: np.ndarray | None = None
+        try:
+            optimum_point = self.opt_res.opt_prob.optimum_point
+        except ValueUnknownException:
+            pass
         ax.axis("equal")
         plot_fcn_contour(
             ax,
             self.opt_res.opt_prob.obj_fcn,
             proj_array_2d,
-            center=self.opt_res.opt_prob.optimum_point,
+            center=optimum_point,
             xlim=ax.get_xlim(),
             ylim=ax.get_ylim(),
             levels=20,

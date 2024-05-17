@@ -54,3 +54,9 @@ class OptAlgBase(OMSClassBase):
         initial_nu_array_2d: np.ndarray | None = None,
     ) -> Any:
         pass
+
+    @staticmethod
+    def check_primela_eq_feasibility(opt_prob: OptProb, x_array_2d: np.ndarray) -> bool:
+        return opt_prob.num_eq_cnst == 0 or np.allclose(
+            opt_prob.eq_cnst_fcn.get_y_values_2d(x_array_2d), 0.0
+        )

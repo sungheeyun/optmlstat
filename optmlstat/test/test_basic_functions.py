@@ -6,7 +6,7 @@ from numpy.random import randn
 from freq_used.logging_utils import set_logging_basic_config
 
 from optmlstat.functions.function_base import FunctionBase
-from optmlstat.functions.example_functions import (
+from optmlstat.functions.some_typical_functions import (
     get_sum_of_square_function,
     get_sum_function,
 )
@@ -29,9 +29,7 @@ class TestBasicFunctions(unittest.TestCase):
         y_array_1d: ndarray = TestBasicFunctions._get_y_array_1d(
             get_sum_of_square_function(TestBasicFunctions.num_inputs)
         )
-        true_y_array_1d: ndarray = power(
-            TestBasicFunctions.x_array_2d, 2.0
-        ).sum(axis=1)
+        true_y_array_1d: ndarray = power(TestBasicFunctions.x_array_2d, 2.0).sum(axis=1)
 
         logger.info(y_array_1d.shape)
         logger.info(true_y_array_1d.shape)
@@ -43,9 +41,7 @@ class TestBasicFunctions(unittest.TestCase):
         y_array_1d: ndarray = TestBasicFunctions._get_y_array_1d(
             get_sum_function(TestBasicFunctions.num_inputs)
         )
-        true_y_array_1d: ndarray = power(
-            TestBasicFunctions.x_array_2d, 1.0
-        ).sum(axis=1)
+        true_y_array_1d: ndarray = power(TestBasicFunctions.x_array_2d, 1.0).sum(axis=1)
 
         logger.info(y_array_1d.shape)
         logger.info(true_y_array_1d.shape)

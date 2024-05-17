@@ -18,6 +18,38 @@ class AffineFunction(FunctionBase):
     """
 
     @property
+    def maximal_point(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def maximal_value(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def maximum_point(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def maximum_value(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def minimal_point(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def minimal_value(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def minimum_point(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
+    def minimum_value(self) -> np.ndarray:
+        raise NotImplementedError()
+
+    @property
     def is_twice_differentiable(self) -> bool:
         return True
 
@@ -28,6 +60,11 @@ class AffineFunction(FunctionBase):
         raise NotImplementedError()
 
     def __init__(self, slope_array_2d: ndarray, intercept_array_1d: ndarray) -> None:
+        """
+        n variables, m outputs
+        :param slope_array_2d: n-by-m array
+        :param intercept_array_1d: m array
+        """
         assert slope_array_2d.ndim == 2, slope_array_2d.ndim
         assert intercept_array_1d.ndim == 1, intercept_array_1d.ndim
         assert slope_array_2d.shape[1] == intercept_array_1d.size, (

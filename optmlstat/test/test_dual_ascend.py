@@ -20,7 +20,7 @@ from optmlstat.functions.basic_functions.affine_function import AffineFunction
 from optmlstat.functions.basic_functions.quadratic_function import (
     QuadraticFunction,
 )
-from optmlstat.functions.example_functions import (
+from optmlstat.functions.some_typical_functions import (
     get_sum_function,
     get_sum_of_square_function,
 )

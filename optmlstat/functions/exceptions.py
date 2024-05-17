@@ -13,3 +13,7 @@ class UnboundedAboveException(Exception):
 
 class InfiniteNumberOfSolutionsException(Exception):
     pass
+
+
+class ValueUnknownException(Exception):
+    pass

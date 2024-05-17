@@ -14,7 +14,7 @@ from optmlstat.opt.optalgs.optalg_base import OptAlgBase
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
 from optmlstat.opt.opt_prob_eval import OptProbEval
-from optmlstat.opt.opt_alg_decorators import (
+from optmlstat.opt.optalg_decorators import (
     solver,
     single_obj_solver,
     eq_cnst_solver,

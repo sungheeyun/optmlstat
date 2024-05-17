@@ -141,7 +141,7 @@ class FunctionBase(OMSClassBase):
 
     # DONE (2) implemented the below method for all subclasses of FunctionBase
     #  done on May-14-2024 - decide to do this as needed
-    #  most of problems can be solved by running mypy
+    #  - most of problems can be solved by running mypy
 
     def get_shape(self) -> tuple[int, int]:
         return self.num_inputs, self.num_outputs

@@ -1,7 +1,8 @@
 """
-gradient descent method
+Newton's method for unconstrained optimization
 """
 
+from abc import abstractmethod
 from logging import Logger, getLogger
 from typing import Any
 
@@ -10,18 +11,20 @@ import numpy as np
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
+from optmlstat.opt.optalg_decorators import (
+    twice_differentiable_obj_required_solver,
+)
 from optmlstat.opt.optalgs.derivative_based_optalg_base import DerivativeBasedOptAlgBase
-from optmlstat.opt.optalg_decorators import unconstrained_opt_solver
 
 logger: Logger = getLogger()
 
 
-class GradDescent(DerivativeBasedOptAlgBase):
+class NewtonsMethodBase(DerivativeBasedOptAlgBase):
     """
     gradient descent method
     """
 
-    @unconstrained_opt_solver
+    @twice_differentiable_obj_required_solver
     def _solve(
         self,
         opt_prob: OptProb,
@@ -49,23 +52,39 @@ class GradDescent(DerivativeBasedOptAlgBase):
         hess: np.ndarray | None,
         opt_param: OptParams,
     ) -> tuple[np.ndarray, dict[str, Any]]:
-        assert jac is not None
-        assert jac.shape[1] == 1, jac.shape
         assert search_directions is not None
+        assert jac is not None
+        assert hess is not None
+
+        assert jac.ndim == 3, jac.shape
+        assert jac.shape[1] == 1, jac.shape
+        assert hess.ndim == 4, hess.shape
+        assert hess.shape[1] == 1, hess.shape
         assert search_directions.ndim == 2, search_directions.shape
         assert search_directions.shape[0] == jac.shape[0], (search_directions.shape, jac.shape)
+
+        hess_3d: np.ndarray = hess.squeeze(axis=1)
+
         info: dict[str, Any] = dict(
-            grad_norm_squared=(jac.squeeze(axis=1) ** 2).sum(axis=1),
-            tolerance_on_grad=opt_param.tolerance_on_grad,
+            newton_dec=np.array(
+                [
+                    np.dot(np.dot(hess_2d, search_directions[idx]), search_directions[idx]) / 2.0
+                    for idx, hess_2d in enumerate(hess_3d)
+                ]
+            ),
+            tolerance_on_newton_dec=opt_param.tolerance_on_newton_dec,
         )
-        return info["grad_norm_squared"] < opt_param.tolerance_on_grad, info
+        if opt_param.tolerance_on_newton_dec is None:
+            return np.array([False] * jac.shape[0]), info
+
+        return info["newton_dec"] < opt_param.tolerance_on_newton_dec, info
 
     @property
     def need_hessian(self) -> bool:
-        return False
+        return True
 
+    @abstractmethod
     def get_search_dir(
         self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
     ) -> np.ndarray:
-        assert hess is None, hess.__class__
-        return -jac.squeeze(axis=1)
+        pass
