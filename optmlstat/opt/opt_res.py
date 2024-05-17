@@ -39,10 +39,10 @@ class OptResults(OMSClassBase):
         self,
         iteration: Iteration,
         primal_prob_evaluation: OptProbEval,
+        dual_prob_evaluation: OptProbEval,
         verbose: bool,
         /,
         *,
-        dual_prob_evaluation: OptProbEval | None = None,
         terminated: np.ndarray | None = None,
         stopping_criteria_info: dict[str, Any] | None = None,
     ) -> None:
@@ -55,7 +55,7 @@ class OptResults(OMSClassBase):
             terminated = np.array([False] * primal_prob_evaluation.x_array_2d.shape[0])
 
         self._iter_iterate_dict[iteration] = OptimizationIterate(
-            primal_prob_evaluation, terminated, dual_prob_evaluation
+            primal_prob_evaluation, dual_prob_evaluation, terminated
         )
 
         logger.info(
@@ -99,6 +99,9 @@ class OptResults(OMSClassBase):
 
         logger.info(f"\t# iters: {num_iterations_list}")
         logger.info(f"\tavg # iters: {np.array(num_iterations_list).mean()}")
+        logger.info(f"\tavg final x: {self.final_iterate.x_array_2d.mean(axis=0)}")
+        logger.info(f"\tavg final lambda: {self.final_iterate.lambda_array_2d.mean(axis=0)}")
+        logger.info(f"\tavg final nu: {self.final_iterate.nu_array_2d.mean(axis=0)}")
         logger.info(f"\tbest obj values: {self.best_obj_values}")
 
         try:

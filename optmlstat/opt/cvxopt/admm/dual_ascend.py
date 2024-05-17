@@ -88,6 +88,7 @@ class DualAscend(OptAlgBase):
          OptimizationResult instance.
         """
 
+        dual_problem: OptProb = opt_prob.dual_problem
         obj_fcn: FunctionBase | None = opt_prob.obj_fcn
         eq_cnst_fcn: FunctionBase | None = opt_prob.eq_cnst_fcn
 
@@ -96,6 +97,8 @@ class DualAscend(OptAlgBase):
 
         assert initial_x_array_2d is not None
         assert initial_nu_array_2d is not None
+        assert initial_lambda_array_2d is None
+        initial_lambda_array_2d = np.ndarray((initial_x_array_2d.shape[0], 0))
 
         conjugate: FunctionBase = obj_fcn.conjugate
         assert isinstance(conjugate, QuadraticFunction), conjugate.__class__
@@ -103,7 +106,14 @@ class DualAscend(OptAlgBase):
 
         opt_res: OptResults = OptResults(opt_prob, self)
 
-        opt_res.register_solution(Iteration(0), opt_prob.evaluate(initial_x_array_2d), verbose)
+        opt_res.register_solution(
+            Iteration(0),
+            opt_prob.evaluate(initial_x_array_2d),
+            opt_prob.dual_problem.evaluate(
+                np.hstack((initial_lambda_array_2d, initial_nu_array_2d))
+            ),
+            verbose,
+        )
 
         y_array_2d: ndarray = initial_nu_array_2d.copy()
 
@@ -131,10 +141,10 @@ class DualAscend(OptAlgBase):
             opt_res.register_solution(
                 iteration,
                 opt_prob.evaluate(x_array_2d),
-                verbose,
-                dual_prob_evaluation=OptProbEval(
-                    opt_prob=None, x_array_2d=y_array_2d, obj_fcn_array_2d=dual_fcn_array_2d
+                OptProbEval(
+                    opt_prob=dual_problem, x_array_2d=y_array_2d, obj_fcn_array_2d=dual_fcn_array_2d
                 ),
+                verbose,
             )
 
         return opt_res

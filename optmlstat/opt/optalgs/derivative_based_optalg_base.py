@@ -12,7 +12,6 @@ from optmlstat.opt.constants import LineSearchMethod
 from optmlstat.opt.iteration import Iteration
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
-from optmlstat.opt.opt_prob_eval import OptProbEval
 from optmlstat.opt.opt_res import OptResults
 from optmlstat.opt.optalg_decorators import (
     solver,
@@ -66,6 +65,7 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
         obj_fcn: FunctionBase | None = opt_prob.obj_fcn
         assert obj_fcn is not None
         opt_res: OptResults = OptResults(opt_prob, self)
+        dual_problem: OptProb = opt_prob.dual_problem
 
         x_array_2d: np.ndarray = initial_x_array_2d
         for idx in range(opt_param.max_num_outer_iterations + 1):
@@ -91,8 +91,8 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
             opt_res.register_solution(
                 Iteration(idx),
                 opt_prob.evaluate(x_array_2d),
+                dual_problem.evaluate(np.hstack((lambda_array_2d, nu_array_2d))),
                 verbose,
-                dual_prob_evaluation=OptProbEval(None, np.hstack((lambda_array_2d, nu_array_2d))),
                 terminated=terminated,
                 stopping_criteria_info=stopping_criteria_info,
             )

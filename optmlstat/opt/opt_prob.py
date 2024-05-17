@@ -1,12 +1,20 @@
+"""
+class for optimization problems
+"""
+
+from __future__ import annotations
+
 from typing import Any
 
 import numpy as np
 from numpy import ndarray
 
 from optmlstat.basic_modules.class_base import OMSClassBase
-from optmlstat.functions.function_base import FunctionBase
-from optmlstat.opt.opt_prob_eval import OptProbEval
+from optmlstat.functions.basic_functions.affine_function import AffineFunction
 from optmlstat.functions.exceptions import ValueUnknownException
+from optmlstat.functions.function_base import FunctionBase
+from optmlstat.functions.special_functions.empty_function import EmptyFunction
+from optmlstat.opt.opt_prob_eval import OptProbEval
 
 
 class OptProb(OMSClassBase):
@@ -92,6 +100,15 @@ class OptProb(OMSClassBase):
             self._is_convex = False
 
     @property
+    def dual_problem(self) -> OptProb:
+        num_dual_variables: int = self.num_ineq_cnst + self.num_eq_cnst
+        return OptProb(
+            EmptyFunction(num_dual_variables, 1),
+            EmptyFunction(num_dual_variables, 0),
+            AffineFunction(-np.eye(self.num_ineq_cnst), np.zeros(self.num_ineq_cnst)),
+        )
+
+    @property
     def dim_domain(self) -> int:
         return self._domain_dim
 
@@ -170,7 +187,9 @@ class OptProb(OMSClassBase):
     def evaluate(self, x_array_2d: ndarray) -> OptProbEval:
 
         obj_fcn_jac_3d: ndarray | None = (
-            None if self.obj_fcn is None else self.obj_fcn.jacobian(x_array_2d)
+            None
+            if self.obj_fcn is None
+            else (self.obj_fcn.jacobian(x_array_2d) if self.obj_fcn.is_differentiable else None)
         )
 
         return OptProbEval(

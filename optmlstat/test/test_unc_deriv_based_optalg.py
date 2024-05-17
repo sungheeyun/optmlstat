@@ -17,6 +17,7 @@ from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunc
 from optmlstat.functions.function_base import FunctionBase
 from optmlstat.opt.constants import LineSearchMethod
 from optmlstat.opt.opt_iterate import OptimizationIterate
+from optmlstat.opt.optalgs.optalg_base import OptAlgBase
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
@@ -35,9 +36,10 @@ class TestGradDescent(unittest.TestCase):
     # opt_param: OptimizationParameter = OptimizationParameter(0.1077, 100)
     opt_param: OptParams = OptParams(
         0.1,
-        20,
+        100,
         back_tracking_line_search_alpha=0.25,
         back_tracking_line_search_beta=0.5,
+        tolerance_on_grad=1e-6,
     )
 
     @classmethod
@@ -46,6 +48,7 @@ class TestGradDescent(unittest.TestCase):
             __file__,
             level=eval(f"logging.{os.environ.get('TEST_LOG_LEVEL', 'INFO')}"),
         )
+        nr.seed(cls.RANDOM_SEED)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -55,21 +58,29 @@ class TestGradDescent(unittest.TestCase):
         pass
 
     def test_grad_descent(self) -> None:
-        nr.seed(self.RANDOM_SEED)
+        self._test_unc_deriv_based_optalg(GradDescent(LineSearchMethod.BackTrackingLineSearch))
+
+    def _test_unc_deriv_based_optalg(self, optalg: OptAlgBase) -> None:
         num_vars: int = 2
 
         obj_fcn: FunctionBase = QuadraticFunction(
-            np.diag([30, 1])[:, :, None], 3 * np.ones((2, 1)), np.zeros(1)
+            np.diag([9, 1])[:, :, None], -2.0 * np.array([3.0, 1.0])[:, np.newaxis], np.zeros(1)
         )
         initial_x_2d: np.ndarray = 8 * nr.rand(self.NUM_DATA_POINTS, num_vars) - 4
-        # initial_x_2d: np.ndarray = np.array([[4.0, -4.0]])
 
         opt_prob: OptProb = OptProb(obj_fcn)
 
-        grad_descent: GradDescent = GradDescent(LineSearchMethod.BackTrackingLineSearch)
-        opt_res: OptResults = grad_descent.solve(
+        opt_res: OptResults = optalg.solve(
             opt_prob, self.opt_param, True, initial_x_array_2d=initial_x_2d
         )
+        opt_res.result_analysis()
+        print(opt_res.final_iterate.x_array_2d.mean(axis=0) - opt_prob.optimum_point)
+        self.assertTrue(
+            np.allclose(
+                opt_res.final_iterate.x_array_2d.mean(axis=0), opt_prob.optimum_point, atol=1e-4
+            )
+        )
+        self.assertTrue(np.allclose(opt_res.best_obj_values, opt_prob.optimum_value, atol=1e-8))
 
         final_iterate: OptimizationIterate = opt_res.final_iterate
         logger.info(final_iterate.x_array_2d)
