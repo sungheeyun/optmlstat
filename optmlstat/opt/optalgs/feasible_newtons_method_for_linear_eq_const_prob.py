@@ -45,7 +45,7 @@ class FeasibleNewtonsMethodForLinearEqConstProb(NewtonsMethodBase):
             initial_nu_array_2d=initial_nu_array_2d,
         )
 
-    def get_search_dir(
+    def loss_fcn_and_directional_deriv(
         self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         assert hess is not None, hess.__class__

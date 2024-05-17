@@ -121,3 +121,7 @@ def get_random_orthogonal_array(num: int) -> np.ndarray:
     are ortho*normal*!
     """
     return ortho_group.rvs(dim=num)
+
+
+def skinny_empty_array_2d(num_rows: int) -> np.ndarray:
+    return np.ndarray((num_rows, 0))

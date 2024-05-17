@@ -3,7 +3,7 @@ base class for classes of Newton's methods for diverse types of problems such as
 linearly eq constrained only, linearly eq constrained and general ineq constrained, etc.
 """
 
-from abc import abstractmethod
+from abc import ABC
 from logging import Logger, getLogger
 from typing import Any
 
@@ -20,7 +20,7 @@ from optmlstat.opt.optalgs.derivative_based_optalg_base import DerivativeBasedOp
 logger: Logger = getLogger()
 
 
-class NewtonsMethodBase(DerivativeBasedOptAlgBase):
+class NewtonsMethodBase(DerivativeBasedOptAlgBase, ABC):
 
     @twice_differentiable_obj_required_solver
     def _solve(
@@ -80,9 +80,3 @@ class NewtonsMethodBase(DerivativeBasedOptAlgBase):
     @property
     def need_hessian(self) -> bool:
         return True
-
-    @abstractmethod
-    def get_search_dir(
-        self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        pass

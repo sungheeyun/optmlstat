@@ -7,6 +7,7 @@ from logging import Logger, getLogger
 import numpy as np
 from scipy import linalg
 
+from optmlstat.functions.function_base import FunctionBase
 from optmlstat.opt.optalg_decorators import (
     unconstrained_opt_solver,
 )
@@ -41,9 +42,9 @@ class UnconstrainedNewtonsMethod(NewtonsMethodBase):
             initial_nu_array_2d=initial_nu_array_2d,
         )
 
-    def get_search_dir(
+    def loss_fcn_and_directional_deriv(
         self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[FunctionBase, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         assert hess is not None, hess.__class__
         jac_array_2d: np.ndarray = jac.squeeze(axis=1)
         hess_array_3d: np.ndarray = hess.squeeze(axis=1)

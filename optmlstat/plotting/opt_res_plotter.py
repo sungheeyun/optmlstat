@@ -91,9 +91,10 @@ class OptimizationResultPlotter:
                     )
 
         dual_obj_fcn_dim_list: list[int] = [
-            opt_iterate.dual_prob_evaluation.obj_fcn_array_2d.shape[0]  # type:ignore
+            opt_iterate.dual_prob_evaluation.obj_fcn_array_2d.shape[0]
             for opt_iterate in opt_iterate_list
             if opt_iterate.dual_prob_evaluation is not None
+            and opt_iterate.dual_prob_evaluation.obj_fcn_array_2d is not None
         ]
 
         dual_obj_fcn_array_2d: np.ndarray | None = None

@@ -74,9 +74,18 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
             if self.need_hessian:
                 hess = obj_fcn.hessian(initial_x_array_2d)
 
-            search_dir, lambda_array_2d, nu_array_2d = self.get_search_dir(opt_prob, jac, hess)
+            (
+                loss_fcn,
+                search_direction,
+                directional_deriv_x_2d,
+                directional_deriv_lambda_2d,
+                directional_deriv_nu_x_2d,
+                lambda_array_2d,
+                nu_array_2d,
+            ) = self.loss_fcn_and_directional_deriv(opt_prob, jac, hess)
+
             terminated, stopping_criteria_info = self.check_stopping_criteria(
-                search_dir, jac, hess, opt_param
+                opt_param, directional_deriv_x_2d
             )
 
             opt_res.register_solution(
@@ -94,8 +103,10 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
             # TODO (H) written on 16-May-2024
             #  change code so that it does not search for members who have already satisfied
             #  stopping criteria
-            t_array_1d: np.ndarray = line_search.search(obj_fcn, x_array_2d, search_dir)
-            x_array_2d += t_array_1d[:, None] * search_dir
+            t_array_1d: np.ndarray = line_search.search(
+                obj_fcn, x_array_2d, search_direction, directional_deriv_x_2d
+            )
+            x_array_2d += t_array_1d[:, None] * search_direction
 
         return opt_res
 
@@ -105,9 +116,11 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
         pass
 
     @abstractmethod
-    def get_search_dir(
+    def loss_fcn_and_directional_deriv(
         self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[
+        FunctionBase, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray
+    ]:
         """
         calculate search directions (and other related quantities)
 
@@ -115,18 +128,20 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
         :param jac: jacobians of obj fcn
         :param hess: hessians of obj fcn
         :return:
+            loss_fcn
             search direction
-            ineq dual variable values - lambda
-            eq dual variable values - nu
+            directional derivative - x
+            directional derivative - lambda
+            directional derivative - nu
+            lambda
+            nu
         """
         pass
 
     @abstractmethod
     def check_stopping_criteria(
         self,
-        search_directions: np.ndarray,
-        jac: np.ndarray,
-        hess: np.ndarray | None,
         opt_param: OptParams,
+        directional_derivative: np.ndarray,
     ) -> tuple[np.ndarray, dict[str, Any]]:
         pass
