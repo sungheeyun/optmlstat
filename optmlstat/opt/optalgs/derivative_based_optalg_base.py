@@ -3,7 +3,6 @@ gradient descent method
 """
 
 from abc import abstractmethod
-from logging import Logger, getLogger
 from typing import Any
 
 import numpy as np
@@ -13,6 +12,7 @@ from optmlstat.opt.constants import LineSearchMethod
 from optmlstat.opt.iteration import Iteration
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
+from optmlstat.opt.opt_prob_eval import OptProbEval
 from optmlstat.opt.opt_res import OptResults
 from optmlstat.opt.optalg_decorators import (
     solver,
@@ -20,13 +20,11 @@ from optmlstat.opt.optalg_decorators import (
     differentiable_obj_required_solver,
 )
 from optmlstat.opt.optalgs.back_tracking_ls import BackTrackingLineSearch
+from optmlstat.opt.optalgs.iterative_optalg_base import IterativeOptAlgBase
 from optmlstat.opt.optalgs.line_search_base import LineSearchBase
-from optmlstat.opt.optalgs.optalg_base import OptAlgBase
-
-logger: Logger = getLogger()
 
 
-class DerivativeBasedOptAlgBase(OptAlgBase):
+class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
     """
     Dual Ascend algorithm
     """
@@ -37,7 +35,7 @@ class DerivativeBasedOptAlgBase(OptAlgBase):
     @solver
     @single_obj_solver
     @differentiable_obj_required_solver
-    def _iter_solve(
+    def _derivative_based_iter_solve(
         self,
         opt_prob: OptProb,
         opt_param: OptParams,
@@ -79,7 +77,7 @@ class DerivativeBasedOptAlgBase(OptAlgBase):
             if self.need_hessian:
                 hess = obj_fcn.hessian(initial_x_array_2d)
 
-            search_dir = self.get_search_dir(opt_prob, jac, hess)
+            search_dir, lambda_array_2d, nu_array_2d = self.get_search_dir(opt_prob, jac, hess)
             terminated, stopping_criteria_info = self.check_stopping_criteria(
                 search_dir, jac, hess, opt_param
             )
@@ -88,6 +86,7 @@ class DerivativeBasedOptAlgBase(OptAlgBase):
                 Iteration(idx),
                 opt_prob.evaluate(x_array_2d),
                 verbose,
+                dual_prob_evaluation=OptProbEval(None, np.hstack((lambda_array_2d, nu_array_2d))),
                 terminated=terminated,
                 stopping_criteria_info=stopping_criteria_info,
             )
@@ -111,7 +110,18 @@ class DerivativeBasedOptAlgBase(OptAlgBase):
     @abstractmethod
     def get_search_dir(
         self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
-    ) -> np.ndarray:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        calculate search directions (and other related quantities)
+
+        :param opt_prob:
+        :param jac: jacobians of obj fcn
+        :param hess: hessians of obj fcn
+        :return:
+            search direction
+            ineq dual variable values - lambda
+            eq dual variable values - nu
+        """
         pass
 
     @abstractmethod

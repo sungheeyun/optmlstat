@@ -36,7 +36,7 @@ class NewtonsMethodBase(DerivativeBasedOptAlgBase):
         initial_lambda_array_2d: np.ndarray | None = None,
         initial_nu_array_2d: np.ndarray | None = None,
     ) -> OptResults:
-        return self._iter_solve(
+        return self._derivative_based_iter_solve(
             opt_prob,
             opt_param,
             verbose,
@@ -86,5 +86,5 @@ class NewtonsMethodBase(DerivativeBasedOptAlgBase):
     @abstractmethod
     def get_search_dir(
         self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
-    ) -> np.ndarray:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         pass

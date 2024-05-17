@@ -33,7 +33,7 @@ class GradDescent(DerivativeBasedOptAlgBase):
         initial_lambda_array_2d: np.ndarray | None = None,
         initial_nu_array_2d: np.ndarray | None = None,
     ) -> OptResults:
-        return self._iter_solve(
+        return self._derivative_based_iter_solve(
             opt_prob,
             opt_param,
             verbose,
@@ -66,6 +66,6 @@ class GradDescent(DerivativeBasedOptAlgBase):
 
     def get_search_dir(
         self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
-    ) -> np.ndarray:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         assert hess is None, hess.__class__
-        return -jac.squeeze(axis=1)
+        return -jac.squeeze(axis=1), np.ndarray((jac.shape[0], 0)), np.ndarray((jac.shape[0], 0))
