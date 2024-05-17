@@ -19,9 +19,6 @@ logger: Logger = getLogger()
 
 
 class UnconstrainedNewtonsMethod(NewtonsMethodBase):
-    """
-    gradient descent method
-    """
 
     @unconstrained_opt_solver
     def _solve(

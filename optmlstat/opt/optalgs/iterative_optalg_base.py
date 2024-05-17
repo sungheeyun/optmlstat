@@ -13,9 +13,6 @@ from optmlstat.opt.optalgs.optalg_base import OptAlgBase
 
 
 class IterativeOptAlgBase(OptAlgBase):
-    """
-    base class for iterative optimization algorithms
-    """
 
     @abstractmethod
     def _solve(

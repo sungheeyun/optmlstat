@@ -1,5 +1,6 @@
 """
-Newton's method for unconstrained optimization
+base class for classes of Newton's methods for diverse types of problems such as unconstrained,
+linearly eq constrained only, linearly eq constrained and general ineq constrained, etc.
 """
 
 from abc import abstractmethod
@@ -20,9 +21,6 @@ logger: Logger = getLogger()
 
 
 class NewtonsMethodBase(DerivativeBasedOptAlgBase):
-    """
-    gradient descent method
-    """
 
     @twice_differentiable_obj_required_solver
     def _solve(

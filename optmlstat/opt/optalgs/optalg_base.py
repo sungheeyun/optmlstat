@@ -14,9 +14,6 @@ from optmlstat.opt.opt_parameter import OptParams
 
 
 class OptAlgBase(OMSClassBase):
-    """
-    Optimization Algorithm
-    """
 
     def solve(
         self,

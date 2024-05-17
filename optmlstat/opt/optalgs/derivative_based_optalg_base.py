@@ -1,5 +1,5 @@
 """
-gradient descent method
+base class for derivative based opt algorithms
 """
 
 from abc import abstractmethod
@@ -25,9 +25,6 @@ from optmlstat.opt.optalgs.line_search_base import LineSearchBase
 
 
 class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
-    """
-    Dual Ascend algorithm
-    """
 
     def __init__(self, line_search_method: LineSearchMethod) -> None:
         self.line_search_method: LineSearchMethod = line_search_method

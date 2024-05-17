@@ -17,9 +17,6 @@ logger: Logger = getLogger()
 
 
 class GradDescent(DerivativeBasedOptAlgBase):
-    """
-    gradient descent method
-    """
 
     @unconstrained_opt_solver
     def _solve(

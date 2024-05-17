@@ -30,9 +30,6 @@ logger: Logger = getLogger()
 
 
 class DualAscend(OptAlgBase):
-    """
-    Dual Ascend algorithm
-    """
 
     @convex_solver
     @linear_eq_cnst_solver

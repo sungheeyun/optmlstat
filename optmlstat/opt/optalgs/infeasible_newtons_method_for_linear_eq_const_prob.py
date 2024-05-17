@@ -1,5 +1,5 @@
 """
-feasible Newton's method for linearly equality constrained minimization
+infeasible Newton's method for linearly equality constrained minimization
 """
 
 from logging import Logger, getLogger
@@ -19,7 +19,7 @@ from optmlstat.linalg.utils import block_array
 logger: Logger = getLogger()
 
 
-class FeasibleNewtonsMethodForLinearEqConstProb(NewtonsMethodBase):
+class InfeasibleNewtonsMethodForLinearEqConstProb(NewtonsMethodBase):
 
     @eq_cnst_solver
     @linear_eq_cnst_solver
@@ -34,8 +34,6 @@ class FeasibleNewtonsMethodForLinearEqConstProb(NewtonsMethodBase):
         initial_lambda_array_2d: np.ndarray | None = None,
         initial_nu_array_2d: np.ndarray | None = None,
     ) -> OptResults:
-        feasible: bool = self.check_primela_eq_feasibility(opt_prob, initial_x_array_2d)
-        assert feasible, feasible
         return super()._solve(
             opt_prob,
             opt_param,
