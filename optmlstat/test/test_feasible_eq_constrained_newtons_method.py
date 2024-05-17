@@ -9,8 +9,8 @@ import numpy as np
 from freq_used.logging_utils import set_logging_basic_config
 
 from optmlstat.opt.optalgs.optalg_base import OptAlgBase
-from optmlstat.opt.optalgs.linear_eq_constrained_feasible_newtons_method import (
-    LinearEqConstrainedFeasibleNewtonsMethod,
+from optmlstat.opt.optalgs.feasible_newtons_method_for_linear_eq_const_prob import (
+    FeasibleNewtonsMethodForLinearEqConstProb,
 )
 from optmlstat.opt.some_simple_opt_probs import SomeSimpleOptProbs
 from optmlstat.opt.constants import LineSearchMethod
@@ -28,7 +28,7 @@ class TestFeasibleEqConstrainedNewtonsMethod(unittest.TestCase):
 
         num_pnts: int = 10
 
-        optalg: OptAlgBase = LinearEqConstrainedFeasibleNewtonsMethod(
+        optalg: OptAlgBase = FeasibleNewtonsMethodForLinearEqConstProb(
             LineSearchMethod.BackTrackingLineSearch
         )
 

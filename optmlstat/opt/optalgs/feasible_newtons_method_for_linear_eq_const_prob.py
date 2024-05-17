@@ -19,7 +19,7 @@ from optmlstat.linalg.utils import block_array
 logger: Logger = getLogger()
 
 
-class LinearEqConstrainedFeasibleNewtonsMethod(NewtonsMethodBase):
+class FeasibleNewtonsMethodForLinearEqConstProb(NewtonsMethodBase):
     """
     gradient descent method
     """
