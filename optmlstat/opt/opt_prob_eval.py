@@ -12,7 +12,7 @@ from numpy import ndarray
 from optmlstat.formatting import convert_data_for_json
 
 
-def ndarray_to_list(a: np.ndarray | float) -> list:
+def ndarray_to_list(a: np.ndarray | float) -> list | float:
     if isinstance(a, np.ndarray):
         return [ndarray_to_list(x) for x in a]
     else:

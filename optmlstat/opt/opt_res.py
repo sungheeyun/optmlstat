@@ -44,9 +44,9 @@ class OptResults(OMSClassBase):
         *,
         dual_prob_evaluation: OptProbEval | None = None,
         terminated: np.ndarray | None = None,
-        stopping_criteria_info: dict[str, Any] = None,
+        stopping_criteria_info: dict[str, Any] | None = None,
     ) -> None:
-        stopping_criteria_info = (
+        _stopping_criteria_info: dict[str, Any] = (
             dict() if stopping_criteria_info is None else stopping_criteria_info
         )
         assert iteration not in self._iter_iterate_dict
@@ -63,9 +63,9 @@ class OptResults(OMSClassBase):
             f" - best: {self.best_obj_values.min()}"
             f" - avg. grad norm: {self.last_obj_grad_norm_avg.min()}"
         )
-        for key in sorted(stopping_criteria_info):
+        for key in sorted(_stopping_criteria_info):
             logger.info(
-                f"\t{key}: {self.opt_progress_report_info_to_str(stopping_criteria_info[key])}"
+                f"\t{key}: {self.opt_progress_report_info_to_str(_stopping_criteria_info[key])}"
             )
         logger.info(f"\tterminated: {self.opt_progress_report_info_to_str(terminated)}")
 
@@ -89,10 +89,7 @@ class OptResults(OMSClassBase):
     def final_iterate(self) -> OptimizationIterate:
         return sorted(self._iter_iterate_dict.items())[-1][1]
 
-    def result_analysis(self, true_opt_val: np.ndarray | float | None = None) -> None:
-        if isinstance(true_opt_val, float):
-            true_opt_val = np.array([true_opt_val])
-
+    def result_analysis(self) -> None:
         num_iterations_list: list[int] = self.num_iterations_list
 
         logger.info("optimization result analysis")
@@ -105,7 +102,7 @@ class OptResults(OMSClassBase):
         logger.info(f"\tbest obj values: {self.best_obj_values}")
 
         try:
-            true_opt_val: float = self.opt_prob.optimum_value
+            true_opt_val: np.ndarray | float = self.opt_prob.optimum_value
             logger.info(f"\tabs suboptimality: {self.best_obj_values - true_opt_val}")
             logger.info(
                 f"\trel suboptimality: {(self.best_obj_values - true_opt_val)/np.abs(true_opt_val)}"

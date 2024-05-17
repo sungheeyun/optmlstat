@@ -115,6 +115,7 @@ class OptProb(OMSClassBase):
         in the sense of multi-objective optimization
         """
         if self.num_objs == 1 and self.num_eq_cnst == 0 and self.num_ineq_cnst == 0:
+            assert self.obj_fcn is not None
             return self.obj_fcn.minimum_value
         else:
             raise ValueUnknownException()
@@ -127,6 +128,7 @@ class OptProb(OMSClassBase):
         in the sense of multi-objective optimization
         """
         if self.num_objs == 1 and self.num_eq_cnst == 0 and self.num_ineq_cnst == 0:
+            assert self.obj_fcn is not None
             return self.obj_fcn.minimum_point
         else:
             raise NotImplementedError()

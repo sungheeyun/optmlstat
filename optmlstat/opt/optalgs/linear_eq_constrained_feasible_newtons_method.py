@@ -51,8 +51,12 @@ class LinearEqConstrainedFeasibleNewtonsMethod(NewtonsMethodBase):
     def get_search_dir(
         self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
     ) -> np.ndarray:
+        assert hess is not None, hess.__class__
+        assert opt_prob.eq_cnst_fcn is not None
+
         eq_cnst_fcn: FunctionBase = opt_prob.eq_cnst_fcn
         assert isinstance(eq_cnst_fcn, AffineFunction), eq_cnst_fcn.__class__
+
         _A_array_2d: np.ndarray = eq_cnst_fcn.slope_array_2d.T
         jac_array_2d: np.ndarray = jac.squeeze(axis=1)
         hess_array_3d: np.ndarray = hess.squeeze(axis=1)

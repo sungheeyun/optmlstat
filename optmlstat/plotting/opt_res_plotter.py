@@ -61,7 +61,7 @@ class OptimizationResultPlotter:
 
         true_opt_val: float | None = None
         try:
-            true_opt_val: float = self.opt_res.opt_prob.optimum_value
+            true_opt_val = self.opt_res.opt_prob.optimum_value  # type:ignore
         except ValueUnknownException:
             pass
 
@@ -264,7 +264,7 @@ class OptimizationResultPlotter:
 
         opt_progress_animation: TrajectoryObjValProgressAnimation = (
             TrajectoryObjValProgressAnimation(
-                ax.get_figure(),
+                ax.get_figure(),  # type:ignore
                 [ax] * x_array_2d.shape[1],
                 iter_axes,
                 time_array_1d,
