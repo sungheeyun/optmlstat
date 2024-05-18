@@ -10,9 +10,7 @@ import click
 import numpy as np
 import numpy.random as nr
 from freq_used.logging_utils import set_logging_basic_config
-from freq_used.plotting import get_figure
 from matplotlib import pyplot as plt
-from matplotlib.figure import Figure
 
 from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
@@ -37,7 +35,6 @@ def solve_and_draw(
     opt_prob: OptProb,
     opt_params: OptParams,
     verbose: bool,
-    proportional_real_solving_time: bool,
     initial_x_2d: np.ndarray,
     /,
 ) -> None:
@@ -55,41 +52,42 @@ def solve_and_draw(
     )
     opt_res.result_analysis()
 
-    figure: Figure = get_figure(
-        2,
-        2,
-        axis_width=3.5,
-        axis_height=3.5,
-        top_margin=0.5,
-        bottom_margin=0.5,
-        vertical_padding=1.0,
-    )
+    # figure: Figure = get_figure(
+    #     2,
+    #     2,
+    #     axis_width=3.5,
+    #     axis_height=3.5,
+    #     top_margin=0.5,
+    #     bottom_margin=0.5,
+    #     vertical_padding=1.0,
+    # )
 
-    figure.suptitle(
+    OptimizationResultPlotter.standard_plotting(
+        opt_res,
         f"problem: {problem_name}, algorithm: {algorithm}"
-        f", optimization time: {opt_res.solve_time:.3g} [sec]"
-        f", # opt vars: {opt_res.opt_prob.dim_domain}"
+        + f", optimization time: {opt_res.solve_time:.3g} [sec]"
+        + f", # opt vars: {opt_res.opt_prob.dim_domain}",
     )
 
-    ax, trajectory_ax, gap_ax, dual_ax = figure.get_axes()
-
-    optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
-    optimization_result_plotter.plot_primal_and_dual_objs(
-        ax,
-        gap_ax,
-        dual_ax,
-        linestyle="-",
-        marker="o",
-        markersize=min(100.0 / np.array(opt_res.num_iterations_list).mean(), 5.0),
-    )
-
-    assert opt_res.solve_time is not None
-    optimization_result_plotter.animate_primal_sol(
-        trajectory_ax,
-        [ax, gap_ax],
-        interval=(2e4 * opt_res.solve_time if proportional_real_solving_time else 3e3)
-        / np.array(opt_res.num_iterations_list).max(),
-    )
+    # ax, trajectory_ax, gap_ax, dual_ax = figure.get_axes()
+    #
+    # optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
+    # optimization_result_plotter.plot_primal_and_dual_objs(
+    #     ax,
+    #     gap_ax,
+    #     dual_ax,
+    #     linestyle="-",
+    #     marker="o",
+    #     markersize=min(100.0 / np.array(opt_res.num_iterations_list).mean(), 5.0),
+    # )
+    #
+    # assert opt_res.solve_time is not None
+    # optimization_result_plotter.animate_primal_sol(
+    #     trajectory_ax,
+    #     [ax, gap_ax],
+    #     interval=(2e4 * opt_res.solve_time if proportional_real_solving_time else 3e3)
+    #     / np.array(opt_res.num_iterations_list).max(),
+    # )
 
 
 @click.command()
