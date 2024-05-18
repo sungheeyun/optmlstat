@@ -17,7 +17,7 @@ from optmlstat.functions.exceptions import ValueUnknownException
 from optmlstat.linalg.utils import get_random_orthogonal_array
 from optmlstat.opt.opt_iterate import OptimizationIterate
 from optmlstat.opt.opt_res import OptResults
-from optmlstat.plotting.plotter import plot_fcn_contour
+from optmlstat.plotting.plotter import plot_fcn_contour, relax_axis
 from optmlstat.plotting.trajectory_obj_val_progress_animation import (
     TrajectoryObjValProgressAnimation,
 )
@@ -242,6 +242,7 @@ class OptimizationResultPlotter:
             ax.set_xlabel("[" + ", ".join([f"{x:g}" for x in proj_array_2d[:, 0]]) + "]")
             ax.set_ylabel("[" + ", ".join([f"{x:g}" for x in proj_array_2d[:, 1]]) + "]")
 
+        relax_axis(ax)
         plt.show()
 
         return opt_progress_animation

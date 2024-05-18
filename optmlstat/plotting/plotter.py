@@ -39,6 +39,18 @@ def plot_1d_data(
 NUM_PNTS_PER_AXIS_FOR_CONTOUR: int = 100
 
 
+def relax_axis(axis: Axes, ratio: float = 0.1) -> None:
+    xlim: tuple[float, float] = axis.get_xlim()
+    ylim: tuple[float, float] = axis.get_ylim()
+
+    axis.set_xlim(
+        ((1.0 + ratio) * xlim[0] - ratio * xlim[1], (1.0 + ratio) * xlim[1] - ratio * xlim[0])
+    )
+    axis.set_ylim(
+        ((1.0 + ratio) * ylim[0] - ratio * ylim[1], (1.0 + ratio) * ylim[1] - ratio * ylim[0])
+    )
+
+
 def plot_fcn_contour(
     ax: Axes,
     fcn: FunctionBase,
