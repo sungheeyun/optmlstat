@@ -12,9 +12,18 @@ class CompositeFunction(FunctionBase):
     """
     Composite function:
 
-    f(x) = f_n(f_{n-1} ... f_1(x)))
-
+    f = f_n \circ f_{n-1} \circ ... \circ f_1  # noqa:W605
     """
+
+    def __init__(self, function_list: list[FunctionBase]) -> None:
+        assert function_list
+        self.function_list: list[FunctionBase] = function_list
+
+        self.shape_tuple: tuple = tuple([function.get_shape() for function in function_list])
+
+        self._is_affine: bool = False
+        if all([function.is_affine for function in self.function_list]):
+            self._is_affine = True
 
     @property
     def maximal_point(self) -> np.ndarray:
@@ -76,16 +85,6 @@ class CompositeFunction(FunctionBase):
 
     def conjugate_arg(self, z_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
-
-    def __init__(self, function_list: list[FunctionBase]) -> None:
-        assert function_list
-        self.function_list: list[FunctionBase] = function_list
-
-        self.shape_tuple: tuple = tuple([function.get_shape() for function in function_list])
-
-        self._is_affine: bool = False
-        if all([function.is_affine for function in self.function_list]):
-            self._is_affine = True
 
     @property
     def num_inputs(self) -> int:

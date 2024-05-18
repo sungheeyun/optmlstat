@@ -11,6 +11,28 @@ from optmlstat.functions.exceptions import ValueUnknownException
 
 class LogSumExp(FunctionBase):
 
+    def __init__(self, A_3d: np.ndarray | list, b_2d: np.ndarray | list, /) -> None:
+        """
+        :param A_3d:
+            A_3d[i,:,:] = A of i-th function
+        :param b_2d:
+            b_2d[i,:] = b of i-th function
+        """
+
+        self.A_3d: np.ndarray = np.array(A_3d, float)
+        self.b_2d: np.ndarray = np.array(b_2d, float)
+
+        assert self.A_3d.ndim == 3, self.A_3d.shape
+        assert self.b_2d.ndim == 2, self.b_2d.shape
+        assert self.A_3d.shape[0] == self.b_2d.shape[0], (
+            self.A_3d.shape,
+            self.b_2d.shape,
+        )  # # functions
+        assert self.A_3d.shape[1] == self.b_2d.shape[1], (
+            self.A_3d.shape,
+            self.b_2d.shape,
+        )  # # terms
+
     @property
     def maximal_point(self) -> np.ndarray:
         raise ValueUnknownException()
@@ -42,28 +64,6 @@ class LogSumExp(FunctionBase):
     @property
     def minimum_value(self) -> np.ndarray:
         raise ValueUnknownException()
-
-    def __init__(self, A_3d: np.ndarray | list, b_2d: np.ndarray | list) -> None:
-        """
-        :param A_3d:
-            A_3d[i,:,:] = A of i-th function
-        :param b_2d:
-            b_2d[i,:] = b of i-th function
-        """
-
-        self.A_3d: np.ndarray = np.array(A_3d, float)
-        self.b_2d: np.ndarray = np.array(b_2d, float)
-
-        assert self.A_3d.ndim == 3, self.A_3d.shape
-        assert self.b_2d.ndim == 2, self.b_2d.shape
-        assert self.A_3d.shape[0] == self.b_2d.shape[0], (
-            self.A_3d.shape,
-            self.b_2d.shape,
-        )  # # functions
-        assert self.A_3d.shape[1] == self.b_2d.shape[1], (
-            self.A_3d.shape,
-            self.b_2d.shape,
-        )  # # terms
 
     @property
     def num_inputs(self) -> int:

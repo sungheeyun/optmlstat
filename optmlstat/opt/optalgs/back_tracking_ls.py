@@ -16,6 +16,8 @@ logger: Logger = getLogger()
 class BackTrackingLineSearch(LineSearchBase):
 
     def __init__(self, _alpha: float, _beta: float):
+        assert 0.0 < _alpha < 0.5, _alpha
+        assert 0.0 < _beta < 1.0, _beta
         self._alpha: float = _alpha
         self._beta: float = _beta
 

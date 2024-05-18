@@ -43,9 +43,9 @@ class DualAscend(OptAlgBase):
         verbose: bool,
         /,
         *,
-        initial_x_array_2d: np.ndarray,
-        initial_lambda_array_2d: np.ndarray | None = None,
-        initial_nu_array_2d: np.ndarray | None = None,
+        initial_x_2d: np.ndarray,
+        initial_lambda_2d: np.ndarray | None = None,
+        initial_nu_2d: np.ndarray | None = None,
     ) -> OptResults:
         """
         This only deals with a single objective optimization problem
@@ -73,12 +73,12 @@ class DualAscend(OptAlgBase):
          Optimization parameter
         verbose:
          verbose
-        initial_x_array_2d:
+        initial_x_2d:
          N-by-n array representing initial points for x.
-        initial_lambda_array_2d:
+        initial_lambda_2d:
          N-by-m array representing initial points for Lagrange multipliers
          for inequality constraints.
-        initial_nu_array_2d:
+        initial_nu_2d:
          N-by-p array representing initial points for Lagrange multipliers
          for equality constraints.
 
@@ -95,10 +95,10 @@ class DualAscend(OptAlgBase):
         assert obj_fcn is not None
         assert isinstance(eq_cnst_fcn, AffineFunction), eq_cnst_fcn.__class__
 
-        assert initial_x_array_2d is not None
-        assert initial_nu_array_2d is not None
-        assert initial_lambda_array_2d is None
-        initial_lambda_array_2d = np.ndarray((initial_x_array_2d.shape[0], 0))
+        assert initial_x_2d is not None
+        assert initial_nu_2d is not None
+        assert initial_lambda_2d is None
+        initial_lambda_2d = np.ndarray((initial_x_2d.shape[0], 0))
 
         conjugate: FunctionBase = obj_fcn.conjugate
         assert isinstance(conjugate, QuadraticFunction), conjugate.__class__
@@ -108,14 +108,12 @@ class DualAscend(OptAlgBase):
 
         opt_res.register_solution(
             Iteration(0),
-            opt_prob.evaluate(initial_x_array_2d),
-            opt_prob.dual_problem.evaluate(
-                np.hstack((initial_lambda_array_2d, initial_nu_array_2d))
-            ),
+            opt_prob.evaluate(initial_x_2d),
+            opt_prob.dual_problem.evaluate(np.hstack((initial_lambda_2d, initial_nu_2d))),
             verbose,
         )
 
-        y_array_2d: ndarray = initial_nu_array_2d.copy()
+        y_array_2d: ndarray = initial_nu_2d.copy()
 
         learning_rate_strategy: LearningRateStrategy = opt_param.learning_rate_strategy
         for idx in range(opt_param.max_num_outer_iterations):

@@ -1,16 +1,16 @@
 from logging import Logger, getLogger
+from typing import Any
 
 import numpy as np
 from numpy import linalg
-from typing import Any
 
 from optmlstat.basic_modules.class_base import OMSClassBase
-from optmlstat.opt.opt_prob import OptProb
-from optmlstat.opt.optalgs.optalg_base import OptAlgBase
+from optmlstat.functions.exceptions import ValueUnknownException
 from optmlstat.opt.iteration import Iteration
 from optmlstat.opt.opt_iterate import OptimizationIterate
+from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_prob_eval import OptProbEval
-from optmlstat.functions.exceptions import ValueUnknownException
+from optmlstat.opt.optalgs.optalg_base import OptAlgBase
 
 logger: Logger = getLogger()
 
@@ -27,6 +27,10 @@ class OptResults(OMSClassBase):
 
         self._solve_time: float | None = None
 
+        self._x_diff_norm: float = np.inf
+        self._lambda_diff_norm: float = np.inf
+        self._nu_diff_norm: float = np.inf
+
     @property
     def solve_time(self) -> float | None:
         return self._solve_time
@@ -34,6 +38,18 @@ class OptResults(OMSClassBase):
     @solve_time.setter
     def solve_time(self, value: float) -> None:
         self._solve_time = value
+
+    @property
+    def x_diff_norm(self) -> float:
+        return self._x_diff_norm
+
+    @property
+    def lambda_diff_norm(self) -> float:
+        return self._lambda_diff_norm
+
+    @property
+    def nu_diff_norm(self) -> float:
+        return self._nu_diff_norm
 
     def register_solution(
         self,
@@ -58,16 +74,12 @@ class OptResults(OMSClassBase):
             primal_prob_evaluation, dual_prob_evaluation, terminated
         )
 
-        logger.info(
-            f"iter: {iteration.outer_iteration}/{iteration.inner_iteration}"
-            f" - best: {self.best_obj_values.min()}"
-            f" - avg. grad norm: {self.last_obj_grad_norm_avg.min()}"
-        )
+        logger.info(f"iter: {iteration.outer_iteration}/{iteration.inner_iteration}")
+        logger.info(f" - best: {self.best_obj_values.min()}")
+        logger.info(f" - avg. grad norm: {self.last_obj_grad_norm_avg.min()}")
         for key in sorted(_stopping_criteria_info):
-            logger.info(
-                f"\t{key}: {self.opt_progress_report_info_to_str(_stopping_criteria_info[key])}"
-            )
-        logger.info(f"\tterminated: {self.opt_progress_report_info_to_str(terminated)}")
+            logger.info(f"\t{key}: {self.pretty_data_format(_stopping_criteria_info[key])}")
+        logger.info(f"\tterminated: {self.pretty_data_format(terminated)}")
 
         if verbose:
             logger.info(f"\tprimal: {primal_prob_evaluation}")
@@ -99,28 +111,58 @@ class OptResults(OMSClassBase):
 
         logger.info(f"\t# iters: {num_iterations_list}")
         logger.info(f"\tavg # iters: {np.array(num_iterations_list).mean()}")
-        try:
-            logger.info(
-                f"\toptimum x: {self.opt_progress_report_info_to_str(self.opt_prob.optimum_point)}"
-            )
-        except ValueUnknownException:
-            pass
         logger.info(
             "\tavg final x: "
-            + str(self.opt_progress_report_info_to_str(self.final_iterate.x_array_2d.mean(axis=0)))
+            + str(self.pretty_data_format(self.final_iterate.x_array_2d.mean(axis=0)))
         )
-        logger.info(f"\tavg final lambda: {self.final_iterate.lambda_array_2d.mean(axis=0)}")
-        logger.info(f"\tavg final nu: {self.final_iterate.nu_array_2d.mean(axis=0)}")
+        try:
+            logger.info(f"\t\toptimum x: {self.pretty_data_format(self.opt_prob.optimum_point)}")
+            self._x_diff_norm = float(
+                linalg.norm(self.opt_prob.optimum_point - self.final_iterate.x_array_2d)
+            )
+            logger.info(f"\t\tdiff x norm: {self.x_diff_norm}")
+        except ValueUnknownException:
+            pass
+
+        logger.info(
+            "\tavg final lambda: "
+            f"{self.pretty_data_format(self.final_iterate.lambda_array_2d.mean(axis=0))}"
+        )
+        try:
+            logger.info(
+                f"\t\toptimum lambda: {self.pretty_data_format(self.opt_prob.optimum_lambda)}"
+            )
+            self._lambda_diff_norm = float(
+                linalg.norm(self.opt_prob.optimum_lambda - self.final_iterate.lambda_array_2d)
+            )
+            logger.info(f"\t\tdiff lambda norm: {self.lambda_diff_norm}")
+        except ValueUnknownException:
+            pass
+
+        logger.info(
+            "\tavg final nu:"
+            f" {self.pretty_data_format(self.final_iterate.nu_array_2d.mean(axis=0))}"
+        )
+        try:
+            logger.info(f"\t\toptimum nu: {self.pretty_data_format(self.opt_prob.optimum_nu)}")
+            self._nu_diff_norm = float(
+                linalg.norm(self.opt_prob.optimum_nu - self.final_iterate.nu_array_2d)
+            )
+            logger.info(f"\t\tdiff nu norm: {self.nu_diff_norm}")
+        except ValueUnknownException:
+            pass
+
         logger.info(f"\tbest obj values: {self.best_obj_values}")
 
         # logger.info(self.final_iterate.x_array_2d.mean(axis=0) - self.opt_prob.optimum_point)
 
         try:
             true_opt_val: np.ndarray | float = self.opt_prob.optimum_value
-            logger.info(f"\toptimum value: {true_opt_val}")
+            logger.info(f"\t\toptimum value: {true_opt_val}")
             logger.info(f"\tabs suboptimality: {self.best_obj_values - true_opt_val}")
             logger.info(
-                f"\trel suboptimality: {(self.best_obj_values - true_opt_val)/np.abs(true_opt_val)}"
+                "\trel suboptimality: "
+                f"{(self.best_obj_values - true_opt_val) / np.abs(true_opt_val)}"
             )
         except ValueUnknownException:
             pass
@@ -141,15 +183,6 @@ class OptResults(OMSClassBase):
             + 1
         )
 
-    # @property
-    # def primal_1st_obj_fcn_iterates_2d(self) -> np.ndarray:
-    #     return np.vstack(
-    #         [
-    #             opt_iterate.primal_prob_evaluation.obj_fcn_array_2d[:, 0]  # type:ignore
-    #             for opt_iterate in self.iteration_iterate_list[1]
-    #         ]
-    #     )
-    #
     @property
     def population_size(self) -> int:
         return list(self._iter_iterate_dict.values())[0].primal_prob_evaluation.x_array_2d.shape[0]
@@ -180,7 +213,7 @@ class OptResults(OMSClassBase):
         ).mean()
 
     @staticmethod
-    def opt_progress_report_info_to_str(value: Any) -> Any:
+    def pretty_data_format(value: Any) -> Any:
         if isinstance(value, np.ndarray) and value.ndim == 1:
             return list(value)
         return value

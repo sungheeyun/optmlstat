@@ -9,7 +9,6 @@ from typing import Any
 
 import numpy as np
 
-from optmlstat.functions.function_base import FunctionBase
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
@@ -29,19 +28,19 @@ class NewtonsMethodBase(DerivativeBasedOptAlgBase):
         opt_prob: OptProb,
         opt_param: OptParams,
         verbose: bool,
+        initial_x_2d: np.ndarray,
         /,
         *,
-        initial_x_array_2d: np.ndarray,
-        initial_lambda_array_2d: np.ndarray | None = None,
-        initial_nu_array_2d: np.ndarray | None = None,
+        initial_lambda_2d: np.ndarray | None = None,
+        initial_nu_2d: np.ndarray | None = None,
     ) -> OptResults:
         return self._derivative_based_iter_solve(
             opt_prob,
             opt_param,
             verbose,
-            initial_x_array_2d=initial_x_array_2d,
-            initial_lambda_array_2d=initial_lambda_array_2d,
-            initial_nu_array_2d=initial_nu_array_2d,
+            initial_x_2d,
+            initial_lambda_2d=initial_lambda_2d,
+            initial_nu_2d=initial_nu_2d,
         )
 
     def check_stopping_criteria(
@@ -50,7 +49,7 @@ class NewtonsMethodBase(DerivativeBasedOptAlgBase):
         assert directional_deriv.ndim == 1, directional_deriv.shape
         info: dict[str, Any] = dict(
             newton_dec=-directional_deriv,
-            tolerance_on_grad=opt_param.tolerance_on_grad,
+            tolerance_on_newton_dec=opt_param.tolerance_on_newton_dec,
         )
         return info["newton_dec"] < opt_param.tolerance_on_newton_dec, info
 
@@ -59,9 +58,12 @@ class NewtonsMethodBase(DerivativeBasedOptAlgBase):
         return True
 
     @abstractmethod
-    def loss_fcn_and_directional_deriv(
-        self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
-    ) -> tuple[
-        FunctionBase, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray
-    ]:
+    def search_direction_and_update_lag_vars(
+        self,
+        opt_prob: OptProb,
+        jac: np.ndarray,
+        hess_4d: np.ndarray | None,
+        lambda_2d: np.ndarray,
+        nu_2d: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         pass

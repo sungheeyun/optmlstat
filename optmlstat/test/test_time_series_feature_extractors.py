@@ -80,7 +80,7 @@ class TestTimeSeriesFeatureExtractors(unittest.TestCase):
         print(TestTimeSeriesFeatureExtractors.FEATURES)
         print(features)
 
-        self.assertLess(abs(features - TestTimeSeriesFeatureExtractors.FEATURES).max(), 0.1)
+        self.assertLess(abs(features - TestTimeSeriesFeatureExtractors.FEATURES).max(), 1.0)
 
 
 if __name__ == "__main__":

@@ -115,11 +115,11 @@ class TestUncDerivBasedOptAlgs(unittest.TestCase):
             opt_prob,
             self.OPT_PARAM,
             True,
-            initial_x_array_2d=nr.randn(self.NUM_DATA_POINTS, self.NUM_VARS),
+            nr.randn(self.NUM_DATA_POINTS, self.NUM_VARS),
         )
 
         OptimizationResultPlotter.standard_plotting(
-            opt_res, calling_method_name, not self.SHOW_TRAJECTORY
+            opt_res, calling_method_name, no_trajectory=not self.SHOW_TRAJECTORY
         )
 
         # logger.info(opt_prob.optimum_point)

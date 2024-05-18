@@ -20,10 +20,10 @@ class IterativeOptAlgBase(OptAlgBase):
         opt_prob: OptProb,
         opt_param: OptParams,
         verbose: bool,
+        initial_x_2d: np.ndarray,
         /,
         *,
-        initial_x_array_2d: np.ndarray,
-        initial_lambda_array_2d: np.ndarray | None = None,
-        initial_nu_array_2d: np.ndarray | None = None,
+        initial_lambda_2d: np.ndarray | None = None,
+        initial_nu_2d: np.ndarray | None = None,
     ) -> Any:
         pass

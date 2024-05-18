@@ -28,25 +28,25 @@ class InfeasibleNewtonsMethodForLinearEqConstProb(NewtonsMethodBase):
         opt_prob: OptProb,
         opt_param: OptParams,
         verbose: bool,
+        initial_x_2d: np.ndarray,
         /,
         *,
-        initial_x_array_2d: np.ndarray,
-        initial_lambda_array_2d: np.ndarray | None = None,
-        initial_nu_array_2d: np.ndarray | None = None,
+        initial_lambda_2d: np.ndarray | None = None,
+        initial_nu_2d: np.ndarray | None = None,
     ) -> OptResults:
         return super()._solve(
             opt_prob,
             opt_param,
             verbose,
-            initial_x_array_2d=initial_x_array_2d,
-            initial_lambda_array_2d=initial_lambda_array_2d,
-            initial_nu_array_2d=initial_nu_array_2d,
+            initial_x_2d=initial_x_2d,
+            initial_lambda_2d=initial_lambda_2d,
+            initial_nu_2d=initial_nu_2d,
         )
 
-    def loss_fcn_and_directional_deriv(
-        self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
+    def search_direction_and_update_lag_vars(
+        self, opt_prob: OptProb, jac: np.ndarray, hess_4d: np.ndarray | None
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        assert hess is not None, hess.__class__
+        assert hess_4d is not None, hess_4d.__class__
         assert opt_prob.eq_cnst_fcn is not None
 
         eq_cnst_fcn: FunctionBase = opt_prob.eq_cnst_fcn
@@ -54,7 +54,7 @@ class InfeasibleNewtonsMethodForLinearEqConstProb(NewtonsMethodBase):
 
         _A_array_2d: np.ndarray = eq_cnst_fcn.slope_array_2d.T
         jac_array_2d: np.ndarray = jac.squeeze(axis=1)
-        hess_array_3d: np.ndarray = hess.squeeze(axis=1)
+        hess_array_3d: np.ndarray = hess_4d.squeeze(axis=1)
 
         _kkt_sol_array_2d: np.ndarray = np.vstack(
             [

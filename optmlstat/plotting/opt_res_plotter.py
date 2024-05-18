@@ -221,11 +221,12 @@ class OptimizationResultPlotter:
         )
 
         assert self.opt_res.opt_prob.obj_fcn is not None
-        optimum_point: np.ndarray | None = None
+        optimum_point: np.ndarray
         try:
             optimum_point = self.opt_res.opt_prob.optimum_point
         except ValueUnknownException:
-            pass
+            optimum_point = self.opt_res.final_iterate.x_array_2d.mean(axis=0)
+
         plot_fcn_contour(
             ax,
             self.opt_res.opt_prob.obj_fcn,
@@ -252,6 +253,7 @@ class OptimizationResultPlotter:
         opt_res: OptResults,
         fig_suptitle: str,
         /,
+        *,
         no_trajectory: bool = False,
         proportional_real_solving_time: bool = True,
     ) -> Figure:

@@ -133,8 +133,8 @@ class TestDualAscend(unittest.TestCase):
             opt_prob,
             TestDualAscend.opt_param,
             False,
-            initial_x_array_2d=initial_x_point_2d,
-            initial_nu_array_2d=initial_nu_point_2d,
+            initial_x_point_2d,
+            initial_nu_2d=initial_nu_point_2d,
         )
 
         final_iterate: OptimizationIterate = opt_res.final_iterate

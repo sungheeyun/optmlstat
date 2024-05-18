@@ -7,13 +7,12 @@ from logging import Logger, getLogger
 import numpy as np
 from scipy import linalg
 
-from optmlstat.functions.function_base import FunctionBase
-from optmlstat.opt.optalg_decorators import (
-    unconstrained_opt_solver,
-)
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
+from optmlstat.opt.optalg_decorators import (
+    unconstrained_opt_solver,
+)
 from optmlstat.opt.optalgs.newtons_method_base import NewtonsMethodBase
 
 logger: Logger = getLogger()
@@ -27,29 +26,32 @@ class UnconstrainedNewtonsMethod(NewtonsMethodBase):
         opt_prob: OptProb,
         opt_param: OptParams,
         verbose: bool,
+        initial_x_2d: np.ndarray,
         /,
         *,
-        initial_x_array_2d: np.ndarray,
-        initial_lambda_array_2d: np.ndarray | None = None,
-        initial_nu_array_2d: np.ndarray | None = None,
+        initial_lambda_2d: np.ndarray | None = None,
+        initial_nu_2d: np.ndarray | None = None,
     ) -> OptResults:
         return super()._solve(
             opt_prob,
             opt_param,
             verbose,
-            initial_x_array_2d=initial_x_array_2d,
-            initial_lambda_array_2d=initial_lambda_array_2d,
-            initial_nu_array_2d=initial_nu_array_2d,
+            initial_x_2d,
+            initial_lambda_2d=initial_lambda_2d,
+            initial_nu_2d=initial_nu_2d,
         )
 
-    def loss_fcn_and_directional_deriv(
-        self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
-    ) -> tuple[
-        FunctionBase, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray
-    ]:
-        assert hess is not None, hess.__class__
+    def search_direction_and_update_lag_vars(
+        self,
+        opt_prob: OptProb,
+        jac: np.ndarray,
+        hess_4d: np.ndarray | None,
+        lambda_2d: np.ndarray,
+        nu_2d: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        assert hess_4d is not None, hess_4d.__class__
         jac_array_2d: np.ndarray = jac.squeeze(axis=1)
-        hess_array_3d: np.ndarray = hess.squeeze(axis=1)
+        hess_array_3d: np.ndarray = hess_4d.squeeze(axis=1)
 
         search_direction_2d: np.ndarray = np.vstack(
             [
@@ -60,11 +62,8 @@ class UnconstrainedNewtonsMethod(NewtonsMethodBase):
 
         assert opt_prob.obj_fcn is not None
         return (
-            opt_prob.obj_fcn,
             search_direction_2d,
+            np.ndarray((jac.shape[0], 0)),
+            np.ndarray((jac.shape[0], 0)),
             (search_direction_2d * jac_array_2d).sum(axis=1),
-            np.ndarray((jac.shape[0], 0)),
-            np.ndarray((jac.shape[0], 0)),
-            np.ndarray((jac.shape[0], 0)),
-            np.ndarray((jac.shape[0], 0)),
         )

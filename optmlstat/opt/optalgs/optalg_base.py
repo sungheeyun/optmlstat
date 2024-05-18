@@ -20,20 +20,20 @@ class OptAlgBase(OMSClassBase):
         opt_prob: OptProb,
         opt_param: OptParams,
         verbose: bool,
+        initial_x_2d: np.ndarray,
         /,
         *,
-        initial_x_array_2d: np.ndarray,
-        initial_lambda_array_2d: np.ndarray | None = None,
-        initial_nu_array_2d: np.ndarray | None = None,
+        initial_lambda_2d: np.ndarray | None = None,
+        initial_nu_2d: np.ndarray | None = None,
     ) -> Any:
         t0: float = time.time()
         opt_res: Any = self._solve(
             opt_prob,
             opt_param,
             verbose,
-            initial_x_array_2d=initial_x_array_2d,
-            initial_lambda_array_2d=initial_lambda_array_2d,
-            initial_nu_array_2d=initial_nu_array_2d,
+            initial_x_2d,
+            initial_lambda_2d=initial_lambda_2d,
+            initial_nu_2d=initial_nu_2d,
         )
         opt_res.solve_time = time.time() - t0
         opt_res.result_analysis()
@@ -46,11 +46,11 @@ class OptAlgBase(OMSClassBase):
         opt_prob: OptProb,
         opt_param: OptParams,
         verbose: bool,
+        initial_x_2d: np.ndarray,
         /,
         *,
-        initial_x_array_2d: np.ndarray,
-        initial_lambda_array_2d: np.ndarray | None = None,
-        initial_nu_array_2d: np.ndarray | None = None,
+        initial_lambda_2d: np.ndarray | None = None,
+        initial_nu_2d: np.ndarray | None = None,
     ) -> Any:
         pass
 

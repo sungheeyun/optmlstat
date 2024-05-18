@@ -37,6 +37,8 @@ def solve_and_draw(
     verbose: bool,
     initial_x_2d: np.ndarray,
     /,
+    *,
+    proportional_real_solving_time,
 ) -> None:
     lsm: LineSearchMethod = LineSearchMethod.BackTrackingLineSearch
     unc_algorithm: DerivativeBasedOptAlgBase = UnconstrainedNewtonsMethod(lsm)
@@ -47,47 +49,16 @@ def solve_and_draw(
     else:
         assert False, algorithm
 
-    opt_res: OptResults = unc_algorithm.solve(
-        opt_prob, opt_params, verbose, initial_x_array_2d=initial_x_2d
-    )
+    opt_res: OptResults = unc_algorithm.solve(opt_prob, opt_params, verbose, initial_x_2d)
     opt_res.result_analysis()
-
-    # figure: Figure = get_figure(
-    #     2,
-    #     2,
-    #     axis_width=3.5,
-    #     axis_height=3.5,
-    #     top_margin=0.5,
-    #     bottom_margin=0.5,
-    #     vertical_padding=1.0,
-    # )
 
     OptimizationResultPlotter.standard_plotting(
         opt_res,
         f"problem: {problem_name}, algorithm: {algorithm}"
         + f", optimization time: {opt_res.solve_time:.3g} [sec]"
         + f", # opt vars: {opt_res.opt_prob.dim_domain}",
+        proportional_real_solving_time=proportional_real_solving_time,
     )
-
-    # ax, trajectory_ax, gap_ax, dual_ax = figure.get_axes()
-    #
-    # optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
-    # optimization_result_plotter.plot_primal_and_dual_objs(
-    #     ax,
-    #     gap_ax,
-    #     dual_ax,
-    #     linestyle="-",
-    #     marker="o",
-    #     markersize=min(100.0 / np.array(opt_res.num_iterations_list).mean(), 5.0),
-    # )
-    #
-    # assert opt_res.solve_time is not None
-    # optimization_result_plotter.animate_primal_sol(
-    #     trajectory_ax,
-    #     [ax, gap_ax],
-    #     interval=(2e4 * opt_res.solve_time if proportional_real_solving_time else 3e3)
-    #     / np.array(opt_res.num_iterations_list).max(),
-    # )
 
 
 @click.command()
@@ -135,7 +106,7 @@ def main(
         0.1,
         100,
         back_tracking_line_search_alpha=0.2,
-        back_tracking_line_search_beta=0.5,
+        back_tracking_line_search_beta=0.9,
         tolerance_on_grad=1e-2,
         tolerance_on_newton_dec=1e-2,
     )
@@ -208,8 +179,8 @@ def main(
         opt_prob,
         opt_params,
         verbose,
-        proportional_real_solving_time,
         initial_x_2d,
+        proportional_real_solving_time=proportional_real_solving_time,
     )
     plt.show()
 

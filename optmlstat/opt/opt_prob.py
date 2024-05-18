@@ -8,12 +8,15 @@ from typing import Any
 
 import numpy as np
 from numpy import ndarray
+from scipy import linalg
 
 from optmlstat.basic_modules.class_base import OMSClassBase
 from optmlstat.functions.basic_functions.affine_function import AffineFunction
+from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
 from optmlstat.functions.exceptions import ValueUnknownException
 from optmlstat.functions.function_base import FunctionBase
 from optmlstat.functions.special_functions.empty_function import EmptyFunction
+from optmlstat.linalg.utils import block_array
 from optmlstat.opt.opt_prob_eval import OptProbEval
 
 
@@ -105,7 +108,17 @@ class OptProb(OMSClassBase):
         return OptProb(
             EmptyFunction(num_dual_variables, 1),
             EmptyFunction(num_dual_variables, 0),
-            AffineFunction(-np.eye(self.num_ineq_cnst), np.zeros(self.num_ineq_cnst)),
+            AffineFunction(
+                block_array(
+                    [
+                        [
+                            -np.eye(self.num_ineq_cnst),
+                            np.zeros((self.num_ineq_cnst, self.num_eq_cnst)),
+                        ]
+                    ]
+                ).T,
+                np.zeros(self.num_ineq_cnst),
+            ),
         )
 
     @property
@@ -125,17 +138,13 @@ class OptProb(OMSClassBase):
         return self._num_ineq_cnst
 
     @property
-    def optimum_value(self) -> np.ndarray | float:
+    def optimum_value(self) -> np.ndarray:
         """
         1-d vector in output space
         here "optimum" means *minimum* vector, not *minimal* vector
         in the sense of multi-objective optimization
         """
-        if self.num_objs == 1 and self.num_eq_cnst == 0 and self.num_ineq_cnst == 0:
-            assert self.obj_fcn is not None
-            return self.obj_fcn.minimum_value
-        else:
-            raise ValueUnknownException()
+        return self.optimum_x_lambda_nu_val[3]
 
     @property
     def optimum_point(self) -> np.ndarray:
@@ -144,11 +153,60 @@ class OptProb(OMSClassBase):
         here "optimum" means *minimum* vector, not *minimal* vector
         in the sense of multi-objective optimization
         """
-        if self.num_objs == 1 and self.num_eq_cnst == 0 and self.num_ineq_cnst == 0:
-            assert self.obj_fcn is not None
-            return self.obj_fcn.minimum_point
-        else:
-            raise NotImplementedError()
+        return self.optimum_x_lambda_nu_val[0]
+
+    @property
+    def optimum_lambda(self) -> np.ndarray:
+        return self.optimum_x_lambda_nu_val[1]
+
+    @property
+    def optimum_nu(self) -> np.ndarray:
+        return self.optimum_x_lambda_nu_val[2]
+
+    @property
+    def optimum_x_lambda_nu_val(self) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        if self.num_objs == 1:
+            if self.num_eq_cnst == 0 and self.num_ineq_cnst == 0:
+                assert self.obj_fcn is not None
+                return (
+                    self.obj_fcn.minimum_point,
+                    np.ndarray(0),
+                    np.ndarray(0),
+                    self.obj_fcn.minimum_value,
+                )
+
+            if self.num_ineq_cnst == 0 and isinstance(self.eq_cnst_fcn, AffineFunction):
+                # linearly eq cnst opt
+                if isinstance(self.obj_fcn, QuadraticFunction):
+                    assert self.obj_fcn.quad_array_3d is not None
+                    _p_2d: np.ndarray = self.obj_fcn.quad_array_3d[:, :, 0]
+                    _q_1d: np.ndarray = self.obj_fcn.slope_array_2d[:, 0]
+                    # _r_0d: float = self.obj_fcn.intercept_array_1d[0]
+                    _a_2d: np.ndarray = self.eq_cnst_fcn.slope_array_2d.T
+                    _b_1d: np.ndarray = -self.eq_cnst_fcn.intercept_array_1d
+                    x_nu_1d: np.ndarray = linalg.solve(
+                        block_array(
+                            [
+                                [
+                                    2.0 * _p_2d,
+                                    _a_2d.T,
+                                ],
+                                [_a_2d, 0.0],
+                            ]
+                        ),
+                        block_array([-_q_1d, _b_1d]),
+                        assume_a="sym",
+                    )
+                    opt_x: np.ndarray = x_nu_1d[: self.dim_domain]
+                    opt_nu: np.ndarray = x_nu_1d[self.dim_domain :]  # noqa:E203
+                    return (
+                        opt_x,
+                        np.ndarray(0),
+                        opt_nu,
+                        self.obj_fcn.get_y_values_2d(opt_x[np.newaxis, :]),
+                    )
+
+        raise ValueUnknownException()
 
     @property
     def optimal_value(self) -> np.ndarray | float:

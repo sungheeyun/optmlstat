@@ -17,6 +17,22 @@ class AffineFunction(FunctionBase):
     Affine function.
     """
 
+    def __init__(self, slope_array_2d: ndarray, intercept_array_1d: ndarray) -> None:
+        """
+        n variables, m outputs
+        :param slope_array_2d: n-by-m array
+        :param intercept_array_1d: m array
+        """
+        assert slope_array_2d.ndim == 2, slope_array_2d.ndim
+        assert intercept_array_1d.ndim == 1, intercept_array_1d.ndim
+        assert slope_array_2d.shape[1] == intercept_array_1d.size, (
+            slope_array_2d.shape,
+            intercept_array_1d.shape,
+        )
+
+        self._slope_array_2d: ndarray = slope_array_2d.copy()
+        self._intercept_array_1d: ndarray = intercept_array_1d.copy()
+
     @property
     def maximal_point(self) -> np.ndarray:
         raise NotImplementedError()
@@ -58,22 +74,6 @@ class AffineFunction(FunctionBase):
 
     def _jacobian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
-
-    def __init__(self, slope_array_2d: ndarray, intercept_array_1d: ndarray) -> None:
-        """
-        n variables, m outputs
-        :param slope_array_2d: n-by-m array
-        :param intercept_array_1d: m array
-        """
-        assert slope_array_2d.ndim == 2, slope_array_2d.ndim
-        assert intercept_array_1d.ndim == 1, intercept_array_1d.ndim
-        assert slope_array_2d.shape[1] == intercept_array_1d.size, (
-            slope_array_2d.shape,
-            intercept_array_1d.shape,
-        )
-
-        self._slope_array_2d: ndarray = slope_array_2d.copy()
-        self._intercept_array_1d: ndarray = intercept_array_1d.copy()
 
     @property
     def slope_array_2d(self) -> ndarray:
