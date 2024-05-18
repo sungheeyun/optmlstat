@@ -129,15 +129,15 @@ class OptResults(OMSClassBase):
             + 1
         )
 
-    @property
-    def primal_1st_obj_fcn_iterates_2d(self) -> np.ndarray:
-        return np.vstack(
-            [
-                opt_iterate.primal_prob_evaluation.obj_fcn_array_2d[:, 0]  # type:ignore
-                for opt_iterate in self.iteration_iterate_list[1]
-            ]
-        )
-
+    # @property
+    # def primal_1st_obj_fcn_iterates_2d(self) -> np.ndarray:
+    #     return np.vstack(
+    #         [
+    #             opt_iterate.primal_prob_evaluation.obj_fcn_array_2d[:, 0]  # type:ignore
+    #             for opt_iterate in self.iteration_iterate_list[1]
+    #         ]
+    #     )
+    #
     @property
     def population_size(self) -> int:
         return list(self._iter_iterate_dict.values())[0].primal_prob_evaluation.x_array_2d.shape[0]
@@ -172,3 +172,41 @@ class OptResults(OMSClassBase):
         if isinstance(value, np.ndarray) and value.ndim == 1:
             return list(value)
         return value
+
+    @property
+    def num_members(self) -> int:
+        return list(self.iter_iterate_dict.values())[0].x_array_2d.shape[0]
+
+    @property
+    def primal_dual_plot_lists(
+        self,
+    ) -> tuple[list[list[int]], list[np.ndarray], list[np.ndarray]]:
+        """
+        :return: list of iter lists, list of primal obj list
+        """
+        iter_list_list: list[list[int]] = list()
+        primal_obj_list_list: list[np.ndarray] = list()
+        dual_obj_list_list: list[np.ndarray] = list()
+
+        _, iterate_list = self.iteration_iterate_list
+
+        for member_idx, num_iterations in enumerate(self.num_iterations_list):
+            iter_list_list.append(list(range(num_iterations)))
+            primal_obj_list_list.append(
+                np.vstack(
+                    [
+                        iterate_list[_iter].primal_prob_evaluation.obj_fcn_array_2d[member_idx]
+                        for _iter in range(num_iterations)
+                    ]
+                )
+            )
+            dual_obj_list_list.append(
+                np.vstack(
+                    [
+                        iterate_list[_iter].dual_prob_evaluation.obj_fcn_array_2d[member_idx]
+                        for _iter in range(num_iterations)
+                    ]
+                )
+            )
+
+        return iter_list_list, primal_obj_list_list, dual_obj_list_list

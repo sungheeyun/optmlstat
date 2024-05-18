@@ -68,5 +68,4 @@ def plot_fcn_contour(
     ).reshape(X.shape)
 
     ax.contour(X, Y, Z, **kwargs)
-    # ax.set_xlim(xlim)
     # ax.set_ylim(ylim)

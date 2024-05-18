@@ -16,19 +16,19 @@ from matplotlib.figure import Figure
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
 from optmlstat.functions.function_base import FunctionBase
 from optmlstat.opt.constants import LineSearchMethod
-from optmlstat.opt.opt_iterate import OptimizationIterate
-from optmlstat.opt.optalgs.optalg_base import OptAlgBase
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
 from optmlstat.opt.optalgs.grad_descent import GradDescent
+from optmlstat.opt.optalgs.optalg_base import OptAlgBase
+from optmlstat.opt.optalgs.unconstrained_newtons_method import UnconstrainedNewtonsMethod
 from optmlstat.plotting.opt_res_plotter import OptimizationResultPlotter
 
 logger: Logger = getLogger()
 
 
 class TestGradDescent(unittest.TestCase):
-    RANDOM_SEED: int = 76010
+    RANDOM_SEED: int = 760104
     NUM_DATA_POINTS: int = 10
     # abs_tolerance_used_for_compare: float = 1e-6
     # rel_tolerance_used_for_compare: float = 1e-6
@@ -52,13 +52,24 @@ class TestGradDescent(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        # from matplotlib import pyplot as plt
-        #
-        # plt.show()
+        from matplotlib import pyplot as plt
+
+        plt.show()
         pass
 
     def test_grad_descent(self) -> None:
+        """
+        test gradient method
+        """
         self._test_unc_deriv_based_optalg(GradDescent(LineSearchMethod.BackTrackingLineSearch))
+
+    def _test_newtons_method(self) -> None:
+        """
+        test Newton's method
+        """
+        self._test_unc_deriv_based_optalg(
+            UnconstrainedNewtonsMethod(LineSearchMethod.BackTrackingLineSearch)
+        )
 
     def _test_unc_deriv_based_optalg(self, optalg: OptAlgBase) -> None:
         num_vars: int = 2
@@ -74,7 +85,7 @@ class TestGradDescent(unittest.TestCase):
             opt_prob, self.opt_param, True, initial_x_array_2d=initial_x_2d
         )
         opt_res.result_analysis()
-        print(opt_res.final_iterate.x_array_2d.mean(axis=0) - opt_prob.optimum_point)
+        logger.info(opt_res.final_iterate.x_array_2d.mean(axis=0) - opt_prob.optimum_point)
         self.assertTrue(
             np.allclose(
                 opt_res.final_iterate.x_array_2d.mean(axis=0), opt_prob.optimum_point, atol=1e-4
@@ -82,23 +93,20 @@ class TestGradDescent(unittest.TestCase):
         )
         self.assertTrue(np.allclose(opt_res.best_obj_values, opt_prob.optimum_value, atol=1e-8))
 
-        final_iterate: OptimizationIterate = opt_res.final_iterate
-        logger.info(final_iterate.x_array_2d)
-
         figure: Figure = get_figure(
             2,
-            1,
+            2,
             axis_width=3.0,
             axis_height=2.5,
             top_margin=0.5,
             bottom_margin=0.5,
-            vertical_padding=0.5,
+            vertical_padding=1.0,
         )
-        axis1, axis2 = figure.get_axes()
+        ax1, ax2, ax3, ax4 = figure.get_axes()
 
         optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
-        optimization_result_plotter.plot_primal_and_dual_objs(axis1, axis2, "-")
-        # optimization_result_plotter.animate_primal_sol(interval=1000.0)
+        optimization_result_plotter.plot_primal_and_dual_objs(ax1, ax3, ax4, ".-")
+        optimization_result_plotter.animate_primal_sol(ax2, [ax1, ax3], interval=100.0)
 
 
 if __name__ == "__main__":

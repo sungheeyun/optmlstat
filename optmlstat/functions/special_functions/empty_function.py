@@ -14,7 +14,7 @@ class EmptyFunction(FunctionBase):
         self._num_outputs: int = num_outputs
 
     def _get_y_values_2d(self, x_array_2d: np.ndarray) -> np.ndarray:
-        return np.zeros((x_array_2d.shape[0], self.num_outputs))
+        return np.ones((x_array_2d.shape[0], self.num_outputs)) * np.nan
 
     def _hessian(self, x_array_2d: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
