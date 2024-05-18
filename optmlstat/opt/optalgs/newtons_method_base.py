@@ -3,12 +3,13 @@ base class for classes of Newton's methods for diverse types of problems such as
 linearly eq constrained only, linearly eq constrained and general ineq constrained, etc.
 """
 
-from abc import ABC
+from abc import abstractmethod
 from logging import Logger, getLogger
 from typing import Any
 
 import numpy as np
 
+from optmlstat.functions.function_base import FunctionBase
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
@@ -20,7 +21,7 @@ from optmlstat.opt.optalgs.derivative_based_optalg_base import DerivativeBasedOp
 logger: Logger = getLogger()
 
 
-class NewtonsMethodBase(DerivativeBasedOptAlgBase, ABC):
+class NewtonsMethodBase(DerivativeBasedOptAlgBase):
 
     @twice_differentiable_obj_required_solver
     def _solve(
@@ -44,39 +45,23 @@ class NewtonsMethodBase(DerivativeBasedOptAlgBase, ABC):
         )
 
     def check_stopping_criteria(
-        self,
-        search_directions: np.ndarray,
-        jac: np.ndarray,
-        hess: np.ndarray | None,
-        opt_param: OptParams,
+        self, opt_param: OptParams, directional_deriv: np.ndarray
     ) -> tuple[np.ndarray, dict[str, Any]]:
-        assert search_directions is not None
-        assert jac is not None
-        assert hess is not None
-
-        assert jac.ndim == 3, jac.shape
-        assert jac.shape[1] == 1, jac.shape
-        assert hess.ndim == 4, hess.shape
-        assert hess.shape[1] == 1, hess.shape
-        assert search_directions.ndim == 2, search_directions.shape
-        assert search_directions.shape[0] == jac.shape[0], (search_directions.shape, jac.shape)
-
-        hess_3d: np.ndarray = hess.squeeze(axis=1)
-
+        assert directional_deriv.ndim == 1, directional_deriv.shape
         info: dict[str, Any] = dict(
-            newton_dec=np.array(
-                [
-                    np.dot(np.dot(hess_2d, search_directions[idx]), search_directions[idx]) / 2.0
-                    for idx, hess_2d in enumerate(hess_3d)
-                ]
-            ),
-            tolerance_on_newton_dec=opt_param.tolerance_on_newton_dec,
+            newton_dec=-directional_deriv,
+            tolerance_on_grad=opt_param.tolerance_on_grad,
         )
-        if opt_param.tolerance_on_newton_dec is None:
-            return np.array([False] * jac.shape[0]), info
-
         return info["newton_dec"] < opt_param.tolerance_on_newton_dec, info
 
     @property
     def need_hessian(self) -> bool:
         return True
+
+    @abstractmethod
+    def loss_fcn_and_directional_deriv(
+        self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
+    ) -> tuple[
+        FunctionBase, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray
+    ]:
+        pass

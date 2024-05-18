@@ -129,12 +129,12 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
         :param hess: hessians of obj fcn
         :return:
             loss_fcn
-            search direction
-            directional derivative - x
-            directional derivative - lambda
-            directional derivative - nu
-            lambda
-            nu
+            search direction - 2d array
+            directional derivative - x - 1d array
+            directional derivative - lambda - 1d array
+            directional derivative - nu - 1d array
+            lambda - 2d array
+            nu - 2d array
         """
         pass
 

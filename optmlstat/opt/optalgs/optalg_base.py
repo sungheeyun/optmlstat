@@ -36,6 +36,8 @@ class OptAlgBase(OMSClassBase):
             initial_nu_array_2d=initial_nu_array_2d,
         )
         opt_res.solve_time = time.time() - t0
+        opt_res.result_analysis()
+
         return opt_res
 
     @abstractmethod

@@ -164,7 +164,7 @@ class TestDualAscend(unittest.TestCase):
             vertical_padding=0.5,
         )
         axis1, axis2 = figure.get_axes()
-        optimization_result_plotter.plot_primal_and_dual_objs(axis1, axis2, "-")
+        optimization_result_plotter.plot_primal_and_dual_objs(axis1, axis2, axis2, "-")
         figure.suptitle(get_fcn_name(frame_info), fontsize=10)
 
         # optimization_result_plotter.animate_primal_sol()

@@ -9,6 +9,9 @@ from typing import Any
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from freq_used.plotting import get_figure
+
 
 from optmlstat.functions.exceptions import ValueUnknownException
 from optmlstat.linalg.utils import get_random_orthogonal_array
@@ -242,3 +245,48 @@ class OptimizationResultPlotter:
         plt.show()
 
         return opt_progress_animation
+
+    @staticmethod
+    def standard_plotting(
+        opt_res: OptResults,
+        fig_suptitle: str,
+        /,
+        no_trajectory: bool = False,
+        proportional_real_solving_time: bool = True,
+    ) -> Figure:
+
+        figure: Figure = get_figure(
+            2,
+            2,
+            axis_width=3.5,
+            axis_height=3.5,
+            top_margin=0.5,
+            bottom_margin=0.5,
+            left_margin=0.5,
+            right_margin=0.5,
+            vertical_padding=1.0,
+        )
+        figure.suptitle(fig_suptitle)
+
+        obj_axis, trajectory_ax, primal_gap_axis, dual_gap_axis = figure.get_axes()
+
+        opt_res_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
+        opt_res_plotter.plot_primal_and_dual_objs(
+            obj_axis,
+            primal_gap_axis,
+            dual_gap_axis,
+            linestyle="-",
+            marker="o",
+            markersize=min(100.0 / np.array(opt_res.num_iterations_list).mean(), 5.0),
+        )
+
+        if not no_trajectory:
+            assert opt_res.solve_time is not None
+            opt_res_plotter.animate_primal_sol(
+                trajectory_ax,
+                [obj_axis, primal_gap_axis],
+                interval=(2e3 * opt_res.solve_time if proportional_real_solving_time else 3e3)
+                / np.array(opt_res.num_iterations_list).max(),
+            )
+
+        return figure

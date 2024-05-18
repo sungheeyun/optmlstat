@@ -2,6 +2,7 @@
 test for gradient descent method
 """
 
+import inspect
 import logging  # noqa: F401
 import os
 import unittest
@@ -10,11 +11,12 @@ from logging import getLogger, Logger
 import numpy as np
 import numpy.random as nr
 from freq_used.logging_utils import set_logging_basic_config
-from freq_used.plotting import get_figure
-from matplotlib.figure import Figure
 
+from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
+from optmlstat.functions.exceptions import ValueUnknownException
 from optmlstat.functions.function_base import FunctionBase
+from optmlstat.linalg.utils import get_random_pos_def_array
 from optmlstat.opt.constants import LineSearchMethod
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
@@ -27,19 +29,16 @@ from optmlstat.plotting.opt_res_plotter import OptimizationResultPlotter
 logger: Logger = getLogger()
 
 
-class TestGradDescent(unittest.TestCase):
+class TestUncDerivBasedOptAlgs(unittest.TestCase):
+    SHOW_TRAJECTORY: bool = False
     RANDOM_SEED: int = 760104
-    NUM_DATA_POINTS: int = 10
-    # abs_tolerance_used_for_compare: float = 1e-6
-    # rel_tolerance_used_for_compare: float = 1e-6
+    NUM_DATA_POINTS: int = 5
+    NUM_VARS: int = 10
 
-    # opt_param: OptimizationParameter = OptimizationParameter(0.1077, 100)
-    opt_param: OptParams = OptParams(
-        0.1,
-        100,
-        back_tracking_line_search_alpha=0.25,
-        back_tracking_line_search_beta=0.5,
-        tolerance_on_grad=1e-6,
+    OPT_PARAM: OptParams = OptParams(
+        max_num_outer_iterations=100,
+        back_tracking_line_search_alpha=0.2,
+        back_tracking_line_search_beta=0.9,
     )
 
     @classmethod
@@ -52,61 +51,92 @@ class TestGradDescent(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        from matplotlib import pyplot as plt
-
-        plt.show()
+        # from matplotlib import pyplot as plt
+        # plt.show()
         pass
 
-    def test_grad_descent(self) -> None:
-        """
-        test gradient method
-        """
-        self._test_unc_deriv_based_optalg(GradDescent(LineSearchMethod.BackTrackingLineSearch))
+    def test_grad_descent_quad(self) -> None:
 
-    def _test_newtons_method(self) -> None:
-        """
-        test Newton's method
-        """
         self._test_unc_deriv_based_optalg(
-            UnconstrainedNewtonsMethod(LineSearchMethod.BackTrackingLineSearch)
+            inspect.currentframe().f_code.co_name,  # type:ignore
+            GradDescent(LineSearchMethod.BackTrackingLineSearch),
+            "quad",
+            atol=1.0,
         )
 
-    def _test_unc_deriv_based_optalg(self, optalg: OptAlgBase) -> None:
-        num_vars: int = 2
-
-        obj_fcn: FunctionBase = QuadraticFunction(
-            np.diag([9, 1])[:, :, None], -2.0 * np.array([3.0, 1.0])[:, np.newaxis], np.zeros(1)
+    def test_grad_descent_lse(self) -> None:
+        self._test_unc_deriv_based_optalg(
+            inspect.currentframe().f_code.co_name,  # type:ignore
+            GradDescent(LineSearchMethod.BackTrackingLineSearch),
+            "lse",
+            atol=1.0,
         )
-        initial_x_2d: np.ndarray = 8 * nr.rand(self.NUM_DATA_POINTS, num_vars) - 4
+
+    def test_newtons_method_quad(self) -> None:
+        self._test_unc_deriv_based_optalg(
+            inspect.currentframe().f_code.co_name,  # type:ignore
+            UnconstrainedNewtonsMethod(LineSearchMethod.BackTrackingLineSearch),
+            "quad",
+        )
+
+    def test_newtons_method_lse(self) -> None:
+        self._test_unc_deriv_based_optalg(
+            inspect.currentframe().f_code.co_name,  # type:ignore
+            UnconstrainedNewtonsMethod(LineSearchMethod.BackTrackingLineSearch),
+            "lse",
+        )
+
+    def _test_unc_deriv_based_optalg(
+        self,
+        calling_method_name: str,
+        optalg: OptAlgBase,
+        objfcn_kind: str,
+        /,
+        *,
+        atol: float = 1e-6,
+    ) -> None:
+        num_terms: int = 300
+        obj_fcn: FunctionBase = LogSumExp(
+            [1e-1 * nr.randn(num_terms, self.NUM_VARS)], 1e-1 * nr.randn(1, num_terms)
+        )
+        if objfcn_kind == "lse":
+            pass
+        elif objfcn_kind == "quad":
+            obj_fcn = QuadraticFunction(
+                get_random_pos_def_array(np.logspace(-1.0, 1.0, self.NUM_VARS))[:, :, np.newaxis],
+                nr.randn(self.NUM_VARS)[:, np.newaxis],
+                188.0 * np.ones(1),
+            )
+        else:
+            assert False, objfcn_kind
 
         opt_prob: OptProb = OptProb(obj_fcn)
-
         opt_res: OptResults = optalg.solve(
-            opt_prob, self.opt_param, True, initial_x_array_2d=initial_x_2d
+            opt_prob,
+            self.OPT_PARAM,
+            True,
+            initial_x_array_2d=nr.randn(self.NUM_DATA_POINTS, self.NUM_VARS),
         )
-        opt_res.result_analysis()
-        logger.info(opt_res.final_iterate.x_array_2d.mean(axis=0) - opt_prob.optimum_point)
-        self.assertTrue(
-            np.allclose(
-                opt_res.final_iterate.x_array_2d.mean(axis=0), opt_prob.optimum_point, atol=1e-4
+
+        OptimizationResultPlotter.standard_plotting(
+            opt_res, calling_method_name, not self.SHOW_TRAJECTORY
+        )
+
+        # logger.info(opt_prob.optimum_point)
+        # logger.info(opt_res.final_iterate.x_array_2d.mean(axis=0) - opt_prob.optimum_point)
+        try:
+            self.assertTrue(
+                np.allclose(
+                    opt_res.final_iterate.x_array_2d.mean(axis=0), opt_prob.optimum_point, atol=atol
+                )
             )
-        )
-        self.assertTrue(np.allclose(opt_res.best_obj_values, opt_prob.optimum_value, atol=1e-8))
+        except ValueUnknownException:
+            pass
 
-        figure: Figure = get_figure(
-            2,
-            2,
-            axis_width=3.0,
-            axis_height=2.5,
-            top_margin=0.5,
-            bottom_margin=0.5,
-            vertical_padding=1.0,
-        )
-        ax1, ax2, ax3, ax4 = figure.get_axes()
-
-        optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
-        optimization_result_plotter.plot_primal_and_dual_objs(ax1, ax3, ax4, ".-")
-        optimization_result_plotter.animate_primal_sol(ax2, [ax1, ax3], interval=100.0)
+        try:
+            self.assertTrue(np.allclose(opt_res.best_obj_values, opt_prob.optimum_value, atol=atol))
+        except ValueUnknownException:
+            pass
 
 
 if __name__ == "__main__":

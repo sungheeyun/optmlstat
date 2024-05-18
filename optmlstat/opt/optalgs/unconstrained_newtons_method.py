@@ -44,18 +44,27 @@ class UnconstrainedNewtonsMethod(NewtonsMethodBase):
 
     def loss_fcn_and_directional_deriv(
         self, opt_prob: OptProb, jac: np.ndarray, hess: np.ndarray | None
-    ) -> tuple[FunctionBase, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[
+        FunctionBase, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray
+    ]:
         assert hess is not None, hess.__class__
         jac_array_2d: np.ndarray = jac.squeeze(axis=1)
         hess_array_3d: np.ndarray = hess.squeeze(axis=1)
 
+        search_direction_2d: np.ndarray = np.vstack(
+            [
+                linalg.solve(hess_array_3d[idx], -jac_1d, assume_a="sym")
+                for idx, jac_1d in enumerate(jac_array_2d)
+            ]
+        )
+
+        assert opt_prob.obj_fcn is not None
         return (
-            np.vstack(
-                [
-                    linalg.solve(hess_array_3d[idx], -jac_1d, assume_a="sym")
-                    for idx, jac_1d in enumerate(jac_array_2d)
-                ]
-            ),
+            opt_prob.obj_fcn,
+            search_direction_2d,
+            (search_direction_2d * jac_array_2d).sum(axis=1),
+            np.ndarray((jac.shape[0], 0)),
+            np.ndarray((jac.shape[0], 0)),
             np.ndarray((jac.shape[0], 0)),
             np.ndarray((jac.shape[0], 0)),
         )

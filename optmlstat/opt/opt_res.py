@@ -99,13 +99,25 @@ class OptResults(OMSClassBase):
 
         logger.info(f"\t# iters: {num_iterations_list}")
         logger.info(f"\tavg # iters: {np.array(num_iterations_list).mean()}")
-        logger.info(f"\tavg final x: {self.final_iterate.x_array_2d.mean(axis=0)}")
+        try:
+            logger.info(
+                f"\toptimum x: {self.opt_progress_report_info_to_str(self.opt_prob.optimum_point)}"
+            )
+        except ValueUnknownException:
+            pass
+        logger.info(
+            "\tavg final x: "
+            + str(self.opt_progress_report_info_to_str(self.final_iterate.x_array_2d.mean(axis=0)))
+        )
         logger.info(f"\tavg final lambda: {self.final_iterate.lambda_array_2d.mean(axis=0)}")
         logger.info(f"\tavg final nu: {self.final_iterate.nu_array_2d.mean(axis=0)}")
         logger.info(f"\tbest obj values: {self.best_obj_values}")
 
+        # logger.info(self.final_iterate.x_array_2d.mean(axis=0) - self.opt_prob.optimum_point)
+
         try:
             true_opt_val: np.ndarray | float = self.opt_prob.optimum_value
+            logger.info(f"\toptimum value: {true_opt_val}")
             logger.info(f"\tabs suboptimality: {self.best_obj_values - true_opt_val}")
             logger.info(
                 f"\trel suboptimality: {(self.best_obj_values - true_opt_val)/np.abs(true_opt_val)}"
@@ -195,7 +207,9 @@ class OptResults(OMSClassBase):
             primal_obj_list_list.append(
                 np.vstack(
                     [
-                        iterate_list[_iter].primal_prob_evaluation.obj_fcn_array_2d[member_idx]
+                        iterate_list[  # type:ignore
+                            min(_iter, len(iterate_list) - 1)
+                        ].primal_prob_evaluation.obj_fcn_array_2d[member_idx]
                         for _iter in range(num_iterations)
                     ]
                 )
@@ -203,7 +217,9 @@ class OptResults(OMSClassBase):
             dual_obj_list_list.append(
                 np.vstack(
                     [
-                        iterate_list[_iter].dual_prob_evaluation.obj_fcn_array_2d[member_idx]
+                        iterate_list[  # type:ignore
+                            min(_iter, len(iterate_list) - 1)
+                        ].dual_prob_evaluation.obj_fcn_array_2d[member_idx]
                         for _iter in range(num_iterations)
                     ]
                 )

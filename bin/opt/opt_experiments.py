@@ -12,21 +12,20 @@ import numpy.random as nr
 from freq_used.logging_utils import set_logging_basic_config
 from freq_used.plotting import get_figure
 from matplotlib import pyplot as plt
-from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
-from optmlstat.functions.some_typical_functions import get_cvxopt_book_for_grad_method
 from optmlstat.functions.function_base import FunctionBase
+from optmlstat.functions.some_typical_functions import get_cvxopt_book_for_grad_method
 from optmlstat.linalg.utils import get_random_pos_def_array
 from optmlstat.opt.constants import LineSearchMethod
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
+from optmlstat.opt.optalgs.derivative_based_optalg_base import DerivativeBasedOptAlgBase
 from optmlstat.opt.optalgs.grad_descent import GradDescent
 from optmlstat.opt.optalgs.unconstrained_newtons_method import UnconstrainedNewtonsMethod
-from optmlstat.opt.optalgs.derivative_based_optalg_base import DerivativeBasedOptAlgBase
 from optmlstat.plotting.opt_res_plotter import OptimizationResultPlotter
 
 logger: Logger = getLogger()
@@ -57,13 +56,13 @@ def solve_and_draw(
     opt_res.result_analysis()
 
     figure: Figure = get_figure(
-        1,
-        3,
-        axis_width=[4.0, 4.0, 5.0],
-        axis_height=5.0,
+        2,
+        2,
+        axis_width=3.5,
+        axis_height=3.5,
         top_margin=0.5,
         bottom_margin=0.5,
-        vertical_padding=0.5,
+        vertical_padding=1.0,
     )
 
     figure.suptitle(
@@ -72,16 +71,13 @@ def solve_and_draw(
         f", # opt vars: {opt_res.opt_prob.dim_domain}"
     )
 
-    ax: Axes
-    gap_ax: Axes
-    trajectory_ax: Axes
-
-    ax, gap_ax, trajectory_ax = figure.get_axes()
+    ax, trajectory_ax, gap_ax, dual_ax = figure.get_axes()
 
     optimization_result_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
     optimization_result_plotter.plot_primal_and_dual_objs(
         ax,
         gap_ax,
+        dual_ax,
         linestyle="-",
         marker="o",
         markersize=min(100.0 / np.array(opt_res.num_iterations_list).mean(), 5.0),
@@ -181,8 +177,8 @@ def main(
         opt_params = OptParams(
             0.1,
             100,
-            back_tracking_line_search_alpha=0.2,
-            back_tracking_line_search_beta=0.9,
+            back_tracking_line_search_alpha=0.25,
+            back_tracking_line_search_beta=0.5,
             tolerance_on_grad=1e1,
             tolerance_on_newton_dec=1e-6,
         )
