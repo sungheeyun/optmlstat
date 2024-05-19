@@ -107,15 +107,69 @@ class OptProb(OMSClassBase):
     def dual_problem(self) -> OptProb:
         num_dual_variables: int = self.num_ineq_cnst + self.num_eq_cnst
 
-        objfcn: FunctionBase = EmptyFunction(num_dual_variables, 1)
         if num_dual_variables == 0:
+            objfcn: FunctionBase = EmptyFunction(num_dual_variables, 1)
             try:
                 objfcn = ConstantFunction(-self.optimum_value, num_dual_variables)
             except ValueUnknownException:
                 pass
 
+            return OptProb(
+                objfcn,
+                EmptyFunction(num_dual_variables, 0),
+                AffineFunction(
+                    block_array(
+                        [
+                            [
+                                -np.eye(self.num_ineq_cnst),
+                                np.zeros((self.num_ineq_cnst, self.num_eq_cnst)),
+                            ]
+                        ]
+                    ).T,
+                    np.zeros(self.num_ineq_cnst),
+                ),
+            )
+
+        if self.num_ineq_cnst == 0 and isinstance(self.eq_cnst_fcn, AffineFunction):
+            if isinstance(self.obj_fcn, QuadraticFunction):
+                _a_2d: np.ndarray = self.eq_cnst_fcn.slope_array_2d.T
+                _b_1d: np.ndarray = -self.eq_cnst_fcn.intercept_array_1d
+                assert isinstance(self.obj_fcn.quad_3d, np.ndarray), self.obj_fcn.quad_3d.__class__
+                dual_quad_3d: np.ndarray = np.array(
+                    [
+                        -np.dot(_a_2d, linalg.solve(quad_array_2d, _a_2d.T, assume_a="sym")) / 4.0
+                        for quad_array_2d in self.obj_fcn.quad_3d.transpose((2, 0, 1))
+                    ]
+                ).transpose((1, 2, 0))
+
+                dual_slope_2d: np.ndarray = np.array(
+                    [
+                        -_b_1d
+                        - np.dot(_a_2d, linalg.solve(self.obj_fcn.quad_3d[:, :, idx], slope_1d))
+                        / 2.0
+                        for idx, slope_1d in enumerate(self.obj_fcn.slope_2d.T)
+                    ]
+                ).T
+
+                dual_intercept_1d: np.ndarray = np.array(
+                    [
+                        -np.dot(
+                            self.obj_fcn.slope_2d[:, idx],
+                            linalg.solve(
+                                self.obj_fcn.quad_3d[:, :, idx],
+                                self.obj_fcn.slope_2d[:, idx],
+                                assume_a="sym",
+                            ),
+                        )
+                        / 4.0
+                        + float(intercept)
+                        for idx, intercept in enumerate(self.obj_fcn.intercept_1d)
+                    ]
+                )
+                return OptProb(QuadraticFunction(-dual_quad_3d, -dual_slope_2d, -dual_intercept_1d))
+
         return OptProb(
-            objfcn,
+            EmptyFunction(num_dual_variables, 1),
             EmptyFunction(num_dual_variables, 0),
             AffineFunction(
                 block_array(
@@ -186,11 +240,11 @@ class OptProb(OMSClassBase):
 
             if self.num_ineq_cnst == 0 and isinstance(self.eq_cnst_fcn, AffineFunction):
                 # linearly eq cnst opt
-                if isinstance(self.obj_fcn, QuadraticFunction):
-                    assert self.obj_fcn.quad_array_3d is not None
-                    _p_2d: np.ndarray = self.obj_fcn.quad_array_3d[:, :, 0]
-                    _q_1d: np.ndarray = self.obj_fcn.slope_array_2d[:, 0]
-                    # _r_0d: float = self.obj_fcn.intercept_array_1d[0]
+                if isinstance(self.obj_fcn, QuadraticFunction) and self.obj_fcn.is_strictly_convex:
+                    assert self.obj_fcn.quad_3d is not None
+                    _p_2d: np.ndarray = self.obj_fcn.quad_3d[:, :, 0]
+                    _q_1d: np.ndarray = self.obj_fcn.slope_2d[:, 0]
+                    # _r_0d: float = self.obj_fcn.intercept_1d[0]
                     _a_2d: np.ndarray = self.eq_cnst_fcn.slope_array_2d.T
                     _b_1d: np.ndarray = -self.eq_cnst_fcn.intercept_array_1d
                     x_nu_1d: np.ndarray = linalg.solve(

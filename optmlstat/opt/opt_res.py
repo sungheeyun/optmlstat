@@ -5,7 +5,7 @@ import numpy as np
 from numpy import linalg
 
 from optmlstat.basic_modules.class_base import OMSClassBase
-from optmlstat.functions.exceptions import ValueUnknownException
+from optmlstat.functions.exceptions import ValueUnknownException, InfiniteNumberOfSolutionsException
 from optmlstat.opt.iteration import Iteration
 from optmlstat.opt.opt_iterate import OptimizationIterate
 from optmlstat.opt.opt_prob import OptProb
@@ -165,6 +165,15 @@ class OptResults(OMSClassBase):
                 f"{(self.best_obj_values - true_opt_val) / np.abs(true_opt_val)}"
             )
         except ValueUnknownException:
+            pass
+
+        try:
+            logger.info(f"\ttrue dual optimum value: {-self.opt_prob.dual_problem.optimum_value}")
+            logger.info(
+                "\ttrue dual optimum point: "
+                + f"{self.pretty_data_format(self.opt_prob.dual_problem.optimum_point)}"
+            )
+        except (ValueUnknownException, InfiniteNumberOfSolutionsException):
             pass
 
     @property

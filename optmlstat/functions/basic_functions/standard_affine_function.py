@@ -16,5 +16,5 @@ class StandardAffineFunction(AffineFunction):
         super().__init__(slope_array_2d.T, intercept_array_1d)
 
     # @property
-    # def slope_array_2d(self) -> ndarray:
+    # def slope_2d(self) -> ndarray:
     #     return self._slope_array_2d.T

@@ -111,14 +111,14 @@ class TestDualAscend(unittest.TestCase):
         opt_x_array_1d: ndarray
         opt_nu_array_1d: ndarray
 
-        assert obj_fcn.quad_array_3d is not None
+        assert obj_fcn.quad_3d is not None
 
         (
             opt_x_array_1d,
             opt_nu_array_1d,
         ) = strictly_convex_quadratic_with_linear_equality_constraints(
-            obj_fcn.quad_array_3d[:, :, 0],
-            obj_fcn.slope_array_2d[:, 0],
+            obj_fcn.quad_3d[:, :, 0],
+            obj_fcn.slope_2d[:, 0],
             eq_cnst_fcn.slope_array_2d.T,
             -eq_cnst_fcn.intercept_array_1d,
         )

@@ -122,6 +122,7 @@ class OptimizationResultPlotter:
             try:
                 [
                     dual_gap_axis.semilogy(
+                        # dual_gap_axis.plot(
                         iter_list,
                         self.opt_res.opt_prob.optimum_value + dual_objs_list_list[member_idx],
                         *args,

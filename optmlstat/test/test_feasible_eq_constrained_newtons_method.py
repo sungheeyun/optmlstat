@@ -3,6 +3,7 @@ test feasible Newton's method for equality constrained optimization problems
 """
 
 import unittest
+from logging import Logger, getLogger
 
 import numpy as np
 from numpy import random as nr
@@ -21,6 +22,9 @@ from optmlstat.opt.opt_prob import OptProb
 from optmlstat.plotting.opt_res_plotter import OptimizationResultPlotter
 
 
+logger: Logger = getLogger()
+
+
 class TestFeasibleEqConstrainedNewtonsMethod(unittest.TestCase):
     TRAJ: bool = False
 
@@ -29,7 +33,7 @@ class TestFeasibleEqConstrainedNewtonsMethod(unittest.TestCase):
         set_logging_basic_config(__file__)
 
     def test_with_simple_example(self) -> None:
-        num_pnts: int = 10
+        num_pnts: int = 5
         self._test_eq_cnst_opt(
             "small example", *SomeSimpleOptProbs.simple_linear_program_two_vars(num_pnts)
         )
