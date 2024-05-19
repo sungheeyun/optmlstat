@@ -30,7 +30,7 @@ logger: Logger = getLogger()
 
 
 class TestUncDerivBasedOptAlgs(unittest.TestCase):
-    SHOW_TRAJECTORY: bool = False
+    SHOW_TRAJECTORY: bool = True
     RANDOM_SEED: int = 760104
     NUM_DATA_POINTS: int = 5
     NUM_VARS: int = 10

@@ -85,7 +85,7 @@ class OptimizationResultPlotter:
                 if np.all(np.isnan(dual_objs_list_list[member_idx]))
                 else obj_val_axis.plot(
                     iter_list,
-                    dual_objs_list_list[member_idx],
+                    -dual_objs_list_list[member_idx],
                     *args,
                     **(first_dual_kwargs if member_idx == 0 else dual_kwargs),
                 )
@@ -123,7 +123,7 @@ class OptimizationResultPlotter:
                 [
                     dual_gap_axis.semilogy(
                         iter_list,
-                        self.opt_res.opt_prob.optimum_value - dual_objs_list_list[member_idx],
+                        self.opt_res.opt_prob.optimum_value + dual_objs_list_list[member_idx],
                         *args,
                         **dual_kwargs,
                     )

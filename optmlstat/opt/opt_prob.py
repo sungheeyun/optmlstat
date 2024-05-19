@@ -110,7 +110,7 @@ class OptProb(OMSClassBase):
         objfcn: FunctionBase = EmptyFunction(num_dual_variables, 1)
         if num_dual_variables == 0:
             try:
-                objfcn = ConstantFunction(self.optimum_value, num_dual_variables)
+                objfcn = ConstantFunction(-self.optimum_value, num_dual_variables)
             except ValueUnknownException:
                 pass
 
