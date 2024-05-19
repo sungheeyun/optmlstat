@@ -39,7 +39,7 @@ class BackTrackingLineSearch(LineSearchBase):
         while sum(active) > 0:
             t_array_1d[active] = step_len
             # logger.debug(
-            #     str(loss_fcn.eval(x_array_2d[active] + step_len * search_dir_2d[active]).ravel())
+            #     str(loss_fcn.eval(x_2d[active] + step_len * search_dir_2d[active]).ravel())
             #     + " > "
             #     + str((y_array_2d[active] + self._alpha * step_len * grad_search[active]).ravel())
             #     + " ["

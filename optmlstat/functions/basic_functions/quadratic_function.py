@@ -42,14 +42,14 @@ class QuadraticFunction(FunctionBase):
 
     @property
     def minimal_point(self) -> np.ndarray:
-        raise NotImplementedError()
+        return self.minimum_point[np.newaxis, :]
 
     @property
     def minimal_value(self) -> np.ndarray:
         if self.num_outputs != 1:
             raise NotImplementedError()
 
-        return self.minimum_value
+        return self.minimum_value[np.newaxis, :]
 
     @property
     def minimum_point(self) -> np.ndarray:
@@ -98,7 +98,7 @@ class QuadraticFunction(FunctionBase):
         if not np.allclose(np.dot(2 * quad_array_2d, sol), -slope_array_1d):
             return np.array([-np.inf])
 
-        return np.dot(sol, slope_array_1d) / 2.0 + intercept
+        return np.array([np.dot(sol, slope_array_1d) / 2.0 + intercept])
 
     @staticmethod
     def test_convexity(quad_array_3d: ndarray) -> tuple[bool, bool]:

@@ -2,7 +2,6 @@
 formatter
 """
 
-from typing import Union
 from abc import ABC
 import json
 
@@ -15,7 +14,7 @@ class OMSClassBase(ABC):
 
     """
 
-    def to_json_data(self) -> Union[int, float, str, dict, list]:
+    def to_json_data(self) -> int | float | str | dict | list:
         """
         Returns json data representing the class.
         This is mainly for data serialization.

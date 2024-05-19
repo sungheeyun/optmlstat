@@ -3,6 +3,7 @@ base class for all functions in optmlstat package
 """
 
 from __future__ import annotations
+
 from abc import abstractmethod
 
 import numpy as np
@@ -193,7 +194,7 @@ class FunctionBase(OMSClassBase):
     @fcn_evaluator
     def get_y_values_2d(self, x_array_2d: np.ndarray) -> np.ndarray:
         """
-        Returns y values for given x values. Each row of x_array_2d represents
+        Returns y values for given x values. Each row of x_2d represents
         each x vector (n-dimensional vector) and each row of y_array_2d
         represents the corresponding y value (m-dimensional vector).
         Unlike generally accepted linear algebra standard,
@@ -201,7 +202,7 @@ class FunctionBase(OMSClassBase):
         to conform to Machine Learning convention where each row represents data
         and each column represent the feature.
 
-        More precisely, the function value for x_array_2d[i, :] is stored
+        More precisely, the function value for x_2d[i, :] is stored
         in y_array_2d[i, :].
 
         Parameters
@@ -264,3 +265,11 @@ class FunctionBase(OMSClassBase):
           N-by-m-by-n np.array representing argsup :math:`(z^T x - f(x))`.
         """
         pass
+
+    def to_json_data(self) -> str | float | int | list | dict:
+        return dict(
+            _class=self.__class__.__name__,
+            dim_domain=self.num_inputs,
+            dim_co_domain=self.num_outputs,
+        )
+        # return f"{self.__class__.__name__}: R^{self.num_inputs} -> R^{self.num_outputs}"

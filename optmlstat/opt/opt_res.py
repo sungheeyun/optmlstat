@@ -154,7 +154,7 @@ class OptResults(OMSClassBase):
 
         logger.info(f"\tbest obj values: {self.best_obj_values}")
 
-        # logger.info(self.final_iterate.x_array_2d.mean(axis=0) - self.opt_prob.optimum_point)
+        # logger.info(self.final_iterate.x_2d.mean(axis=0) - self.opt_prob.optimum_point)
 
         try:
             true_opt_val: np.ndarray | float = self.opt_prob.optimum_value

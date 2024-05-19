@@ -397,7 +397,7 @@ def run() -> None:
     # w2_array_1d: np.ndarray = nr.randn(num_features)
 
     z_array_1d: np.ndarray = np.dot(x_array_2d, w_array_1d)
-    # y_array_1d += 1 * np.dot(x_array_2d ** 2, w2_array_1d)
+    # y_array_1d += 1 * np.dot(x_2d ** 2, w2_array_1d)
     y_array_1d: np.ndarray = z_array_1d + np.sqrt(noise_variance) * nr.randn(*z_array_1d.shape)
 
     lambd: float = 0.1

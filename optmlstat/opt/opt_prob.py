@@ -14,6 +14,7 @@ from optmlstat.basic_modules.class_base import OMSClassBase
 from optmlstat.functions.basic_functions.affine_function import AffineFunction
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
 from optmlstat.functions.exceptions import ValueUnknownException
+from optmlstat.functions.basic_functions.constant_function import ConstantFunction
 from optmlstat.functions.function_base import FunctionBase
 from optmlstat.functions.special_functions.empty_function import EmptyFunction
 from optmlstat.linalg.utils import block_array
@@ -105,8 +106,16 @@ class OptProb(OMSClassBase):
     @property
     def dual_problem(self) -> OptProb:
         num_dual_variables: int = self.num_ineq_cnst + self.num_eq_cnst
+
+        objfcn: FunctionBase = EmptyFunction(num_dual_variables, 1)
+        if num_dual_variables == 0:
+            try:
+                objfcn = ConstantFunction(self.optimum_value, num_dual_variables)
+            except ValueUnknownException:
+                pass
+
         return OptProb(
-            EmptyFunction(num_dual_variables, 1),
+            objfcn,
             EmptyFunction(num_dual_variables, 0),
             AffineFunction(
                 block_array(
@@ -203,7 +212,7 @@ class OptProb(OMSClassBase):
                         opt_x,
                         np.ndarray(0),
                         opt_nu,
-                        self.obj_fcn.get_y_values_2d(opt_x[np.newaxis, :]),
+                        self.obj_fcn.get_y_values_2d(opt_x[np.newaxis, :])[0],
                     )
 
         raise ValueUnknownException()

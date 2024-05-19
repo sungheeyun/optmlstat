@@ -13,6 +13,7 @@ from matplotlib.figure import Figure
 from freq_used.plotting import get_figure
 
 
+from optmlstat.utils.utils import update_kwargs
 from optmlstat.functions.exceptions import ValueUnknownException
 from optmlstat.linalg.utils import get_random_orthogonal_array
 from optmlstat.opt.opt_iterate import OptimizationIterate
@@ -50,13 +51,18 @@ class OptimizationResultPlotter:
         *args,
         **kwargs,
     ) -> None:
+        primal_kwargs = update_kwargs(kwargs, alpha=0.5)
+        primal_kwargs.update(marker="o")
+        dual_kwargs = update_kwargs(kwargs, alpha=0.5)
+        dual_kwargs.update(marker="d")
+
         iter_list_list, primal_obj_list_list, dual_objs_list_list = (
             self.opt_res.primal_dual_plot_lists
         )
 
         # plot primal and dual objs
-        first_kwargs: dict[str, Any] = dict(label=r"primal obj - $f(x^{(k)})$")
-        first_kwargs.update(kwargs)
+        first_primal_kwargs: dict[str, Any] = dict(label=r"primal obj - $f(x^{(k)})$")
+        first_primal_kwargs.update(primal_kwargs)
         [
             (
                 None
@@ -65,14 +71,14 @@ class OptimizationResultPlotter:
                     iter_list,
                     primal_obj_list_list[member_idx],
                     *args,
-                    **(first_kwargs if member_idx == 0 else kwargs),
+                    **(first_primal_kwargs if member_idx == 0 else primal_kwargs),
                 )
             )
             for member_idx, iter_list in enumerate(iter_list_list)
         ]
 
-        first_kwargs = dict(label=r"dual obj - $g(\lambda^{(k)}, \nu^{(k)})$")
-        first_kwargs.update(kwargs)
+        first_dual_kwargs = dict(label=r"dual obj - $g(\lambda^{(k)}, \nu^{(k)})$")
+        first_dual_kwargs.update(dual_kwargs)
         [
             (
                 None
@@ -81,11 +87,21 @@ class OptimizationResultPlotter:
                     iter_list,
                     dual_objs_list_list[member_idx],
                     *args,
-                    **(first_kwargs if member_idx == 0 else kwargs),
+                    **(first_dual_kwargs if member_idx == 0 else dual_kwargs),
                 )
             )
             for member_idx, iter_list in enumerate(iter_list_list)
         ]
+
+        try:
+            obj_val_axis.plot(
+                [0, max([max(iter_list) for iter_list in iter_list_list])],
+                np.ones(2) * self.opt_res.opt_prob.optimum_value,
+                "r-",
+                label=r"primal optimum - $p^\ast$",
+            )
+        except ValueUnknownException:
+            pass
 
         if primal_gap_axis is not None:
             try:
@@ -94,7 +110,7 @@ class OptimizationResultPlotter:
                         iter_list,
                         primal_obj_list_list[member_idx] - self.opt_res.opt_prob.optimum_value,
                         *args,
-                        **kwargs,
+                        **primal_kwargs,
                     )
                     for member_idx, iter_list in enumerate(iter_list_list)
                 ]
@@ -109,7 +125,7 @@ class OptimizationResultPlotter:
                         iter_list,
                         self.opt_res.opt_prob.optimum_value - dual_objs_list_list[member_idx],
                         *args,
-                        **kwargs,
+                        **dual_kwargs,
                     )
                     for member_idx, iter_list in enumerate(iter_list_list)
                 ]
@@ -279,7 +295,6 @@ class OptimizationResultPlotter:
             primal_gap_axis,
             dual_gap_axis,
             linestyle="-",
-            marker="o",
             markersize=min(100.0 / np.array(opt_res.num_iterations_list).mean(), 5.0),
         )
 

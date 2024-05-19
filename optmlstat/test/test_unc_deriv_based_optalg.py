@@ -123,7 +123,7 @@ class TestUncDerivBasedOptAlgs(unittest.TestCase):
         )
 
         # logger.info(opt_prob.optimum_point)
-        # logger.info(opt_res.final_iterate.x_array_2d.mean(axis=0) - opt_prob.optimum_point)
+        # logger.info(opt_res.final_iterate.x_2d.mean(axis=0) - opt_prob.optimum_point)
         try:
             self.assertTrue(
                 np.allclose(
