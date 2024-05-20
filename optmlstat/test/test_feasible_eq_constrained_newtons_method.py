@@ -23,7 +23,7 @@ logger: Logger = getLogger()
 
 
 class TestFeasibleEqConstrainedNewtonsMethod(unittest.TestCase):
-    TRAJ: bool = True
+    TRAJ: bool = False
 
     @classmethod
     def setUpClass(cls) -> None:
