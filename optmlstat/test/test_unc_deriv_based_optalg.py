@@ -16,7 +16,7 @@ from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
 from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunction
 from optmlstat.functions.exceptions import ValueUnknownException
 from optmlstat.functions.function_base import FunctionBase
-from optmlstat.linalg.utils import get_random_pos_def_array
+from optmlstat.linalg.utils import get_random_pos_def_array, get_random_orthogonal_array
 from optmlstat.opt.constants import LineSearchMethod
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
@@ -30,16 +30,19 @@ logger: Logger = getLogger()
 
 
 class TestUncDerivBasedOptAlgs(unittest.TestCase):
-    SHOW_TRAJECTORY: bool = False
+    SHOW_TRAJECTORY: bool = True
     RANDOM_SEED: int = 760104
     NUM_DATA_POINTS: int = 5
     NUM_VARS: int = 10
+    NUM_TERMS: int = 300
 
     OPT_PARAM: OptParams = OptParams(
         max_num_outer_iterations=100,
         back_tracking_line_search_alpha=0.2,
         back_tracking_line_search_beta=0.9,
     )
+
+    OBJFCN_PRJ_MAT_INIT_PNTS_MAP: dict[str, tuple[FunctionBase, np.ndarray, np.ndarray]] = dict()
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -48,6 +51,24 @@ class TestUncDerivBasedOptAlgs(unittest.TestCase):
             level=eval(f"logging.{os.environ.get('TEST_LOG_LEVEL', 'INFO')}"),
         )
         nr.seed(cls.RANDOM_SEED)
+
+        cls.OBJFCN_PRJ_MAT_INIT_PNTS_MAP["lse"] = (
+            LogSumExp(
+                [1e-1 * nr.randn(cls.NUM_TERMS, cls.NUM_VARS)], 1e-1 * nr.randn(1, cls.NUM_TERMS)
+            ),
+            get_random_orthogonal_array(cls.NUM_VARS)[:, :2],
+            nr.randn(cls.NUM_DATA_POINTS, cls.NUM_VARS),
+        )
+
+        cls.OBJFCN_PRJ_MAT_INIT_PNTS_MAP["quad"] = (
+            QuadraticFunction(
+                get_random_pos_def_array(np.logspace(-1.0, 1.0, cls.NUM_VARS))[:, :, np.newaxis],
+                nr.randn(cls.NUM_VARS)[:, np.newaxis],
+                188.0 * np.ones(1),
+            ),
+            get_random_orthogonal_array(cls.NUM_VARS)[:, :2],
+            nr.randn(cls.NUM_DATA_POINTS, cls.NUM_VARS),
+        )
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -90,36 +111,27 @@ class TestUncDerivBasedOptAlgs(unittest.TestCase):
         self,
         calling_method_name: str,
         optalg: OptAlgBase,
-        objfcn_kind: str,
+        objfcn_name: str,
         /,
         *,
         atol: float = 1e-6,
     ) -> None:
-        num_terms: int = 300
-        obj_fcn: FunctionBase = LogSumExp(
-            [1e-1 * nr.randn(num_terms, self.NUM_VARS)], 1e-1 * nr.randn(1, num_terms)
-        )
-        if objfcn_kind == "lse":
-            pass
-        elif objfcn_kind == "quad":
-            obj_fcn = QuadraticFunction(
-                get_random_pos_def_array(np.logspace(-1.0, 1.0, self.NUM_VARS))[:, :, np.newaxis],
-                nr.randn(self.NUM_VARS)[:, np.newaxis],
-                188.0 * np.ones(1),
-            )
-        else:
-            assert False, objfcn_kind
 
-        opt_prob: OptProb = OptProb(obj_fcn)
+        objfcn, proj_mat, init_x_2d = self.OBJFCN_PRJ_MAT_INIT_PNTS_MAP[objfcn_name]
+
+        opt_prob: OptProb = OptProb(objfcn)
         opt_res: OptResults = optalg.solve(
             opt_prob,
             self.OPT_PARAM,
             True,
-            nr.randn(self.NUM_DATA_POINTS, self.NUM_VARS),
+            init_x_2d,
         )
 
         OptimizationResultPlotter.standard_plotting(
-            opt_res, calling_method_name, no_trajectory=not self.SHOW_TRAJECTORY
+            opt_res,
+            calling_method_name,
+            no_trajectory=not self.SHOW_TRAJECTORY,
+            proj_mat_2d=proj_mat,
         )
 
         # logger.info(opt_prob.optimum_point)

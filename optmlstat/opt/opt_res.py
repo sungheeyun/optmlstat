@@ -234,13 +234,14 @@ class OptResults(OMSClassBase):
     @property
     def primal_dual_plot_lists(
         self,
-    ) -> tuple[list[list[int]], list[np.ndarray], list[np.ndarray]]:
+    ) -> tuple[list[list[int]], list[np.ndarray], list[np.ndarray], list[np.ndarray]]:
         """
         :return: list of iter lists, list of primal obj list
         """
         iter_list_list: list[list[int]] = list()
         primal_obj_list_list: list[np.ndarray] = list()
         dual_obj_list_list: list[np.ndarray] = list()
+        primal_eq_list_list: list[np.ndarray] = list()
 
         _, iterate_list = self.iteration_iterate_list
 
@@ -266,5 +267,22 @@ class OptResults(OMSClassBase):
                     ]
                 )
             )
+            primal_eq_list_list.append(
+                np.vstack(
+                    [
+                        (
+                            None  # type:ignore
+                            if iterate_list[
+                                min(_iter, len(iterate_list) - 1)
+                            ].primal_prob_evaluation.eq_cnst_array_2d
+                            is None
+                            else iterate_list[  # type:ignore
+                                min(_iter, len(iterate_list) - 1)
+                            ].primal_prob_evaluation.eq_cnst_array_2d[member_idx]
+                        )
+                        for _iter in range(num_iterations)
+                    ]
+                )
+            )
 
-        return iter_list_list, primal_obj_list_list, dual_obj_list_list
+        return iter_list_list, primal_obj_list_list, dual_obj_list_list, primal_eq_list_list

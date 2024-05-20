@@ -45,8 +45,10 @@ class OptimizationResultPlotter:
     def plot_primal_and_dual_objs(
         self,
         obj_val_axis: Axes,
-        primal_gap_axis: Axes | None,
-        dual_gap_axis: Axes | None,
+        duality_gap_axis: Axes | None,
+        cnst_violation_axis: Axes | None,
+        primal_suboptimality_axis: Axes | None,
+        dual_suboptimality_axis: Axes | None,
         /,
         *args,
         **kwargs,
@@ -56,7 +58,7 @@ class OptimizationResultPlotter:
         dual_kwargs = update_kwargs(kwargs, alpha=0.5)
         dual_kwargs.update(marker="d")
 
-        iter_list_list, primal_obj_list_list, dual_objs_list_list = (
+        iter_list_list, primal_obj_list_list, dual_objs_list_list, primal_eq_list_list = (
             self.opt_res.primal_dual_plot_lists
         )
 
@@ -103,10 +105,41 @@ class OptimizationResultPlotter:
         except ValueUnknownException:
             pass
 
-        if primal_gap_axis is not None:
+        if duality_gap_axis is not None:
+            [
+                duality_gap_axis.semilogy(
+                    iter_list,
+                    primal_obj_list_list[member_idx] + dual_objs_list_list[member_idx],
+                    *args,
+                    **primal_kwargs,
+                )
+                for member_idx, iter_list in enumerate(iter_list_list)
+            ]
+            duality_gap_axis.set_title(
+                r"duality gap - $f(x^{(k)}) - g(\lambda^{(k)},\nu^{(k)})$", fontsize=10.0
+            )
+
+        if cnst_violation_axis is not None:
             try:
                 [
-                    primal_gap_axis.semilogy(
+                    cnst_violation_axis.plot(
+                        iter_list,
+                        np.abs(primal_eq_list_list[member_idx]).max(axis=1),
+                        *args,
+                        **primal_kwargs,
+                    )
+                    for member_idx, iter_list in enumerate(iter_list_list)
+                ]
+                cnst_violation_axis.set_title(
+                    r"max eq cnst violation - $\max |f_i(x)|$", fontsize=10.0
+                )
+            except TypeError:
+                pass
+
+        if primal_suboptimality_axis is not None:
+            try:
+                [
+                    primal_suboptimality_axis.semilogy(
                         iter_list,
                         primal_obj_list_list[member_idx] - self.opt_res.opt_prob.optimum_value,
                         *args,
@@ -114,15 +147,17 @@ class OptimizationResultPlotter:
                     )
                     for member_idx, iter_list in enumerate(iter_list_list)
                 ]
-                primal_gap_axis.set_title(r"primal gap - $f(x^{(k)}) - p^\ast$", fontsize=10.0)
+                primal_suboptimality_axis.set_title(
+                    r"primal suboptimality - $f(x^{(k)}) - p^\ast$", fontsize=10.0
+                )
             except ValueUnknownException:
                 pass
 
-        if dual_gap_axis is not None:
+        if dual_suboptimality_axis is not None:
             try:
                 [
-                    dual_gap_axis.semilogy(
-                        # dual_gap_axis.plot(
+                    dual_suboptimality_axis.semilogy(
+                        # dual_suboptimality_axis.plot(
                         iter_list,
                         self.opt_res.opt_prob.optimum_value + dual_objs_list_list[member_idx],
                         *args,
@@ -130,13 +165,13 @@ class OptimizationResultPlotter:
                     )
                     for member_idx, iter_list in enumerate(iter_list_list)
                 ]
-                dual_gap_axis.set_title(
-                    r"dual gap - $p^\ast- g(\lambda^{(k)}, \nu^{(k)})$", fontsize=10.0
+                dual_suboptimality_axis.set_title(
+                    r"dual suboptimality - $p^\ast- g(\lambda^{(k)}, \nu^{(k)})$", fontsize=10.0
                 )
             except ValueUnknownException:
                 pass
 
-        for ax in [obj_val_axis, primal_gap_axis, dual_gap_axis]:
+        for ax in [obj_val_axis, primal_suboptimality_axis, dual_suboptimality_axis]:
             if ax is None:
                 continue
             ax.legend(fontsize=self.legend_font_size)
@@ -173,6 +208,7 @@ class OptimizationResultPlotter:
         *,
         head_ratio: float = 0.1,
         max_num_iterations_to_draw: int = 1000000,
+        proj_mat_2d: np.ndarray | None = None,
         **kwargs,
     ) -> TrajectoryObjValProgressAnimation:
         """
@@ -201,10 +237,13 @@ class OptimizationResultPlotter:
 
         assert 0.0 < head_ratio < 1.0
 
-        proj_array_2d: np.ndarray = np.eye(2)  # projection matrix n-by-2
-        assert self.opt_res.opt_prob.dim_domain > 1, self.opt_res.opt_prob.dim_domain
-        if self.opt_res.opt_prob.dim_domain > 2:
-            proj_array_2d = get_random_orthogonal_array(self.opt_res.opt_prob.dim_domain)[:, :2]
+        _proj_2d: np.ndarray = np.eye(2)  # projection matrix n-by-2
+        if proj_mat_2d is None:
+            assert self.opt_res.opt_prob.dim_domain > 1, self.opt_res.opt_prob.dim_domain
+            if self.opt_res.opt_prob.dim_domain > 2:
+                _proj_2d = get_random_orthogonal_array(self.opt_res.opt_prob.dim_domain)[:, :2]
+        else:
+            _proj_2d = proj_mat_2d.copy()
 
         opt_iterate_list: list[OptimizationIterate]
         _, opt_iterate_list = self.opt_res.iteration_iterate_list
@@ -215,10 +254,7 @@ class OptimizationResultPlotter:
         time_array_1d: np.ndarray = np.linspace(0.0, 1.0, len(selected_opt_iterate_list))
 
         x_array_3d: np.ndarray = np.array(  # {iter} x {data} x {0,1}
-            [
-                np.dot(opt_iterate.x_array_2d, proj_array_2d)
-                for opt_iterate in selected_opt_iterate_list
-            ]
+            [np.dot(opt_iterate.x_array_2d, _proj_2d) for opt_iterate in selected_opt_iterate_list]
         )
 
         x_array_2d: np.ndarray = x_array_3d[:, :, 0]
@@ -247,18 +283,20 @@ class OptimizationResultPlotter:
         plot_fcn_contour(
             ax,
             self.opt_res.opt_prob.obj_fcn,
-            proj_array_2d,
+            _proj_2d,
             center=optimum_point,
             xlim=ax.get_xlim(),
             ylim=ax.get_ylim(),
             levels=20,
+            ineq_cnst_fcn=self.opt_res.opt_prob.ineq_cnst_fcn,
+            eq_cnst_fcn=self.opt_res.opt_prob.eq_cnst_fcn,
         )
-        if proj_array_2d.shape[0] > 2:
+        if _proj_2d.shape[0] > 2:
             ax.set_xlabel("v1")
             ax.set_ylabel("v2")
         else:
-            ax.set_xlabel("[" + ", ".join([f"{x:g}" for x in proj_array_2d[:, 0]]) + "]")
-            ax.set_ylabel("[" + ", ".join([f"{x:g}" for x in proj_array_2d[:, 1]]) + "]")
+            ax.set_xlabel("[" + ", ".join([f"{x:g}" for x in _proj_2d[:, 0]]) + "]")
+            ax.set_ylabel("[" + ", ".join([f"{x:g}" for x in _proj_2d[:, 1]]) + "]")
 
         relax_axis(ax)
         plt.show()
@@ -273,11 +311,12 @@ class OptimizationResultPlotter:
         *,
         no_trajectory: bool = False,
         proportional_real_solving_time: bool = True,
+        proj_mat_2d: np.ndarray | None = None,
     ) -> Figure:
 
         figure: Figure = get_figure(
             2,
-            2,
+            3,
             axis_width=3.5,
             axis_height=3.5,
             top_margin=0.5,
@@ -288,13 +327,22 @@ class OptimizationResultPlotter:
         )
         figure.suptitle(fig_suptitle)
 
-        obj_axis, trajectory_ax, primal_gap_axis, dual_gap_axis = figure.get_axes()
+        (
+            obj_axis,
+            trajectory_ax,
+            primal_suboptimality_axis,
+            duality_gap_axis,
+            cnst_violation_axis,
+            dual_suboptimality_axis,
+        ) = figure.get_axes()
 
         opt_res_plotter: OptimizationResultPlotter = OptimizationResultPlotter(opt_res)
         opt_res_plotter.plot_primal_and_dual_objs(
             obj_axis,
-            primal_gap_axis,
-            dual_gap_axis,
+            duality_gap_axis,
+            cnst_violation_axis,
+            primal_suboptimality_axis,
+            dual_suboptimality_axis,
             linestyle="-",
             markersize=min(100.0 / np.array(opt_res.num_iterations_list).mean(), 5.0),
         )
@@ -303,9 +351,10 @@ class OptimizationResultPlotter:
             assert opt_res.solve_time is not None
             opt_res_plotter.animate_primal_sol(
                 trajectory_ax,
-                [obj_axis, primal_gap_axis],
+                [obj_axis, primal_suboptimality_axis],
                 interval=(2e3 * opt_res.solve_time if proportional_real_solving_time else 3e3)
                 / np.array(opt_res.num_iterations_list).max(),
+                proj_mat_2d=proj_mat_2d,
             )
 
         return figure

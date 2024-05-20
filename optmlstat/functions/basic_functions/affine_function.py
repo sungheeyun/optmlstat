@@ -93,7 +93,7 @@ class AffineFunction(FunctionBase):
 
     @property
     def a_array_2d(self):
-        return self.slope_array_2d
+        return self.slope_array_2d.T
 
     @property
     def b_array_1d(self):
