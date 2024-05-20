@@ -61,6 +61,7 @@ class OptResults(OMSClassBase):
         *,
         terminated: np.ndarray | None = None,
         stopping_criteria_info: dict[str, Any] | None = None,
+        stopping_criteria_name: str | None = None,
     ) -> None:
         _stopping_criteria_info: dict[str, Any] = (
             dict() if stopping_criteria_info is None else stopping_criteria_info
@@ -75,7 +76,7 @@ class OptResults(OMSClassBase):
         )
 
         logger.info(f"iter: {iteration.outer_iteration}/{iteration.inner_iteration}")
-        logger.info(f" - best: {self.best_obj_values.min()}")
+        logger.info(f" - obj fcn: {self.last_obj_values}")
         logger.info(f" - avg. grad norm: {self.last_obj_grad_norm_avg.min()}")
         for key in sorted(_stopping_criteria_info):
             logger.info(f"\t{key}: {self.pretty_data_format(_stopping_criteria_info[key])}")
@@ -152,17 +153,17 @@ class OptResults(OMSClassBase):
         except ValueUnknownException:
             pass
 
-        logger.info(f"\tbest obj values: {self.best_obj_values}")
+        logger.info(f"\tfinal obj values: {self.last_obj_values}")
 
         # logger.info(self.final_iterate.x_2d.mean(axis=0) - self.opt_prob.optimum_point)
 
         try:
             true_opt_val: np.ndarray | float = self.opt_prob.optimum_value
             logger.info(f"\t\toptimum value: {true_opt_val}")
-            logger.info(f"\tabs suboptimality: {self.best_obj_values - true_opt_val}")
+            logger.info(f"\tabs suboptimality: {self.last_obj_values - true_opt_val}")
             logger.info(
                 "\trel suboptimality: "
-                f"{(self.best_obj_values - true_opt_val) / np.abs(true_opt_val)}"
+                f"{(self.last_obj_values - true_opt_val) / np.abs(true_opt_val)}"
             )
         except ValueUnknownException:
             pass
@@ -197,13 +198,13 @@ class OptResults(OMSClassBase):
         return list(self._iter_iterate_dict.values())[0].primal_prob_evaluation.x_array_2d.shape[0]
 
     @property
-    def best_obj_values(self) -> np.ndarray:
-        return np.vstack(
-            [
-                iterate.primal_prob_evaluation.obj_fcn_array_2d  # type:ignore
-                for iterate in self.iteration_iterate_list[1]
-            ]
-        ).min(axis=0)
+    def last_obj_values(self) -> np.ndarray:
+        assert (
+            self.iteration_iterate_list[1][-1].primal_prob_evaluation.obj_fcn_array_2d is not None
+        )
+        return self.iteration_iterate_list[1][-1].primal_prob_evaluation.obj_fcn_array_2d.mean(
+            axis=0
+        )
 
     @property
     def last_obj_grad_norm_avg(self) -> np.ndarray:

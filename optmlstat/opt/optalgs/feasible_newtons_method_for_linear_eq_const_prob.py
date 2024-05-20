@@ -9,8 +9,7 @@ from scipy import linalg
 
 from optmlstat.functions.basic_functions.affine_function import AffineFunction
 from optmlstat.functions.function_base import FunctionBase
-from optmlstat.functions.basic_functions.composite_function import CompositeFunction
-from optmlstat.opt.optalg_decorators import linear_eq_cnst_solver, eq_cnst_solver
+from optmlstat.opt.optalg_decorators import linear_eq_cnst_solver, obj_and_eq_only_solver
 from optmlstat.opt.opt_parameter import OptParams
 from optmlstat.opt.opt_prob import OptProb
 from optmlstat.opt.opt_res import OptResults
@@ -22,7 +21,7 @@ logger: Logger = getLogger()
 
 class FeasibleNewtonsMethodForLinearEqConstProb(NewtonsMethodBase):
 
-    @eq_cnst_solver
+    @obj_and_eq_only_solver
     @linear_eq_cnst_solver
     def _solve(
         self,
@@ -49,6 +48,7 @@ class FeasibleNewtonsMethodForLinearEqConstProb(NewtonsMethodBase):
     def search_direction_and_update_lag_vars(
         self,
         opt_prob: OptProb,
+        x_2d: np.ndarray,
         jac_3d: np.ndarray,
         hess_4d: np.ndarray | None,
         lambda_2d: np.ndarray,
@@ -60,7 +60,7 @@ class FeasibleNewtonsMethodForLinearEqConstProb(NewtonsMethodBase):
         eq_cnst_fcn: FunctionBase = opt_prob.eq_cnst_fcn
         assert isinstance(eq_cnst_fcn, AffineFunction), eq_cnst_fcn.__class__
 
-        _A_array_2d: np.ndarray = eq_cnst_fcn.slope_array_2d.T
+        _A_array_2d: np.ndarray = eq_cnst_fcn.slope_2d.T
         jac_2d: np.ndarray = jac_3d.squeeze(axis=1)
         hess_array_3d: np.ndarray = hess_4d.squeeze(axis=1)
 
@@ -93,21 +93,6 @@ class FeasibleNewtonsMethodForLinearEqConstProb(NewtonsMethodBase):
             directional_deriv_1d,
         )
 
-    def line_search_loss_fcn(self, opt_prob: OptProb) -> FunctionBase:
-        assert opt_prob.obj_fcn is not None
-        return CompositeFunction(
-            [
-                AffineFunction(
-                    block_array(
-                        [
-                            [
-                                np.eye(opt_prob.dim_domain),
-                                np.zeros((opt_prob.dim_domain, opt_prob.num_eq_cnst)),
-                            ]
-                        ]
-                    ).T,
-                    np.zeros(opt_prob.dim_domain),
-                ),
-                opt_prob.obj_fcn,
-            ]
-        )
+    @property
+    def stopping_criterion_name(self) -> str:
+        return "newton_dec"

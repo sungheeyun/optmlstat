@@ -1,5 +1,5 @@
 """
-test for gradient descent method
+test for unconstrained minimization algorithms based on derivatives of functions
 """
 
 import inspect
@@ -146,7 +146,7 @@ class TestUncDerivBasedOptAlgs(unittest.TestCase):
             pass
 
         try:
-            self.assertTrue(np.allclose(opt_res.best_obj_values, opt_prob.optimum_value, atol=atol))
+            self.assertTrue(np.allclose(opt_res.last_obj_values, opt_prob.optimum_value, atol=atol))
         except ValueUnknownException:
             pass
 

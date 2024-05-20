@@ -43,15 +43,22 @@ class NewtonsMethodBase(DerivativeBasedOptAlgBase):
             initial_nu_2d=initial_nu_2d,
         )
 
+    @property
+    @abstractmethod
+    def stopping_criterion_name(self) -> str:
+        pass
+
     def check_stopping_criteria(
         self, opt_param: OptParams, directional_deriv: np.ndarray
-    ) -> tuple[np.ndarray, dict[str, Any]]:
+    ) -> tuple[np.ndarray, dict[str, Any], str]:
         assert directional_deriv.ndim == 1, directional_deriv.shape
-        info: dict[str, Any] = dict(
-            newton_dec=-directional_deriv,
-            tolerance_on_newton_dec=opt_param.tolerance_on_newton_dec,
-        )
-        return info["newton_dec"] < opt_param.tolerance_on_newton_dec, info
+        tol_name: str = f"tolerance_on_{self.stopping_criterion_name}"
+        tol_value: float = opt_param.__dict__[tol_name]
+        info: dict[str, Any] = {
+            self.stopping_criterion_name: -directional_deriv,
+            tol_name: tol_value,
+        }
+        return info[self.stopping_criterion_name] < tol_value, info, self.stopping_criterion_name
 
     @property
     def need_hessian(self) -> bool:
@@ -61,6 +68,7 @@ class NewtonsMethodBase(DerivativeBasedOptAlgBase):
     def search_direction_and_update_lag_vars(
         self,
         opt_prob: OptProb,
+        x_2d: np.ndarray,
         jac: np.ndarray,
         hess_4d: np.ndarray | None,
         lambda_2d: np.ndarray,

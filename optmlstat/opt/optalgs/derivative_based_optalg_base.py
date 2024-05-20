@@ -3,7 +3,8 @@ base class for derivative based opt algorithms
 """
 
 from abc import abstractmethod
-from typing import Any
+from typing import Any, Callable
+from logging import Logger, getLogger
 
 import numpy as np
 
@@ -21,6 +22,9 @@ from optmlstat.opt.optalg_decorators import (
 from optmlstat.opt.optalgs.back_tracking_ls import BackTrackingLineSearch
 from optmlstat.opt.optalgs.iterative_optalg_base import IterativeOptAlgBase
 from optmlstat.opt.optalgs.line_search_base import LineSearchBase
+
+
+logger: Logger = getLogger()
 
 
 class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
@@ -70,10 +74,15 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
         opt_res: OptResults = OptResults(opt_prob, self)
         dual_problem: OptProb = opt_prob.dual_problem
 
-        loss_fcn: FunctionBase = self.line_search_loss_fcn(opt_prob)
+        loss_fcn: Callable = self.line_search_loss_fcn(opt_prob)
         for idx in range(opt_param.max_num_outer_iterations + 1):
             jac_3d: np.ndarray = obj_fcn.jacobian(x_2d)
             hess_4d: np.ndarray | None = obj_fcn.hessian(x_2d) if self.need_hessian else None
+
+            logger.debug(idx)
+            logger.debug(x_2d)
+            if hess_4d is not None:
+                logger.debug(hess_4d.squeeze(axis=1))
 
             (
                 search_direction_x_2d,
@@ -81,11 +90,12 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
                 search_direction_nu_2d,
                 directional_deriv_1d,
             ) = self.search_direction_and_update_lag_vars(
-                opt_prob, jac_3d, hess_4d, lambda_2d, nu_2d
+                opt_prob, x_2d, jac_3d, hess_4d, lambda_2d, nu_2d
             )
+            assert np.all(directional_deriv_1d <= 1e-6), directional_deriv_1d
 
-            terminated, stopping_criteria_info = self.check_stopping_criteria(
-                opt_param, directional_deriv_1d
+            terminated, stopping_criteria_info, stopping_criteria_name = (
+                self.check_stopping_criteria(opt_param, directional_deriv_1d)
             )
 
             opt_res.register_solution(
@@ -95,6 +105,7 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
                 verbose,
                 terminated=terminated,
                 stopping_criteria_info=stopping_criteria_info,
+                stopping_criteria_name=stopping_criteria_name,
             )
 
             if (~terminated).sum() == 0:
@@ -112,7 +123,7 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
                 directional_deriv_1d,
             )
 
-            # updatea primal & dual variables
+            # update primal & dual variables
 
             t_array_2d: np.ndarray = t_array_1d[:, np.newaxis]
             x_2d += t_array_2d * search_direction_x_2d
@@ -130,6 +141,7 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
     def search_direction_and_update_lag_vars(
         self,
         opt_prob: OptProb,
+        x_2d: np.ndarray,
         jac_3d: np.ndarray,
         hess_4d: np.ndarray | None,
         lambda_2d: np.ndarray,
@@ -139,12 +151,12 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
         calculate search directions (and other related quantities)
 
         :param opt_prob:
+        :param x_2d:
         :param jac_3d: jacobians of obj fcn
         :param hess_4d: hessians of obj fcn
         :param nu_2d:
         :param lambda_2d:
         :return:
-            loss_fcn
             search direction x - 2d array
             search direction lambda - 2d array
             search direction nu - 2d array
@@ -157,9 +169,14 @@ class DerivativeBasedOptAlgBase(IterativeOptAlgBase):
         self,
         opt_param: OptParams,
         directional_derivative: np.ndarray,
-    ) -> tuple[np.ndarray, dict[str, Any]]:
+    ) -> tuple[np.ndarray, dict[str, Any], str]:
         pass
 
-    def line_search_loss_fcn(self, opt_prob: OptProb) -> FunctionBase:
+    def line_search_loss_fcn(self, opt_prob: OptProb) -> Callable:
         assert opt_prob.obj_fcn is not None
-        return opt_prob.obj_fcn
+
+        def loss_fcn(x_lambda_nu_2d: np.ndarray) -> np.ndarray:
+            assert opt_prob.obj_fcn is not None
+            return opt_prob.obj_fcn.get_y_values_2d(x_lambda_nu_2d[:, : opt_prob.dim_domain])
+
+        return loss_fcn

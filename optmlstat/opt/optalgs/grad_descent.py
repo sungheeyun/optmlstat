@@ -44,13 +44,13 @@ class GradDescent(DerivativeBasedOptAlgBase):
         self,
         opt_param: OptParams,
         directional_deriv: np.ndarray,
-    ) -> tuple[np.ndarray, dict[str, Any]]:
+    ) -> tuple[np.ndarray, dict[str, Any], str]:
         assert directional_deriv.ndim == 1, directional_deriv.shape
         info: dict[str, Any] = dict(
             grad_norm_squared=-directional_deriv,
             tolerance_on_grad=opt_param.tolerance_on_grad,
         )
-        return info["grad_norm_squared"] < opt_param.tolerance_on_grad, info
+        return info["grad_norm_squared"] < opt_param.tolerance_on_grad, info, "grad_norm_squared"
 
     @property
     def need_hessian(self) -> bool:
@@ -59,6 +59,7 @@ class GradDescent(DerivativeBasedOptAlgBase):
     def search_direction_and_update_lag_vars(
         self,
         opt_prob: OptProb,
+        x_2d: np.ndarray,
         jac: np.ndarray,
         hess_4d: np.ndarray | None,
         lambda_2d: np.ndarray,

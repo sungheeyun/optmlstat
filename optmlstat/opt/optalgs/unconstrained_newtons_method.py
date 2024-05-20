@@ -44,6 +44,7 @@ class UnconstrainedNewtonsMethod(NewtonsMethodBase):
     def search_direction_and_update_lag_vars(
         self,
         opt_prob: OptProb,
+        x_2d: np.ndarray,
         jac: np.ndarray,
         hess_4d: np.ndarray | None,
         lambda_2d: np.ndarray,
@@ -67,3 +68,7 @@ class UnconstrainedNewtonsMethod(NewtonsMethodBase):
             np.ndarray((jac.shape[0], 0)),
             (search_direction_2d * jac_array_2d).sum(axis=1),
         )
+
+    @property
+    def stopping_criterion_name(self) -> str:
+        return "newton_dec"

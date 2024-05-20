@@ -114,7 +114,7 @@ def single_obj_solver(func: Callable) -> Callable:
     return single_obj_solver_wrapper
 
 
-def eq_cnst_solver(func: Callable) -> Callable:
+def obj_and_eq_only_solver(func: Callable) -> Callable:
     """
     A decorator for OptimizationAlgorithmBase.solve method.
     checks whether an optimization problem has

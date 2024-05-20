@@ -17,7 +17,7 @@ from optmlstat.opt.opt_prob_eval import OptProbEval
 from optmlstat.opt.optalg_decorators import (
     solver,
     single_obj_solver,
-    eq_cnst_solver,
+    obj_and_eq_only_solver,
     linear_eq_cnst_solver,
     convex_solver,
 )
@@ -34,7 +34,7 @@ class DualAscend(OptAlgBase):
     @convex_solver
     @linear_eq_cnst_solver
     @single_obj_solver
-    @eq_cnst_solver
+    @obj_and_eq_only_solver
     @solver
     def _solve(
         self,
@@ -119,7 +119,7 @@ class DualAscend(OptAlgBase):
         for idx in range(opt_param.max_num_outer_iterations):
             iteration = Iteration(idx + 1)
 
-            nu_array_2d_for_x_update: ndarray = -y_array_2d.dot(eq_cnst_fcn.slope_array_2d.T)
+            nu_array_2d_for_x_update: ndarray = -y_array_2d.dot(eq_cnst_fcn.slope_2d.T)
 
             # x-minimization step
             x_array_2d: ndarray = obj_fcn.conjugate_arg(nu_array_2d_for_x_update)[:, :, 0]
@@ -129,12 +129,10 @@ class DualAscend(OptAlgBase):
                 iteration
             ) * eq_cnst_fcn.get_y_values_2d(x_array_2d)
 
-            nu_array_2d_for_dual_function_eval: ndarray = -y_array_2d.dot(
-                eq_cnst_fcn.slope_array_2d.T
-            )
+            nu_array_2d_for_dual_function_eval: ndarray = -y_array_2d.dot(eq_cnst_fcn.slope_2d.T)
             dual_fcn_array_2d: ndarray = -conjugate.get_y_values_2d(
                 nu_array_2d_for_dual_function_eval
-            ) + y_array_2d.dot(eq_cnst_fcn.intercept_array_1d[:, newaxis])
+            ) + y_array_2d.dot(eq_cnst_fcn.intercept_1d[:, newaxis])
 
             opt_res.register_solution(
                 iteration,

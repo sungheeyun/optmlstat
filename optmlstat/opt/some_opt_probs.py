@@ -25,7 +25,7 @@ class SomeSimpleOptProbs(OMSClassBase):
 
         simple LP
         min. x^2 + y^2
-        s.t. x + y <= 1
+        s.t. x + y = 1
 
         opt_sol = (1/2, 1/2)
         opt_val = 1/2
@@ -33,7 +33,7 @@ class SomeSimpleOptProbs(OMSClassBase):
         second output is randomly generated feasible points
         """
 
-        rand_array_1d: np.ndarray = randn(num_points)
+        rand_1d: np.ndarray = randn(num_points)
 
         return (
             OptProb(
@@ -41,7 +41,7 @@ class SomeSimpleOptProbs(OMSClassBase):
                 AffineFunction(np.ones((2, 1)), -np.ones(1)),
                 None,
             ),
-            np.vstack([rand_array_1d, 1.0 - rand_array_1d]).T,
+            np.vstack([rand_1d, 1.0 - rand_1d]).T,
         )
 
     @classmethod
@@ -68,6 +68,9 @@ class SomeSimpleOptProbs(OMSClassBase):
         """
         min. sum exp (Cx+d)
         s.t. Ax = b
+        :return:
+        - optimization problem
+        - feasible points
         """
         return cls._random_eq_const_prob(
             num_vars,
@@ -80,6 +83,11 @@ class SomeSimpleOptProbs(OMSClassBase):
     def _random_eq_const_prob(
         num_vars: int, num_eq_cnsts: int, num_points: int, objfcn: FunctionBase
     ) -> tuple[OptProb, np.ndarray]:
+        """
+        :return:
+        - optimization problem
+        - feasible points
+        """
 
         assert num_eq_cnsts < num_vars, (num_eq_cnsts, num_vars)
 

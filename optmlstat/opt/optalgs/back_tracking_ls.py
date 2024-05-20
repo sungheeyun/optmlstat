@@ -3,10 +3,10 @@ back tracking line search
 """
 
 from logging import Logger, getLogger
+from typing import Callable
 
 import numpy as np
 
-from optmlstat.functions.function_base import FunctionBase
 from optmlstat.opt.optalgs.line_search_base import LineSearchBase
 
 
@@ -23,7 +23,7 @@ class BackTrackingLineSearch(LineSearchBase):
 
     def search(
         self,
-        loss_fcn: FunctionBase,
+        loss_fcn: Callable,
         x_array_2d: np.ndarray,
         search_dir_2d: np.ndarray,
         directional_deriv: np.ndarray,
@@ -33,13 +33,13 @@ class BackTrackingLineSearch(LineSearchBase):
         t_array_1d: np.ndarray = np.zeros(num_members)
         active: np.ndarray = np.array([True] * num_members)
 
-        y_array_2d: np.ndarray = loss_fcn.eval(x_array_2d)
+        y_array_2d: np.ndarray = loss_fcn(x_array_2d)
 
         step_len: float = 1.0
         while sum(active) > 0:
             t_array_1d[active] = step_len
             # logger.debug(
-            #     str(loss_fcn.eval(x_2d[active] + step_len * search_dir_2d[active]).ravel())
+            #     str(loss_fcn(x_2d[active] + step_len * search_dir_2d[active]).ravel())
             #     + " > "
             #     + str((y_array_2d[active] + self._alpha * step_len * grad_search[active]).ravel())
             #     + " ["
@@ -47,7 +47,7 @@ class BackTrackingLineSearch(LineSearchBase):
             #     + "]"
             # )
             active[active] = (
-                loss_fcn.eval(x_array_2d[active] + step_len * search_dir_2d[active])
+                loss_fcn(x_array_2d[active] + step_len * search_dir_2d[active])
                 > y_array_2d[active]
                 + self._alpha * step_len * directional_deriv[active][:, np.newaxis]
             ).ravel()

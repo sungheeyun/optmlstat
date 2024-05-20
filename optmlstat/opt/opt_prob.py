@@ -132,8 +132,8 @@ class OptProb(OMSClassBase):
 
         if self.num_ineq_cnst == 0 and isinstance(self.eq_cnst_fcn, AffineFunction):
             if isinstance(self.obj_fcn, QuadraticFunction):
-                _a_2d: np.ndarray = self.eq_cnst_fcn.slope_array_2d.T
-                _b_1d: np.ndarray = -self.eq_cnst_fcn.intercept_array_1d
+                _a_2d: np.ndarray = self.eq_cnst_fcn.slope_2d.T
+                _b_1d: np.ndarray = -self.eq_cnst_fcn.intercept_1d
                 assert isinstance(self.obj_fcn.quad_3d, np.ndarray), self.obj_fcn.quad_3d.__class__
                 dual_quad_3d: np.ndarray = np.array(
                     [
@@ -245,8 +245,8 @@ class OptProb(OMSClassBase):
                     _p_2d: np.ndarray = self.obj_fcn.quad_3d[:, :, 0]
                     _q_1d: np.ndarray = self.obj_fcn.slope_2d[:, 0]
                     # _r_0d: float = self.obj_fcn.intercept_1d[0]
-                    _a_2d: np.ndarray = self.eq_cnst_fcn.slope_array_2d.T
-                    _b_1d: np.ndarray = -self.eq_cnst_fcn.intercept_array_1d
+                    _a_2d: np.ndarray = self.eq_cnst_fcn.slope_2d.T
+                    _b_1d: np.ndarray = -self.eq_cnst_fcn.intercept_1d
                     x_nu_1d: np.ndarray = linalg.solve(
                         block_array(
                             [

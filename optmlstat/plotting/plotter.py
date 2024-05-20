@@ -109,10 +109,8 @@ def draw_2d_hyperplanes(
     assert isinstance(affine_fcn, AffineFunction), affine_fcn.__class__
     center_orth_coor: np.ndarray = np.dot(center, prj_mat_2d)  # (n,) x (n,2) = (2,)
 
-    for idx, b_scalar in enumerate(affine_fcn.b_array_1d):
-        _a, _b, _c = np.dot(
-            affine_fcn.a_array_2d[idx, :], np.hstack((prj_mat_2d, center[:, np.newaxis]))
-        )
+    for idx, b_scalar in enumerate(affine_fcn.b_1d):
+        _a, _b, _c = np.dot(affine_fcn.a_2d[idx, :], np.hstack((prj_mat_2d, center[:, np.newaxis])))
         draw_2d_line_in_box(
             ax,
             (_a, _b, _c + b_scalar - _a * center_orth_coor[0] - _b * center_orth_coor[1]),
@@ -151,7 +149,7 @@ def draw_2d_line_in_box(
         x_list.append(xlim[1])
         y_list.append(-(c + a * xlim[1]) / b)
 
-    assert len(x_list) == 0 or len(x_list) == 2, (x_list, y_list)
+    assert len(x_list) == 0 or 2 <= len(x_list) <= 3, (x_list, y_list)
 
-    if len(x_list) == 2:
+    if len(x_list) >= 2:
         ax.plot(x_list, y_list, *args, **kwargs)
