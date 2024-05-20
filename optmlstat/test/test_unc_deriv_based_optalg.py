@@ -139,7 +139,7 @@ class TestUncDerivBasedOptAlgs(unittest.TestCase):
         try:
             self.assertTrue(
                 np.allclose(
-                    opt_res.final_iterate.x_array_2d.mean(axis=0), opt_prob.optimum_point, atol=atol
+                    opt_res.final_iterate.x_2d.mean(axis=0), opt_prob.optimum_point, atol=atol
                 )
             )
         except ValueUnknownException:

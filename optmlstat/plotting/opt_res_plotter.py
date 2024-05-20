@@ -254,7 +254,7 @@ class OptimizationResultPlotter:
         time_array_1d: np.ndarray = np.linspace(0.0, 1.0, len(selected_opt_iterate_list))
 
         x_array_3d: np.ndarray = np.array(  # {iter} x {data} x {0,1}
-            [np.dot(opt_iterate.x_array_2d, _proj_2d) for opt_iterate in selected_opt_iterate_list]
+            [np.dot(opt_iterate.x_2d, _proj_2d) for opt_iterate in selected_opt_iterate_list]
         )
 
         x_array_2d: np.ndarray = x_array_3d[:, :, 0]
@@ -278,7 +278,7 @@ class OptimizationResultPlotter:
         try:
             optimum_point = self.opt_res.opt_prob.optimum_point
         except ValueUnknownException:
-            optimum_point = self.opt_res.final_iterate.x_array_2d.mean(axis=0)
+            optimum_point = self.opt_res.final_iterate.x_2d.mean(axis=0)
 
         plot_fcn_contour(
             ax,

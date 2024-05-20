@@ -144,10 +144,10 @@ class TestDualAscend(unittest.TestCase):
         logger.info(f"true_opt_x: {opt_x_array_1d}")
         logger.info(f"true_opt_y: {opt_nu_array_1d}")
 
-        logger.debug(f"x diff: {final_iterate.x_array_2d - opt_x_array_1d}")
-        logger.info(f"max x diff: {abs(final_iterate.x_array_2d - opt_x_array_1d).max()}")
-        logger.debug(f"nu diff: {final_iterate.nu_array_2d - opt_nu_array_1d}")
-        logger.info(f"max nu diff: {abs(final_iterate.nu_array_2d - opt_nu_array_1d).max()}")
+        logger.debug(f"x diff: {final_iterate.x_2d - opt_x_array_1d}")
+        logger.info(f"max x diff: {abs(final_iterate.x_2d - opt_x_array_1d).max()}")
+        logger.debug(f"nu diff: {final_iterate.nu_2d - opt_nu_array_1d}")
+        logger.info(f"max nu diff: {abs(final_iterate.nu_2d - opt_nu_array_1d).max()}")
 
         axis1: Axes
         axis2: Axes
@@ -169,23 +169,23 @@ class TestDualAscend(unittest.TestCase):
 
         # optimization_result_plotter.animate_primal_sol()
 
-        logger.info(f"MAX_ERR_1: {abs(final_iterate.x_array_2d - opt_x_array_1d).max()}")
-        assert final_iterate.x_array_2d is not None
+        logger.info(f"MAX_ERR_1: {abs(final_iterate.x_2d - opt_x_array_1d).max()}")
+        assert final_iterate.x_2d is not None
         # TODO (L) written on 17-May-2024
         #  need to figure out why below test does not pass right after i implemented
         #  feasible Newton's method for linearly equality constrained minimization
         #  i will need to look at this when i revisit dual ascend,
         #  or maybe never need to do it if i skip this and go to ADMM directly
 
-        logger.debug(final_iterate.x_array_2d)
+        logger.debug(final_iterate.x_2d)
         logger.debug(opt_x_array_1d)
-        logger.debug(final_iterate.x_array_2d - opt_x_array_1d)
-        logger.debug(allclose(final_iterate.x_array_2d, opt_x_array_1d))
+        logger.debug(final_iterate.x_2d - opt_x_array_1d)
+        logger.debug(allclose(final_iterate.x_2d, opt_x_array_1d))
         logger.debug(TestDualAscend.abs_tolerance_used_for_compare)
         logger.debug(TestDualAscend.rel_tolerance_used_for_compare)
         logger.debug(
             allclose(
-                final_iterate.x_array_2d,
+                final_iterate.x_2d,
                 opt_x_array_1d,
                 atol=TestDualAscend.abs_tolerance_used_for_compare,
                 rtol=TestDualAscend.rel_tolerance_used_for_compare,
@@ -193,24 +193,24 @@ class TestDualAscend(unittest.TestCase):
         )
         self.assertTrue(
             allclose(
-                final_iterate.x_array_2d,
+                final_iterate.x_2d,
                 opt_x_array_1d,
                 atol=TestDualAscend.abs_tolerance_used_for_compare,
                 rtol=TestDualAscend.rel_tolerance_used_for_compare,
             )
         )
 
-        logger.info(f"MAX_ERR_2: {abs(final_iterate.nu_array_2d - opt_nu_array_1d).max()}")
-        assert final_iterate.nu_array_2d is not None
-        logger.debug(final_iterate.nu_array_2d)
+        logger.info(f"MAX_ERR_2: {abs(final_iterate.nu_2d - opt_nu_array_1d).max()}")
+        assert final_iterate.nu_2d is not None
+        logger.debug(final_iterate.nu_2d)
         logger.debug(opt_nu_array_1d)
-        logger.debug(final_iterate.nu_array_2d - opt_nu_array_1d)
-        logger.debug(allclose(final_iterate.nu_array_2d, opt_nu_array_1d))
+        logger.debug(final_iterate.nu_2d - opt_nu_array_1d)
+        logger.debug(allclose(final_iterate.nu_2d, opt_nu_array_1d))
         logger.debug(TestDualAscend.abs_tolerance_used_for_compare)
         logger.debug(TestDualAscend.rel_tolerance_used_for_compare)
         logger.debug(
             allclose(
-                final_iterate.nu_array_2d,
+                final_iterate.nu_2d,
                 opt_nu_array_1d,
                 atol=TestDualAscend.abs_tolerance_used_for_compare,
                 rtol=TestDualAscend.rel_tolerance_used_for_compare,
@@ -218,7 +218,7 @@ class TestDualAscend(unittest.TestCase):
         )
         self.assertTrue(
             allclose(
-                final_iterate.nu_array_2d,
+                final_iterate.nu_2d,
                 opt_nu_array_1d,
                 atol=TestDualAscend.abs_tolerance_used_for_compare,
                 rtol=TestDualAscend.rel_tolerance_used_for_compare,

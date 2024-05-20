@@ -21,17 +21,17 @@ class OptimizationIterate:
     terminated: np.ndarray
 
     @property
-    def x_array_2d(self) -> ndarray:
-        return self.primal_prob_evaluation.x_array_2d
+    def x_2d(self) -> ndarray:
+        return self.primal_prob_evaluation.x_2d
 
     @property
-    def lambda_array_2d(self) -> ndarray:
+    def lambda_2d(self) -> ndarray:
         opt_prob: OptProb = self.dual_prob_evaluation.opt_prob
-        return self.dual_prob_evaluation.x_array_2d[:, : opt_prob.num_ineq_cnst]
+        return self.dual_prob_evaluation.x_2d[:, : opt_prob.num_ineq_cnst]
 
     @property
-    def nu_array_2d(self) -> ndarray:
-        return self.dual_prob_evaluation.x_array_2d[
+    def nu_2d(self) -> ndarray:
+        return self.dual_prob_evaluation.x_2d[
             :, self.primal_prob_evaluation.opt_prob.num_ineq_cnst :  # noqa:E203
         ]
 

@@ -69,7 +69,7 @@ class OptResults(OMSClassBase):
         assert iteration not in self._iter_iterate_dict
 
         if terminated is None:
-            terminated = np.array([False] * primal_prob_evaluation.x_array_2d.shape[0])
+            terminated = np.array([False] * primal_prob_evaluation.x_2d.shape[0])
 
         self._iter_iterate_dict[iteration] = OptimizationIterate(
             primal_prob_evaluation, dual_prob_evaluation, terminated
@@ -113,13 +113,12 @@ class OptResults(OMSClassBase):
         logger.info(f"\t# iters: {num_iterations_list}")
         logger.info(f"\tavg # iters: {np.array(num_iterations_list).mean()}")
         logger.info(
-            "\tavg final x: "
-            + str(self.pretty_data_format(self.final_iterate.x_array_2d.mean(axis=0)))
+            "\tavg final x: " + str(self.pretty_data_format(self.final_iterate.x_2d.mean(axis=0)))
         )
         try:
             logger.info(f"\t\toptimum x: {self.pretty_data_format(self.opt_prob.optimum_point)}")
             self._x_diff_norm = float(
-                linalg.norm(self.opt_prob.optimum_point - self.final_iterate.x_array_2d)
+                linalg.norm(self.opt_prob.optimum_point - self.final_iterate.x_2d)
             )
             logger.info(f"\t\tdiff x norm: {self.x_diff_norm}")
         except ValueUnknownException:
@@ -127,27 +126,26 @@ class OptResults(OMSClassBase):
 
         logger.info(
             "\tavg final lambda: "
-            f"{self.pretty_data_format(self.final_iterate.lambda_array_2d.mean(axis=0))}"
+            f"{self.pretty_data_format(self.final_iterate.lambda_2d.mean(axis=0))}"
         )
         try:
             logger.info(
                 f"\t\toptimum lambda: {self.pretty_data_format(self.opt_prob.optimum_lambda)}"
             )
             self._lambda_diff_norm = float(
-                linalg.norm(self.opt_prob.optimum_lambda - self.final_iterate.lambda_array_2d)
+                linalg.norm(self.opt_prob.optimum_lambda - self.final_iterate.lambda_2d)
             )
             logger.info(f"\t\tdiff lambda norm: {self.lambda_diff_norm}")
         except ValueUnknownException:
             pass
 
         logger.info(
-            "\tavg final nu:"
-            f" {self.pretty_data_format(self.final_iterate.nu_array_2d.mean(axis=0))}"
+            "\tavg final nu:" f" {self.pretty_data_format(self.final_iterate.nu_2d.mean(axis=0))}"
         )
         try:
             logger.info(f"\t\toptimum nu: {self.pretty_data_format(self.opt_prob.optimum_nu)}")
             self._nu_diff_norm = float(
-                linalg.norm(self.opt_prob.optimum_nu - self.final_iterate.nu_array_2d)
+                linalg.norm(self.opt_prob.optimum_nu - self.final_iterate.nu_2d)
             )
             logger.info(f"\t\tdiff nu norm: {self.nu_diff_norm}")
         except ValueUnknownException:
@@ -195,16 +193,12 @@ class OptResults(OMSClassBase):
 
     @property
     def population_size(self) -> int:
-        return list(self._iter_iterate_dict.values())[0].primal_prob_evaluation.x_array_2d.shape[0]
+        return list(self._iter_iterate_dict.values())[0].primal_prob_evaluation.x_2d.shape[0]
 
     @property
     def last_obj_values(self) -> np.ndarray:
-        assert (
-            self.iteration_iterate_list[1][-1].primal_prob_evaluation.obj_fcn_array_2d is not None
-        )
-        return self.iteration_iterate_list[1][-1].primal_prob_evaluation.obj_fcn_array_2d.mean(
-            axis=0
-        )
+        assert self.iteration_iterate_list[1][-1].primal_prob_evaluation.obj_fcn_2d is not None
+        return self.iteration_iterate_list[1][-1].primal_prob_evaluation.obj_fcn_2d.mean(axis=0)
 
     @property
     def last_obj_grad_norm_avg(self) -> np.ndarray:
@@ -230,7 +224,7 @@ class OptResults(OMSClassBase):
 
     @property
     def num_members(self) -> int:
-        return list(self.iter_iterate_dict.values())[0].x_array_2d.shape[0]
+        return list(self.iter_iterate_dict.values())[0].x_2d.shape[0]
 
     @property
     def primal_dual_plot_lists(
@@ -253,7 +247,7 @@ class OptResults(OMSClassBase):
                     [
                         iterate_list[  # type:ignore
                             min(_iter, len(iterate_list) - 1)
-                        ].primal_prob_evaluation.obj_fcn_array_2d[member_idx]
+                        ].primal_prob_evaluation.obj_fcn_2d[member_idx]
                         for _iter in range(num_iterations)
                     ]
                 )
@@ -263,7 +257,7 @@ class OptResults(OMSClassBase):
                     [
                         iterate_list[  # type:ignore
                             min(_iter, len(iterate_list) - 1)
-                        ].dual_prob_evaluation.obj_fcn_array_2d[member_idx]
+                        ].dual_prob_evaluation.obj_fcn_2d[member_idx]
                         for _iter in range(num_iterations)
                     ]
                 )
@@ -275,11 +269,11 @@ class OptResults(OMSClassBase):
                             None  # type:ignore
                             if iterate_list[
                                 min(_iter, len(iterate_list) - 1)
-                            ].primal_prob_evaluation.eq_cnst_array_2d
+                            ].primal_prob_evaluation.eq_cnst_2d
                             is None
                             else iterate_list[  # type:ignore
                                 min(_iter, len(iterate_list) - 1)
-                            ].primal_prob_evaluation.eq_cnst_array_2d[member_idx]
+                            ].primal_prob_evaluation.eq_cnst_2d[member_idx]
                         )
                         for _iter in range(num_iterations)
                     ]

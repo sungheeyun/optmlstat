@@ -137,9 +137,7 @@ class DualAscend(OptAlgBase):
             opt_res.register_solution(
                 iteration,
                 opt_prob.evaluate(x_array_2d),
-                OptProbEval(
-                    opt_prob=dual_problem, x_array_2d=y_array_2d, obj_fcn_array_2d=dual_fcn_array_2d
-                ),
+                OptProbEval(opt_prob=dual_problem, x_2d=y_array_2d, obj_fcn_2d=dual_fcn_array_2d),
                 verbose,
             )
 

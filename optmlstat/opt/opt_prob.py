@@ -137,8 +137,8 @@ class OptProb(OMSClassBase):
                 assert isinstance(self.obj_fcn.quad_3d, np.ndarray), self.obj_fcn.quad_3d.__class__
                 dual_quad_3d: np.ndarray = np.array(
                     [
-                        -np.dot(_a_2d, linalg.solve(quad_array_2d, _a_2d.T, assume_a="sym")) / 4.0
-                        for quad_array_2d in self.obj_fcn.quad_3d.transpose((2, 0, 1))
+                        -np.dot(_a_2d, linalg.solve(quad_2d, _a_2d.T, assume_a="sym")) / 4.0
+                        for quad_2d in self.obj_fcn.quad_3d.transpose((2, 0, 1))
                     ]
                 ).transpose((1, 2, 0))
 
@@ -305,27 +305,23 @@ class OptProb(OMSClassBase):
             ineq_cnst=(None if self.ineq_cnst_fcn is None else self.ineq_cnst_fcn.to_json_data()),
         )
 
-    def evaluate(self, x_array_2d: ndarray) -> OptProbEval:
+    def evaluate(self, x_2d: ndarray) -> OptProbEval:
 
         obj_fcn_jac_3d: ndarray | None = (
             None
             if self.obj_fcn is None
-            else (self.obj_fcn.jacobian(x_array_2d) if self.obj_fcn.is_differentiable else None)
+            else (self.obj_fcn.jacobian(x_2d) if self.obj_fcn.is_differentiable else None)
         )
 
         return OptProbEval(
             opt_prob=self,
-            x_array_2d=x_array_2d.copy(),
-            obj_fcn_array_2d=(
-                None if self.obj_fcn is None else self.obj_fcn.get_y_values_2d(x_array_2d)
-            ),
+            x_2d=x_2d.copy(),
+            obj_fcn_2d=(None if self.obj_fcn is None else self.obj_fcn.get_y_values_2d(x_2d)),
             obj_fcn_jac_3d=obj_fcn_jac_3d,
-            eq_cnst_array_2d=(
-                None if self.eq_cnst_fcn is None else self.eq_cnst_fcn.get_y_values_2d(x_array_2d)
+            eq_cnst_2d=(
+                None if self.eq_cnst_fcn is None else self.eq_cnst_fcn.get_y_values_2d(x_2d)
             ),
-            ineq_cnst_array_2d=(
-                None
-                if self.ineq_cnst_fcn is None
-                else self.ineq_cnst_fcn.get_y_values_2d(x_array_2d)
+            ineq_cnst_2d=(
+                None if self.ineq_cnst_fcn is None else self.ineq_cnst_fcn.get_y_values_2d(x_2d)
             ),
         )
