@@ -13,12 +13,14 @@ from optmlstat.functions.basic_functions.quadratic_function import QuadraticFunc
 from optmlstat.functions.basic_functions.log_sum_exp import LogSumExp
 from optmlstat.functions.basic_functions.affine_function import AffineFunction
 from optmlstat.functions.basic_functions.standard_affine_function import StandardAffineFunction
-from optmlstat.linalg.utils import get_random_pos_def_array
+from optmlstat.linalg.utils import get_random_pos_def_array, get_random_orthogonal_array
 
 
 class SomeSimpleOptProbs(OMSClassBase):
     @staticmethod
-    def simple_linear_program_two_vars(num_points: int, /) -> tuple[OptProb, np.ndarray]:
+    def simple_linear_program_two_vars(
+        num_points: int, /
+    ) -> tuple[OptProb, np.ndarray, np.ndarray]:
         """
         :param num_points: # randomly generated feasible points
         :return: optimization problem
@@ -42,12 +44,13 @@ class SomeSimpleOptProbs(OMSClassBase):
                 None,
             ),
             np.vstack([rand_1d, 1.0 - rand_1d]).T,
+            np.eye(2),
         )
 
     @classmethod
     def random_eq_const_cvx_quad_prob(
         cls, num_vars: int, num_eq_cnsts: int, num_points: int, /
-    ) -> tuple[OptProb, np.ndarray]:
+    ) -> tuple[OptProb, np.ndarray, np.ndarray]:
         """
         min. \|x\|_2^2  # noqa:W605
         s.t. Ax = b
@@ -64,7 +67,7 @@ class SomeSimpleOptProbs(OMSClassBase):
     @classmethod
     def random_eq_const_lse_prob(
         cls, num_vars: int, num_eq_cnsts: int, num_points: int, /
-    ) -> tuple[OptProb, np.ndarray]:
+    ) -> tuple[OptProb, np.ndarray, np.ndarray]:
         """
         min. sum exp (Cx+d)
         s.t. Ax = b
@@ -82,7 +85,7 @@ class SomeSimpleOptProbs(OMSClassBase):
     @staticmethod
     def _random_eq_const_prob(
         num_vars: int, num_eq_cnsts: int, num_points: int, objfcn: FunctionBase
-    ) -> tuple[OptProb, np.ndarray]:
+    ) -> tuple[OptProb, np.ndarray, np.ndarray]:
         """
         :return:
         - optimization problem
@@ -107,4 +110,9 @@ class SomeSimpleOptProbs(OMSClassBase):
             feas_pnts
         )
 
-        return OptProb(objfcn, eq_cnst, None), feas_pnts
+        assert num_vars > 1, num_vars
+        proj_2d: np.ndarray = np.eye(2)
+        if num_vars > 2:
+            proj_2d = get_random_orthogonal_array(num_vars)[:, :2]
+
+        return OptProb(objfcn, eq_cnst, None), feas_pnts, proj_2d

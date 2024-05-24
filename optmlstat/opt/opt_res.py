@@ -102,6 +102,10 @@ class OptResults(OMSClassBase):
     def final_iterate(self) -> OptimizationIterate:
         return sorted(self._iter_iterate_dict.items())[-1][1]
 
+    @property
+    def final_x_2d(self) -> np.ndarray:
+        return self.final_iterate.x_2d.copy()
+
     def result_analysis(self) -> None:
         num_iterations_list: list[int] = self.num_iterations_list
 

@@ -216,14 +216,16 @@ class OptimizationResultPlotter:
 
         Parameters
         ----------
-        ax:
+        :param ax:
          Axes
-        iter_axes:
+        :param iter_axes:
          Axes to iteration plots
-        head_ratio:
+        :param head_ratio:
          the ratio of the head part when drawing the trajectory
-        max_num_iterations_to_draw:
+        :param max_num_iterations_to_draw:
          maximum number of iterations to draw
+        :param param proj_mat_2d:
+         asdf
 
         Returns
         -------
